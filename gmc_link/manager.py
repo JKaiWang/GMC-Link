@@ -246,12 +246,42 @@ class GMCLinkManager:
             obj_speed = np.sqrt(dx_m ** 2 + dy_m ** 2)
             snr = obj_speed / (bg_magnitude + 1e-6)
 
-            spatial_motion = np.array(
+            local_feature = np.array(
                 [dx_s, dy_s, dx_m, dy_m, dx_l, dy_l,
                  dw, dh, cx_n, cy_n, w_n, h_n, snr], dtype=np.float32
             )
+            # ================== global grid motion (4*4)
+            mid_gap = self.FRAME_GAPS[5]
+
+            if len(centroid_hist) > mid_gap:
+                T = len(centroid_hist)
+                homographies = list(self.homography_buffer)[-T:]
+                while len(homographies) < T:
+                    homographies.insert(0 , np.eye(3 , dtype = np.float32))
+                H_old = homographies[T - 1- mid_gap]
+
+                grid_x = [0.2 , 0.4 , 0.6 , 0.8]
+                grid_y = [0.2 , 0.4 , 0.6 , 0.8]
+
+                points = np.array(
+                    [[gx*img_w , gy*img_h] for gx in grid_x for gy in grid_y],
+                    dtype = np.float32
+                ) 
+                warp_points_grid = warp_points(points , H_old)
+                grid_motion = warp_points_grid-points
+
+                grid_motion = normalize_velocity(grid_motion , frame_shape)
+
+                global_feature = grid_motion.flatten().astype(np.float32)
+            else:
+                global_feature = np.zeros(32 , dtype=np.float32)
+            spatial_motion = np.concatenate(
+                [local_feature, global_feature],
+                axis=0
+            ).astype(np.float32)
 
             track_ids.append(tid)
+            print("motion feature shape:", spatial_motion.shape)
             compensated_velocities.append(spatial_motion)
 
         if not compensated_velocities:

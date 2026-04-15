@@ -321,48 +321,53 @@ def _compute_velocity_at_gap(
 
 
 def _generate_positive_pairs(
-    track_centroids: Dict[int, Dict[int, Tuple[float, float, float, float]]],
-    embedding: np.ndarray,
-    expression_id: int,
-    frame_gaps: List[int],
-    frame_shape: Tuple[int, int],
-    seq: str = None,
-    frame_dir: str = None,
-    orb_engine: Any = None,
-) -> Tuple[List[np.ndarray], List[np.ndarray], List[int]]:
-    """
-    Generate positive (motion, language) pairs with residual velocity (raw - ego).
-
-    13D vector: [res_dx_s, res_dy_s, res_dx_m, res_dy_m, res_dx_l, res_dy_l,
-                 dw, dh, cx, cy, w, h, snr]
-    """
+    track_centroids,
+    embedding,
+    expression_id,
+    frame_gaps,
+    frame_shape,
+    seq=None,
+    frame_dir=None,
+    orb_engine=None,
+):
     h, w = frame_shape
+
     motion_data = []
     language_data = []
     labels = []
 
-    primary_gap_idx = 1  # mid-scale (gap=5) is the primary for dw/dh/snr
+    primary_gap_idx = 1  # mid-scale (gap=5)
 
     for tid, centroids in track_centroids.items():
         sorted_frames = sorted(centroids.keys())
+
         for i in range(len(sorted_frames)):
             curr_fid = sorted_frames[i]
 
-            # Find future frames at each scale — warped velocity
+            # ===== multi-scale residual velocity =====
             scale_velocities = []
             best_bg_residual = np.zeros(2, dtype=np.float32)
             any_valid = False
 
             for gap_idx, gap in enumerate(frame_gaps):
                 future_j = _find_future_frame(sorted_frames, i, gap)
+
                 if future_j is not None:
                     future_fid = sorted_frames[future_j]
+
                     dx, dy, bg_res = _compute_velocity_at_gap(
-                        centroids, curr_fid, future_fid, frame_shape,
-                        seq, frame_dir, orb_engine,
+                        centroids,
+                        curr_fid,
+                        future_fid,
+                        frame_shape,
+                        seq,
+                        frame_dir,
+                        orb_engine,
                     )
+
                     scale_velocities.append((dx, dy))
                     any_valid = True
+
                     if gap_idx == primary_gap_idx:
                         best_bg_residual = bg_res
                 else:
@@ -371,42 +376,84 @@ def _generate_positive_pairs(
             if not any_valid:
                 continue
 
-            # dw, dh from primary scale (mid)
-            primary_future_j = _find_future_frame(sorted_frames, i, frame_gaps[primary_gap_idx])
-            if primary_future_j is not None:
-                future_fid = sorted_frames[primary_future_j]
-                _, _, bw1, bh1 = centroids[curr_fid]
-                _, _, bw2, bh2 = centroids[future_fid]
-                j_bw2 = bw2 + np.random.uniform(-2.0, 2.0)
-                j_bh2 = bh2 + np.random.uniform(-2.0, 2.0)
-                dw = (j_bw2 - bw1) / w * VELOCITY_SCALE
-                dh = (j_bh2 - bh1) / h * VELOCITY_SCALE
-            else:
-                dw, dh = 0.0, 0.0
-                _, _, bw1, bh1 = centroids[curr_fid]
+            # ===== primary future frame (mid-scale) =====
+            primary_future_j = _find_future_frame(
+                sorted_frames, i, frame_gaps[primary_gap_idx]
+            )
 
-            # Spatial features from anchor frame
+            if primary_future_j is None:
+                continue  # ⚠️ 沒 future frame 就 skip（重要）
+
+            future_fid = sorted_frames[primary_future_j]
+
+            # ===== dw, dh =====
+            _, _, bw1, bh1 = centroids[curr_fid]
+            _, _, bw2, bh2 = centroids[future_fid]
+
+            j_bw2 = bw2 + np.random.uniform(-2.0, 2.0)
+            j_bh2 = bh2 + np.random.uniform(-2.0, 2.0)
+
+            dw = (j_bw2 - bw1) / w * VELOCITY_SCALE
+            dh = (j_bh2 - bh1) / h * VELOCITY_SCALE
+
+            # ===== spatial =====
             cx1, cy1, bw1, bh1 = centroids[curr_fid]
             cx_n, cy_n = cx1 / w, cy1 / h
             bw_n, bh_n = bw1 / w, bh1 / h
 
-            # SNR from primary (mid) scale warped speed
+            # ===== snr =====
             mid_dx, mid_dy = scale_velocities[primary_gap_idx]
-            obj_speed = np.sqrt(mid_dx ** 2 + mid_dy ** 2)
+
+            obj_speed = np.sqrt(mid_dx**2 + mid_dy**2)
             bg_mag = np.sqrt(
                 (best_bg_residual[0] / w * VELOCITY_SCALE) ** 2
                 + (best_bg_residual[1] / h * VELOCITY_SCALE) ** 2
             )
+
             snr = obj_speed / (bg_mag + 1e-6)
 
-            # 13D: warped velocity + spatial
-            motion_vec = np.array([
+            # ===== GLOBAL GRID MOTION (4x4) =====
+            global_feature = np.zeros(32, dtype=np.float32)
+
+            cache_key = (seq, curr_fid, future_fid)
+            homography = None
+
+            if cache_key in HOMOGRAPHY_CACHE:
+                homography, _ = HOMOGRAPHY_CACHE[cache_key]
+
+            if homography is not None:
+                grid_x = [0.2, 0.4, 0.6, 0.8]
+                grid_y = [0.2, 0.4, 0.6, 0.8]
+
+                points = np.array(
+                    [[gx * w, gy * h] for gx in grid_x for gy in grid_y],
+                    dtype=np.float32,
+                )
+
+                warped = warp_points(points, homography)
+                motion = warped - points
+
+                motion[:, 0] /= w
+                motion[:, 1] /= h
+                motion *= VELOCITY_SCALE
+
+                global_feature = motion.flatten()
+
+            # ===== local feature (13D) =====
+            local_feature = np.array([
                 scale_velocities[0][0], scale_velocities[0][1],
                 scale_velocities[1][0], scale_velocities[1][1],
                 scale_velocities[2][0], scale_velocities[2][1],
                 dw, dh, cx_n, cy_n, bw_n, bh_n, snr,
             ], dtype=np.float32)
 
+            # ===== final 45D feature =====
+            motion_vec = np.concatenate([
+                local_feature,
+                global_feature
+            ]).astype(np.float32)
+
+            # ===== append（一定要在這裡）=====
             motion_data.append(motion_vec)
             language_data.append(embedding.copy())
             labels.append(expression_id)

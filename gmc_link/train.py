@@ -149,7 +149,7 @@ def setup_model_and_optimizer(
     """
     Initialize the MotionLanguageAligner, InfoNCE loss, and AdamW optimizer.
     """
-    model = MotionLanguageAligner(motion_dim=13, lang_dim=lang_dim, embed_dim=256).to(
+    model = MotionLanguageAligner(motion_dim=45, lang_dim=lang_dim, embed_dim=256).to(
         device
     )
 

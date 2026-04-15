@@ -19,7 +19,7 @@ class MotionLanguageAligner(nn.Module):
     """
 
     def __init__(
-        self, motion_dim: int = 13, lang_dim: int = 384, embed_dim: int = 256
+        self, motion_dim: int = 45, lang_dim: int = 384, embed_dim: int = 256
     ) -> None:
         super().__init__()
         # Motion Encoder: Project 13D residual velocity vector
@@ -27,15 +27,18 @@ class MotionLanguageAligner(nn.Module):
         # Spatial (7D): dw, dh, cx, cy, w, h, snr
         # into a semantic vector.
         self.motion_projector = nn.Sequential(
-            nn.Linear(motion_dim, 128),
+            nn.Linear(motion_dim, 256),   # 👈 變大
             nn.ReLU(),
             nn.Dropout(0.1),
-            nn.Linear(128, 256),
+
+            nn.Linear(256, 256),
             nn.ReLU(),
             nn.Dropout(0.1),
+
             nn.Linear(256, 512),
             nn.ReLU(),
             nn.Dropout(0.1),
+
             nn.Linear(512, embed_dim),
             nn.LayerNorm(embed_dim),
         )
