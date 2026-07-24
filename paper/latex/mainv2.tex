@@ -70,9 +70,7 @@ The gap is specific: motion-language RMOT is language-aware but camera-contamina
 \section{Method}
 \label{sec:method}
 
-GMC-Link sits between a two-stage RMOT host and its scoring step. The host remains responsible for detection, association, and appearance-language grounding. The GMC branch estimates background camera motion and converts host tracks into ego-stable residual object motion. The aligner asks whether that residual motion matches the referring expression, and fusion adds only a calibrated correction after the host has formed its appearance-based score. This modularity enables post-hoc attachment without replacing the detector, retraining host weights, or hiding the source of a correction. Figure~\ref{fig:architecture} gives the attachment point, and Figure~\ref{fig:pipeline} shows the four stages.
-
-The separation is also diagnostic: failures can be assigned to host appearance grounding, ego-motion estimation, motion-language alignment, or scalar calibration instead of to an opaque fused representation.
+Figure~\ref{fig:architecture} shows the overall architecture of GMC-Link. The module is attached to an existing two-stage RMOT framework after object detection, tracking, and appearance-language matching have been completed. Instead of modifying the host model, GMC-Link estimates camera motion from consecutive frames, derives residual object motion, aligns it with the language expression, and produces a motion score. This score is then combined with the host model's original prediction through a calibrated decision-level fusion. The complete pipeline consists of the four stages shown in Figure~\ref{fig:pipeline}.
 
 \begin{figure*}[t]
 \centering
@@ -115,43 +113,52 @@ The separation is also diagnostic: failures can be assigned to host appearance g
 \subsection{Ego-motion compensation}
 \label{sec:ego}
 
-The first stage estimates camera motion between adjacent frames. We use ORB as a sparse feature-point sampler because global camera motion should be estimated from repeatable, matchable background evidence rather than from every image location. Dense sampling or dense optical flow supplies many more measurements, but in driving footage many of those measurements come from weak-texture road regions, object boundaries, reflections, residual parallax, and independently moving foreground objects; these ambiguous samples can introduce high-volume noise and bias a single global transform. ORB instead keeps a compact set of discriminative corners with binary descriptors, making descriptor matching and later outlier rejection more reliable and efficient. We detect ORB keypoints~\cite{orb}, match descriptors with a brute-force Hamming matcher, and keep matches passing Lowe's $0.7$ ratio test. Host boxes seed a foreground mask: without masking, correspondences on moving objects can bias the transform away from background camera motion, so keypoints inside tracked objects are suppressed and the surviving matches better represent static scene structure. RANSAC~\cite{ransac} fits $H_{t-1\to t}$ and records median inlier reprojection error as background residual. If too few reliable inliers survive, the stage falls back to identity, so a weak-texture frame degrades to ``no compensation'' rather than to a corrupted camera-motion estimate.
+The first stage estimates camera motion between consecutive frames to separate camera motion from object motion. We use Oriented FAST and Rotated BRIEF (ORB)~\cite{orb}, a feature detector and descriptor, to extract and match background keypoints between adjacent frames. To prevent moving objects from affecting camera motion estimation, keypoints inside the tracked object bounding boxes are removed before matching. The remaining correspondences are used to estimate a homography $H_{t-1\to t}$ using Random Sample Consensus (RANSAC)~\cite{ransac}. The estimated homography $H_{t-1\to t}$ represents the geometric transformation caused by camera motion from frame $I_{t-1}$ to frame $I_t$.
 
-A single homography is exact only for planar or pure-rotation scenes, but driving footage is sufficiently planar-dominated for this approximation to be useful. In early separation trials on our data, ORB with RANSAC outperformed both classical dense flow (Farneback) and a learned flow (RAFT) as the ego-motion source, because explicit feature selection and outlier rejection discard noisy or non-background measurements that a dense field tends to smear into the estimate. Frame-to-frame compensation is still insufficient for language, because motion expressions span multiple frames. We therefore store the original, never-warped centroids and compose the frame-to-frame transforms into one cumulative homography,
+To describe object motion over multiple frames, the estimated homographies are accumulated as
 \begin{equation}
 H_{t-k\to t} = H_{t-1\to t}\, H_{t-2\to t-1} \cdots H_{t-k\to t-k+1},
 \label{eq:cumulative}
 \end{equation}
-then apply it once to map a past centroid into the current frame. This creates a persistent ego-stable reference while avoiding the error that would accumulate from repeatedly warping already-warped coordinates.
+where $H_{t-k\to t}$ represents the accumulated camera transformation from frame $I_{t-k}$ to frame $I_t$. Instead of repeatedly transforming already warped coordinates, the accumulated homography is applied once to the original object centroid. This strategy reduces the accumulation of numerical errors while providing a stable reference for measuring object motion.
+
+The accumulated homography compensates for camera motion before motion features are extracted. The compensated object trajectories are then passed to the next stage, where residual velocity is computed to describe the object motion after removing the effect of camera motion.
 
 \subsection{Multi-scale residual velocity}
 \label{sec:residual}
 
-For temporal gap $g$, raw velocity is centroid displacement and contains both object motion and camera-induced displacement. Ego velocity estimates the displacement caused by the camera alone by warping the past centroid through Eq.~\ref{eq:cumulative}. Residual velocity is their difference,
+After ego-motion compensation, object motion is represented by residual velocity, which removes the estimated camera motion from the observed object motion. For a temporal gap $g$, the raw velocity is the displacement of the object centroid between two frames and contains both object motion and camera-induced motion. The ego velocity represents the displacement caused by camera motion alone, which is obtained by applying the accumulated homography in Eq.~\ref{eq:cumulative} to the previous object centroid. The residual velocity is computed as
 \begin{equation}
 v^{\mathrm{res}}_{g} = v^{\mathrm{raw}}_{g} - v^{\mathrm{ego}}_{g},
 \label{eq:residual}
 \end{equation}
-which approximates the motion a stationary camera would observe. Thus a parked car has near-zero residual motion even as its pixels move significantly under ego-motion. We normalise by image dimensions, $v_{\mathrm{norm}} = (v_{\mathrm{pix}}/d_{\mathrm{img}})\times 100$.
+where $v^{\mathrm{res}}_g$, $v^{\mathrm{raw}}_g$, and $v^{\mathrm{ego}}_g$ denote the residual, raw, and ego velocities, respectively. This representation approximates the motion that would be observed by a stationary camera. For example, a parked vehicle has near-zero residual velocity even when camera motion causes large image displacement. All velocities are normalized by the image dimensions to make them independent of image resolution.
 
-We compute residuals at gaps $\{2,5,10\}$ and concatenate them with box state into a 13D vector ordered as $(\mathit{dx}_s,\mathit{dy}_s)$, $(\mathit{dx}_m,\mathit{dy}_m)$, $(\mathit{dx}_l,\mathit{dy}_l)$, $\Delta w,\Delta h,c_x,c_y,w,h,\mathit{snr}$; the first six entries are residual $(dx,dy)$ pairs at gaps $2$, $5$, and $10$. The scales are complementary rather than redundant. Gap $2$ preserves short-term changes and jitter that long windows average away; gap $10$ accumulates slow sustained motion that can be buried in one short step; gap $5$ bridges the regimes. This matters for language because expressions may refer to instantaneous changes or sustained movement over different temporal spans. The final $\mathit{snr}$ is the mid-scale residual object speed relative to the RANSAC-inlier background noise floor. It does not create class separation itself, but represents homography reliability and reduces frame-level score variance when compensation is weak.
+To capture motion over different time spans, residual velocities are computed at temporal gaps of $\{2,5,10\}$ frames. The residual velocities are concatenated with the object box state to form a 13-dimensional motion descriptor,
+\begin{equation}
+\bigl((dx_s,dy_s),(dx_m,dy_m),(dx_l,dy_l),\Delta w,\Delta h,c_x,c_y,w,h,\mathit{snr}\bigr),
+\label{eq:descriptor}
+\end{equation}
+where the first six values are the residual velocities at the three temporal gaps. The remaining features describe the object box size and location. The final feature, signal-to-noise ratio (SNR), measures the reliability of the estimated camera motion. A larger SNR indicates more reliable ego-motion compensation and provides a more stable motion representation for the following motion-language alignment stage.
 
 \subsection{Motion-language alignment}
 \label{sec:align}
 
-A two-tower encoder maps the 13D motion vector and expression into a shared space. Linear adapters (motion $13\!\to\!256$, language $384\!\to\!256$ from all-MiniLM-L6-v2~\cite{sbert}) feed a shared MLP ($256\!\to\!512\!\to\!512\!\to\!256$), layer norm, and $\ell_2$ normalisation. Training uses symmetric InfoNCE~\cite{infonce} at temperature $0.07$ with shared-expression false negatives masked. Inference uses raw cosine similarity, with no sigmoid or temporal smoothing, so fusion receives an uncalibrated alignment score. The aligner is intentionally standard: the scientific claim is not a new text encoder or contrastive loss, but that ego-compensated residual motion is the right signal to align. CLIP-text and larger 768D sentence encoders did not consistently improve the shipped raw-cosine pipeline, so MiniLM stays.
+The motion-language alignment stage measures the similarity between the residual motion and the language expression. The 13-dimensional motion descriptor is encoded by a motion encoder, while the language expression is encoded by all-MiniLM-L6-v2 (MiniLM)~\cite{sbert} into a text embedding. Both embeddings are projected into the same feature space using linear projection layers and a shared Multi-Layer Perceptron (MLP).
+
+The model is trained using Information Noise Contrastive Estimation (InfoNCE)~\cite{infonce} loss to maximize the similarity between matched motion-expression pairs while separating unmatched pairs. During inference, the cosine similarity between the motion and language embeddings is used as the motion matching score. This score is passed to the decision-level fusion stage described in Section~\ref{sec:fusion}.
 
 \subsection{Decision-level additive fusion}
 \label{sec:fusion}
 
-The alignment score corrects the host logit at the decision level. We inject it additively per host and per axis,
+The motion matching score is combined with the prediction of the host model at the decision level. The final score is computed as
 \begin{equation}
-s_{\mathrm{final}} = s_{\mathrm{model}} + \alpha\,\bigl(\mathit{sc}\cdot\cos + \mathit{thr}\bigr),
+s_{\mathrm{final}} = s_{\mathrm{host}} + \alpha\,\bigl(\mathit{sc}\cdot\cos + \mathit{thr}\bigr),
 \label{eq:fusion}
 \end{equation}
-where $\cos$ is raw motion-language cosine, $\mathit{sc}$ rescales it to the host logit range, $\mathit{thr}$ shifts the operating point, and $\alpha$ sets weight. We use decision-level fusion because feature-level motion injection into the visual encoder regressed an early pipeline by $-21.7\%$ F1; one negative trial does not establish decision-level fusion as optimal, but it motivates keeping motion evidence out of the host's appearance representation. The final design therefore preserves the host's appearance representation and injects motion only after the host has formed its score. This keeps appearance grounding intact, prevents motion features from distorting the visual representation, and leaves host evidence and motion evidence as separate auditable terms.
+where $s_{\mathrm{host}}$ is the prediction score produced by the host model, $\cos$ is the cosine similarity from the motion-language alignment stage, $\mathit{sc}$ rescales the motion score to match the score range of the host model, $\mathit{thr}$ adjusts the decision threshold, and $\alpha$ controls the contribution of the motion score.
 
-A keyword router selects the motion recipe when an expression contains one of $15$ fixed motion substrings (e.g.\ \emph{moving}, \emph{turning}, \emph{parked}, \emph{braking}); otherwise it selects the appearance recipe. Because motion evidence is largely uninformative for appearance-only expressions, $\mathit{sc}_{\mathrm{appear}}$ is seven to eleven times smaller than $\mathit{sc}_{\mathrm{motion}}$. The coefficients absorb host-specific logit-scale differences, so the table should be read as calibration to each host's score range rather than as a learned fusion head.
+The calibration parameters are selected separately for each host model because different RMOT models produce prediction scores with different ranges. The values used in this work are listed in Table~\ref{tab:recipe}. During inference, a keyword-based router selects either the motion branch or the appearance branch according to the language expression. Expressions containing motion-related keywords, such as \emph{moving}, \emph{turning}, \emph{parked}, and \emph{braking}, use the motion branch, while all other expressions use the appearance branch.
 
 \begin{table}[t]
 \centering
@@ -174,7 +181,7 @@ Host & Axis & $\alpha$ & $\mathit{sc}$ & $\mathit{thr}$ \\
 \end{tabular}
 \end{table}
 
-Standard-deviation matching and a learned fusion network were tested but underperformed this fixed scalar calibration. This is consistent with the plug-in goal: a new host needs calibration to its score range, but not retraining of its detector, tracker, visual encoder, or language grounding pathway.
+Since GMC-Link only modifies the final prediction score, it can be integrated into existing two-stage RMOT frameworks without changing or retraining their detector, tracker, visual encoder, or language encoder.
 
 \section{Experiments}
 \label{sec:exp}
