@@ -71,8 +71,9 @@ Camera motion compensation is widely used in traditional multi-object tracking (
 
 These methods demonstrate that compensating for camera motion can improve matching the same objects across frames. However, the compensated positions are mainly used to match objects between adjacent frames. They are not accumulated over time to describe an object's motion, nor are they connected to language expressions such as ``moving,'' ``turning,'' or ``parked.'' Our method builds on established techniques for separating camera motion from object motion, including plane-plus-parallax analysis~\cite{iranianandan}, homography estimation~\cite{hartleyzisserman}, motion segmentation under moving cameras~\cite{bideau}, and ego-motion estimation in visual odometry~\cite{scaramuzza}. We do not propose a new camera-motion estimation technique. Instead, we convert camera-compensated trajectories into motion features and align them with language for RMOT.
 
-\subsection{The unfilled intersection}
-The gap is specific: motion-language RMOT is language-aware but camera-contaminated; camera-compensated MOT is ego-stable but language-unaware. GMC-Link connects them by producing persistent ego-stable motion, aligning it with the expression, and fusing it after the host score. The method therefore preserves host appearance grounding while supplying the motion evidence that the host never had.
+\subsection{Connecting camera compensation with motion-language RMOT}
+
+Existing RMOT methods can match object motion with language, but their motion estimates are still affected by camera movement. In contrast, camera-compensated MOT removes this effect, but uses the corrected motion only for tracking rather than for language understanding. GMC-Link connects these two research directions. It tracks object motion across multiple frames after removing camera motion, compares this corrected motion with the referring expression, and combines the resulting score with the host model's original score. In this way, the host model keeps its original appearance-based matching ability while gaining additional motion information.
 
 \section{Method}
 \label{sec:method}
