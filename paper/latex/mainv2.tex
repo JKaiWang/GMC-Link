@@ -74,12 +74,12 @@ The gap is specific: motion-language RMOT is language-aware but camera-contamina
 \section{Method}
 \label{sec:method}
 
-Figure~\ref{fig:architecture} shows the overall architecture of GMC-Link. The module is attached to an existing two-stage RMOT framework after object detection, tracking, and appearance-language matching have been completed. Instead of modifying the host model, GMC-Link estimates camera motion from consecutive frames, derives residual object motion, aligns it with the language expression, and produces a motion score. This score is then combined with the host model's original prediction through a calibrated decision-level fusion. The complete pipeline consists of the four stages shown in Figure~\ref{fig:pipeline}.
+Figure~\ref{fig:architecture} shows the overall architecture of GMC-Link. The module is attached to an existing two-stage RMOT framework after object detection, tracking, and appearance-language matching have been completed. The inputs to GMC-Link are the tracked object trajectories, the corresponding video frames, and the language expression. Based on these inputs, GMC-Link estimates camera motion, extracts residual object motion, aligns it with the language expression, and produces a motion matching score. The score is then combined with the host model prediction through decision-level fusion. As illustrated in Figure~\ref{fig:pipeline}, the complete pipeline consists of four stages: ego-motion compensation, multi-scale residual velocity extraction, motion-language alignment, and decision-level additive fusion.
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.82\textwidth]{figures/Architecture.png}
-\caption{\textbf{GMC-Link architecture.} The host provides tracks and expression scores; GMC-Link estimates camera motion, derives residual motion, aligns it with language, and returns only a calibrated decision-layer correction.}
+\caption{\textbf{GMC-Link architecture.} The host provides tracks and expression scores; GMC-Link estimates camera motion, derives residual motion, aligns it with language, and returns a calibrated decision-level correction.}
 \label{fig:architecture}
 \end{figure*}
 
@@ -98,9 +98,9 @@ Figure~\ref{fig:architecture} shows the overall architecture of GMC-Link. The mo
 \node[box, below=of frames] (orb) {ORB\,+\,BFMatcher\,+\,RANSAC\\ $\Rightarrow$ frame-to-frame $H_{t-1\to t}$};
 \node[box, below=of orb] (cum) {Compose cumulative $H_{t-k\to t}$;\\ warp original centroids};
 \node[box, below=of cum] (desc) {13D residual velocity\\ gaps $\{2,5,10\}$ + box state};
-\node[box, below=of desc] (align) {Two-tower contrastive aligner\\ $\Rightarrow$ raw cosine};
+\node[box, below=of desc] (align) {Motion-language alignment\\ $\Rightarrow$ cosine score};
 \node[box, below=of align] (fuse) {Additive fusion\\ $s_{\text{host}}+\alpha(\mathit{sc}\cdot\cos+\mathit{thr})$};
-\node[box, below=of fuse] (hota) {HOTA evaluation};
+\node[box, below=of fuse] (hota) {Final prediction};
 \node[sbox, right=4mm of align] (text) {Expression\\ $\to$ MiniLM 384D};
 \draw[ar] (frames)--(orb);
 \draw[ar] (orb)--(cum);
@@ -110,33 +110,33 @@ Figure~\ref{fig:architecture} shows the overall architecture of GMC-Link. The mo
 \draw[ar] (fuse)--(hota);
 \draw[ar] (text)--(align);
 \end{tikzpicture}
-\caption{\textbf{GMC-Link pipeline.} ORB homographies compose into a cumulative transform, produce a 13D residual-velocity descriptor, align with the expression, and correct the host logit for HOTA evaluation.}
+\caption{\textbf{GMC-Link pipeline.} ORB homographies compose into a cumulative transform, produce a 13D residual-velocity descriptor, align with the expression, and correct the host score through additive fusion.}
 \label{fig:pipeline}
 \end{figure}
 
 \subsection{Ego-motion compensation}
 \label{sec:ego}
 
-The first stage estimates camera motion between consecutive frames. We extract and match background keypoints using Oriented FAST and Rotated BRIEF (ORB)~\cite{orb}. Keypoints inside tracked object boxes are removed before matching so that moving foreground objects do not bias the camera-motion estimate. The remaining correspondences are used to estimate a homography $H_{t-1\to t}$ with Random Sample Consensus (RANSAC)~\cite{ransac}, representing the geometric transformation from frame $I_{t-1}$ to frame $I_t$ caused by camera motion.
+This stage estimates camera motion from consecutive video frames so that object motion can be separated from camera-induced motion. Given the input video frames and tracked object bounding boxes, we extract and match background keypoints using Oriented FAST and Rotated BRIEF (ORB)~\cite{orb}. Keypoints inside tracked object bounding boxes are removed before matching so that moving foreground objects do not affect camera-motion estimation. The remaining matched keypoints are used with Random Sample Consensus (RANSAC)~\cite{ransac} to estimate a homography $H_{t-1\to t}$, which describes the geometric transformation caused by camera motion from frame $I_{t-1}$ to frame $I_t$.
 
-To describe object motion over multiple frames, the estimated homographies are accumulated as
+To describe camera motion over multiple frames, the estimated homographies are accumulated as
 \begin{equation}
 H_{t-k\to t} = H_{t-1\to t}\, H_{t-2\to t-1} \cdots H_{t-k\to t-k+1},
 \label{eq:cumulative}
 \end{equation}
-where $H_{t-k\to t}$ represents the accumulated camera transformation from frame $I_{t-k}$ to frame $I_t$. The accumulated homography is applied once to the original object centroid, rather than repeatedly transforming already warped coordinates, to reduce numerical drift and provide a stable reference for residual-motion extraction.
+where $H_{t-k\to t}$ represents the accumulated camera transformation from frame $I_{t-k}$ to frame $I_t$. Instead of repeatedly transforming already warped coordinates, the accumulated homography is applied only once to the original object centroid. This reduces numerical drift and provides a stable reference for estimating ego velocity in the next stage.
 
 \subsection{Multi-scale residual velocity}
 \label{sec:residual}
 
-After ego-motion compensation, object motion is represented by residual velocity, which removes the estimated camera motion from the observed object motion. For a temporal gap $g$, the raw velocity is the displacement of the object centroid between two frames and contains both object motion and camera-induced motion. The ego velocity represents the displacement caused by camera motion alone, which is obtained by applying the accumulated homography in Eq.~\ref{eq:cumulative} to the previous object centroid. The residual velocity is computed as
+Using the accumulated homography from Stage~3.1 together with the tracked object trajectories, this stage estimates residual velocity, which represents object motion after removing the estimated camera motion. For a temporal gap $g$, the raw velocity is the displacement of the object centroid between two frames and therefore contains both object motion and camera-induced motion. The ego velocity is obtained by applying the accumulated homography in Eq.~\ref{eq:cumulative} to the previous object centroid. The residual velocity is computed as
 \begin{equation}
 v^{\mathrm{res}}_{g} = v^{\mathrm{raw}}_{g} - v^{\mathrm{ego}}_{g},
 \label{eq:residual}
 \end{equation}
-where $v^{\mathrm{res}}_g$, $v^{\mathrm{raw}}_g$, and $v^{\mathrm{ego}}_g$ denote the residual, raw, and ego velocities, respectively. This representation approximates the motion that would be observed by a stationary camera. For example, a parked vehicle has near-zero residual velocity even when camera motion causes large image displacement. All velocities are normalized by the image dimensions to make them independent of image resolution.
+where $v^{\mathrm{res}}_g$, $v^{\mathrm{raw}}_g$, and $v^{\mathrm{ego}}_g$ denote the residual, raw, and ego velocities, respectively. This representation approximates the motion that would be observed by a stationary camera. For example, a parked vehicle has near-zero residual velocity even when camera motion causes a large image displacement. All velocities are normalized by the image dimensions to make them independent of image resolution.
 
-To capture motion over different time spans, residual velocities are computed at temporal gaps of $\{2,5,10\}$ frames. The residual velocities are concatenated with the object box state to form a 13-dimensional motion descriptor,
+To capture motion over different time spans, residual velocities are computed at temporal gaps of $\{2,5,10\}$ frames. The residual velocities are concatenated with object box information to form a 13-dimensional motion descriptor,
 \begin{equation}
 \bigl((dx_s,dy_s),(dx_m,dy_m),(dx_l,dy_l),\Delta w,\Delta h,c_x,c_y,w,h,\mathit{snr}\bigr),
 \label{eq:descriptor}
@@ -146,21 +146,21 @@ where the first six values are the residual velocities at the three temporal gap
 \subsection{Motion-language alignment}
 \label{sec:align}
 
-The motion-language alignment stage measures the similarity between the residual motion and the language expression. The 13-dimensional motion descriptor is encoded by a motion encoder, while the language expression is encoded by all-MiniLM-L6-v2 (MiniLM)~\cite{sbert} into a text embedding. Both embeddings are projected into the same feature space using linear projection layers and a shared Multi-Layer Perceptron (MLP).
+Given the motion descriptor from Stage~3.2 and the language expression, this stage measures how well the observed object motion matches the described motion. The 13-dimensional motion descriptor is encoded by a motion encoder, while the language expression is encoded by all-MiniLM-L6-v2 (MiniLM)~\cite{sbert} into a text embedding. Both embeddings are projected into the same feature space using linear projection layers and a shared Multi-Layer Perceptron (MLP).
 
-The model is trained using Information Noise Contrastive Estimation (InfoNCE)~\cite{infonce} loss to maximize the similarity between matched motion-expression pairs while separating unmatched pairs. During inference, the cosine similarity between the motion and language embeddings is used as the motion matching score. This score is passed to the decision-level fusion stage described in Section~\ref{sec:fusion}.
+The model is trained using Information Noise Contrastive Estimation (InfoNCE)~\cite{infonce} loss to maximize the similarity between matched motion-expression pairs while separating unmatched pairs. During inference, the cosine similarity between the motion and language embeddings is used as the motion matching score, which is passed to the decision-level fusion stage described in Section~\ref{sec:fusion}.
 
 \subsection{Decision-level additive fusion}
 \label{sec:fusion}
 
-The motion matching score is fused with the host prediction at the decision level:
+The motion matching score produced in Stage~3.3 is combined with the prediction score of the host RMOT model to obtain the final prediction. The final score is computed as
 \begin{equation}
 s_{\mathrm{final}} = s_{\mathrm{host}} + \alpha\,\bigl(\mathit{sc}\cdot\cos + \mathit{thr}\bigr),
 \label{eq:fusion}
 \end{equation}
-where $s_{\mathrm{host}}$ is the host score, $\cos$ is the motion-language cosine similarity, $\mathit{sc}$ rescales the motion score, $\mathit{thr}$ shifts the decision threshold, and $\alpha$ controls the motion contribution.
+where $s_{\mathrm{host}}$ is the prediction score produced by the host model, $\cos$ is the cosine similarity from the motion-language alignment stage, $\mathit{sc}$ rescales the motion score to match the score range of the host model, $\mathit{thr}$ adjusts the decision threshold, and $\alpha$ controls the contribution of the motion score.
 
-Calibration parameters are selected separately for each host model because RMOT scores have different ranges; the values used in this work are listed in Table~\ref{tab:recipe}. During inference, a keyword-based router sends motion-related expressions, such as \emph{moving}, \emph{turning}, \emph{parked}, and \emph{braking}, to the motion branch and all other expressions to the appearance branch.
+The calibration parameters are selected separately for each host model because different RMOT models produce prediction scores with different ranges. The values used in this work are listed in Table~\ref{tab:recipe}. During inference, a keyword-based router selects either the motion branch or the appearance branch according to the language expression. Expressions containing motion-related keywords, such as \emph{moving}, \emph{turning}, \emph{parked}, and \emph{braking}, use the motion branch, while all other expressions use the appearance branch.
 
 \begin{table}[t]
 \centering
@@ -183,7 +183,7 @@ Host & Axis & $\alpha$ & $\mathit{sc}$ & $\mathit{thr}$ \\
 \end{tabular}
 \end{table}
 
-Because GMC-Link only modifies the final score, it can be integrated into existing two-stage RMOT frameworks without changing or retraining their detector, tracker, visual encoder, or language encoder.
+Since GMC-Link only modifies the final prediction score, it can be integrated into existing two-stage RMOT frameworks without changing or retraining their detector, tracker, visual encoder, or language encoder.
 
 \section{Experiments}
 \label{sec:exp}
