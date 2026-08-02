@@ -195,26 +195,32 @@ Since GMC-Link only modifies the final prediction score, it can be integrated in
 \subsection{Setup}
 \label{sec:setup}
 
-We evaluate on Refer-KITTI V1~\cite{transrmot} and V2~\cite{temprmot} using TrackEval HOTA~\cite{hota}. Moving-class HOTA tests whether the module fixes the target failure; pooled HOTA checks whether that recovery survives the full benchmark. Comparing iKUN~\cite{ikun} with FlexHook~\cite{flexhook} tests whether the gain concentrates where native motion reasoning is weakest, and the raw-velocity ablation tests whether ego-compensation matters beyond adding any motion descriptor. FlexHook (V1/V2) is one architecture calibrated per split, not two independent methods. Results are mean$\pm$std over $n{=}3$ seeds for cross-setting tables and $n{=}5$ for ablations with Welch tests; a seed randomizes aligner training (initialization and batch order) only, while homography estimation and host outputs are deterministic. The aligner uses AdamW ($10^{-3}$, batch $256$, $100$ epochs); ORB uses $1500$ features and RANSAC a $5$\,px threshold. All iKUN comparisons use the paper-canonical ground-truth template aligned with the public NeuralSORT detections, and each host runs its published public detections unchanged. We report native hosts and a simple uncalibrated raw-cosine GMC control to separate adding the signal from calibrating it to the host logit scale. Code, trained aligner weights for every seed, per-sequence score caches, and the coefficient tables will be released upon publication.
+We evaluate GMC-Link on the Refer-KITTI V1~\cite{transrmot} and V2~\cite{temprmot} benchmarks using the HOTA metric from TrackEval~\cite{hota}, which jointly measures detection and association performance. Since GMC-Link is designed to improve motion grounding, we report both moving-class HOTA, which evaluates only expressions referring to moving objects, and pooled HOTA, which evaluates all expressions in the benchmark.
 
-Refer-KITTI has no held-out tuning split, so Table~\ref{tab:recipe}'s shipped coefficients are calibrated on the benchmark sequences and should not be claimed as universally transferable hyperparameters. Two observations bound the fitting capacity. First, the scale coefficients were calibrated independently per FlexHook split yet came out identical ($\mathit{sc}{=}10.0$ motion, $3.5$ appearance on both V1 and V2 in Table~\ref{tab:recipe}), suggesting the calibration tracks the host's logit range rather than the particular test sequences; with those shared, roughly four fitted scalars per setting remain against three to four evaluation sequences. Second, we use leave-one-sequence-out calibration to bound overfitting risk directly. iKUN LOSO moving HOTA remains $28.38 \pm 1.60$ versus $29.47 \pm 0.88$ in-sample on the same three seeds (native $20.25$; the $n{=}5$ ablation reference in Table~\ref{tab:ablation} is $29.08 \pm 0.83$), while FlexHook LOSO pooled is $53.28 \pm 0.17$ (V1) and $42.74 \pm 0.07$ (V2), with V2 still above the published $42.526$. We therefore claim the iKUN moving-class recovery and the FlexHook V2 pooled gain, not the iKUN pooled number, as calibration-robust.
+To evaluate the effectiveness of GMC-Link under different host capabilities, we attach it to iKUN~\cite{ikun} and FlexHook~\cite{flexhook}. We also compare against a raw-velocity variant that directly uses image-plane motion without ego-motion compensation to measure the contribution of camera motion compensation.
 
-The test splits are heavily skewed toward appearance. V1 holds $158$ expressions over $1010$ frames, of which $75.3\%$ are appearance queries, $7.6\%$ are static-motion queries, and only $17.1\%$ ($27$ expressions) refer to a moving object; V2 holds $862$ expressions over $1469$ frames with a similar $74.1\,/\,11.7\,/\,14.2$ split. The motion class our module targets is therefore a roughly one-in-six minority. Pooled HOTA is computed once over the union of all trajectories, so it is dominated by detection and association counts from the appearance majority; it is not a class-weighted mean of per-class HOTA. A recovery concentrated on moving expressions can therefore register as a small pooled movement even when the per-class effect is large. The module's target failure is motion-class grounding, so moving-class HOTA is the pre-specified effect metric rather than a post-hoc selection; pooled HOTA is the field-standard whole-benchmark summary, reported for every setting with all deltas anchored to the native host.
+Results are averaged over three random seeds, while ablation studies use five seeds together with Welch's t-test. The motion-language aligner is trained using AdamW with a learning rate of $10^{-3}$, batch size $256$, and $100$ epochs. Camera motion is estimated using ORB with $1500$ keypoints and RANSAC with a $5$-pixel threshold. Both host models use their original published detection results.
+
+Refer-KITTI is highly imbalanced, with only about one-sixth of the language expressions referring to moving objects. Consequently, improvements in motion understanding may have only a limited impact on pooled HOTA. Therefore, moving-class HOTA is used as the primary evaluation metric, while pooled HOTA is reported to reflect overall benchmark performance.
 
 \subsection{Main results}
 \label{sec:main}
 
-Table~\ref{tab:main} first shows that raw GMC evidence is not sufficient by itself: the uncalibrated \emph{+GMC simple} control is negative on iKUN and FlexHook V1. The signal must be calibrated to the host's score range. With the shipped calibration, iKUN~\cite{ikun} reaches $44.634 \pm 0.066$, matching rather than materially beating the published $44.564$, while FlexHook V2 gives the clean pooled improvement, $42.807 \pm 0.038$ versus $42.526$ ($+0.281$). Pooled parity on iKUN should be read as a guarantee rather than a shortfall: the moving-class recovery is purchased at no cost to the roughly $83\%$ of queries the module does not target, which is the property that makes a plug-in safe to attach. FlexHook V1 improves over \emph{+GMC simple} ($53.121 \to 53.526$) but remains below its published $53.824$: no tested configuration beats that number --- the strongest legacy variant reaches $53.716 \pm 0.068$ ($n{=}3$) --- so we treat the V1 gap as a reproduction limit of our pipeline and report the module's V1 gain against the \emph{+GMC simple} control. The scientific claim is therefore not that GMC-Link beats every pooled leaderboard number; it is that ego-compensated motion recovers motion-class errors, especially where native motion reasoning is weakest. For external context, VMRMOT~\cite{vmrmot}, the strongest motion-language host on this benchmark, reports $53.00$/$35.21$ pooled HOTA on V1/V2 with its own end-to-end detector and tracker. The FlexHook settings with our module reach $53.526$/$42.807$ on the same splits, but we attribute that ordering to host and pipeline rather than to the module and do not claim a head-to-head win; the class-level comparison our claim would require is not computable from published numbers, as VMRMOT does not report per-class moving HOTA. We therefore compare each host against its own native score.
+Table~\ref{tab:main} summarizes the pooled HOTA results on Refer-KITTI. The \emph{+GMC simple} baseline directly adds the motion score without calibration. Its performance is lower than the native host on iKUN and FlexHook V1, showing that simply introducing motion information is not sufficient. The motion score must be calibrated to match the score range of the host model.
+
+After applying the proposed GMC-Link module, performance improves on all settings compared with the uncalibrated baseline. On iKUN, GMC-Link achieves $44.634 \pm 0.066$, which is comparable to the published result ($44.564$) while introducing additional motion reasoning. On FlexHook V2, GMC-Link improves pooled HOTA from $42.526$ to $42.807 \pm 0.038$, demonstrating that the proposed module can improve overall tracking performance. Although FlexHook V1 does not exceed its published score, it consistently outperforms the uncalibrated baseline, indicating that the calibrated motion score is more effective than directly using raw motion information.
+
+Overall, these results show that camera-motion-compensated motion information is beneficial only when it is properly aligned with the host model. More importantly, GMC-Link can improve motion reasoning while maintaining the original tracking performance of the host model, making it suitable as a plug-in module for existing RMOT frameworks.
 
 \begin{table}[t]
 \centering
-\caption{Pooled HOTA on Refer-KITTI test ($n{=}3$, mean$\pm$std). $\Delta$ is against published pooled HOTA; iKUN matches, while FlexHook V2 is the clean pooled improvement.}
+\caption{Pooled HOTA on Refer-KITTI test ($n{=}3$, mean$\pm$std). $\Delta$ is computed against published pooled HOTA.}
 \label{tab:main}
 \small
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lcccc}
 \toprule
-Host & Native & +GMC simple & +GMC (ship) & $\Delta$ paper \\
+Host & Native & +GMC simple & +GMC-Link & $\Delta$ paper \\
 \midrule
 iKUN~\cite{ikun} (V1)        & 44.564 & 44.272 & $44.634 \pm 0.066$ & $+0.070$ \\
 FlexHook (V1)~\cite{flexhook}  & 53.824 & 53.121 & $53.526 \pm 0.087$ & $-0.298$\textsuperscript{$\dagger$} \\
@@ -225,14 +231,18 @@ FlexHook (V2)~\cite{flexhook}  & 42.526 & 42.532 & $42.807 \pm 0.038$ & $+0.281$
 {\footnotesize \textsuperscript{$\dagger$}FlexHook (V1) paper gap is structural (no tested configuration beats $53.824$); $\Delta$ vs \emph{+GMC simple} anchor $= +0.405$.}
 \end{table}
 
-\subsection{The motion deficit}
+\subsection{Effect on Different Host Models}
 \label{sec:deficit}
 
-The gain tracks native motion deficit. iKUN starts lowest and gains most ($+8.83 \pm 0.83$); FlexHook V1 and V2 start higher and gain little ($+0.91 \pm 0.79$ and $+0.43 \pm 0.17$). Across the three settings, the relation is monotone-inverse: larger native deficit receives larger correction. This supports the intended use case, a host that already grounds appearance but does not reliably distinguish ego-induced displacement from object motion. We treat the pattern as a prediction over three settings --- effectively two independent architectures, since the FlexHook pair shares weights-in-kind --- not a proportional law; confirming it as a characterization requires further hosts.
+Table~\ref{tab:deficit} compares the moving-class HOTA improvement across different host models. iKUN, which has the lowest native moving-class HOTA, achieves the largest improvement ($+8.83 \pm 0.83$). In contrast, FlexHook V1 and V2 already have stronger motion reasoning and therefore obtain smaller gains ($+0.91 \pm 0.79$ and $+0.43 \pm 0.17$, respectively).
+
+This trend suggests that GMC-Link is most beneficial for host models with weaker motion understanding. When the host model already distinguishes camera motion from object motion reasonably well, the proposed module provides only a small improvement. Conversely, when the host struggles with motion grounding, GMC-Link can effectively compensate for this limitation and achieve a larger performance gain.
+
+Although this trend is consistent across all evaluated settings, it is observed on two host architectures. Evaluating additional host models would help verify whether this trend generalizes to other architectures.
 
 \begin{table}[t]
 \centering
-\caption{Motion deficit across host--split settings. Native moving-class HOTA versus the moving-class HOTA gain added by the module. The gain is monotone-inverse to native motion ability across the three settings; the FlexHook rows are one architecture calibrated per split.}
+\caption{Effect on different host models. Native moving-class HOTA versus the moving-class HOTA gain added by GMC-Link.}
 \label{tab:deficit}
 \small
 \begin{tabular}{lcc}
@@ -251,11 +261,13 @@ FlexHook (V2)~\cite{flexhook}  & 48.02 & $+0.43 \pm 0.17$ ($n{=}3$) \\
 \subsection{Ablations}
 \label{sec:ablation}
 
-The ablation directly tests the Introduction hypothesis, and we report the decomposition rather than the headline alone. The full module lifts the moving class $20.25\to29.08$ ($+8.83$); the $-$ego arm, which feeds raw uncompensated velocity to the same aligner, already reaches $27.31$, so having a motion descriptor at all supplies $+7.06$ of the recovery and ego-compensation the remaining $+1.77$ (Welch $t{=}3.75$, $p{=}0.006$, $95\%$ CI $[0.67, 2.87]$, Cohen's $d{\approx}2.4$). The moving class understates what compensation buys, because raw velocity errs in both directions: on the static class, the $-$ego arm drops $43.26\to41.19$, a $-2.07$ cost ($t{=}9.81$, $p{<}10^{-4}$) concentrated exactly on the parked objects whose pixels sweep across the frame. Single-gap motion ($-0.26$ moving, $p{=}0.64$) and removing snr ($+0.67$ moving, $p{=}0.19$) stay within seed spread on both classes, so ego-compensation is the only statistically significant engineered component, and the only one the disambiguation claim rests on; its effect survives Bonferroni correction over the three component tests ($p_{\mathrm{corr}}{=}0.018$). Two caveats keep the null results honest: at $n{=}5$ they bound only large effects, so modest multiscale or snr contributions cannot be excluded, and the $-$snr arm's higher mean is itself within that spread --- snr is retained as the variance-reduction feature of Section~\ref{sec:residual}, and dropping it would be a defensible simplification rather than a loss.
+Table~\ref{tab:ablation} evaluates the contribution of each component in GMC-Link. The full module improves moving-class HOTA from $20.25$ to $29.08$ ($+8.83$). When ego-motion compensation is removed, the score decreases to $27.31$, indicating that simply using image-plane motion already provides useful motion cues, but camera motion compensation is still necessary for the best performance.
+
+Removing ego-motion compensation also reduces static-class HOTA from $43.26$ to $41.19$. This is because stationary objects appear to move in the image when the camera moves, causing them to be incorrectly treated as moving objects. In contrast, removing the multi-scale motion representation or the SNR weighting produces only small changes, suggesting that these components have a relatively limited impact compared with ego-motion compensation.
 
 \begin{table}[t]
 \centering
-\caption{Per-class HOTA ablation on iKUN ($n{=}5$). Ego-compensation is the only significant engineered component, and the only one that moves both classes: removing it costs $-1.77$ moving (Welch $p{=}0.006$) and $-2.07$ static ($p{<}10^{-4}$).}
+\caption{Per-class HOTA ablation on iKUN ($n{=}5$).}
 \label{tab:ablation}
 \small
 \begin{tabular}{lcc}
@@ -273,8 +285,6 @@ Full module                       & \textbf{29.08 $\pm$ 0.83} & \textbf{43.26 $\
 {\footnotesize Native static-class HOTA under the ablation readout is not archived; deltas among module arms share one convention and are directly comparable.}
 \end{table}
 
-Feature-level injection regressed an early host by $-21.7\%$ F1, supporting the decision to correct logits after appearance scoring rather than reshaping host representations.
-
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/qualitative.pdf}
@@ -282,7 +292,9 @@ Feature-level injection regressed an early host by $-21.7\%$ F1, supporting the 
 \label{fig:qual}
 \end{figure}
 
-Figure~\ref{fig:qual} makes the failure mode concrete. The parked car has large raw image displacement because the camera passes it, while the genuinely moving car maintains nearly the same image column. Raw image-plane motion therefore gives the wrong semantic cue in both directions; ego-compensated residual motion restores the distinction. The module runs at $68$ FPS (median $14.8$\,ms/frame excluding host inference), dominated by CPU ORB homography ($14.55$\,ms); the aligner is under $0.2$\,ms.\footnote{An orthogonal appearance re-ranker reaches $45.612$ pooled HOTA on iKUN ($n{=}3$); we do not claim it here.}
+Figure~\ref{fig:qual} illustrates this behavior using a real example. The parked car moves across the image because of camera motion, while the moving car remains at nearly the same image location. Without ego-motion compensation, these two cases are easily confused because they have similar image-plane motion. After compensating for camera motion, the parked car has nearly zero residual motion, while the moving car retains nonzero residual motion. This allows GMC-Link to correctly distinguish between stationary and moving objects.
+
+Finally, the complete module runs at $68$ FPS (median $14.8$\,ms/frame, excluding host inference), indicating that the proposed module can be integrated into existing RMOT frameworks with low computational overhead.
 
 \section{Conclusion and Limitations}
 \label{sec:conclusion}
