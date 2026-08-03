@@ -201,6 +201,8 @@ To evaluate the effectiveness of GMC-Link under different host capabilities, we 
 
 Results are averaged over three random seeds, while ablation studies use five seeds together with Welch's t-test. The motion-language aligner is trained using AdamW with a learning rate of $10^{-3}$, batch size $256$, and $100$ epochs. Camera motion is estimated using ORB with $1500$ keypoints and RANSAC with a $5$-pixel threshold. Both host models use their original published detection results.
 
+Refer-KITTI does not provide a dedicated validation split. Therefore, the fusion parameters are calibrated on the benchmark sequences. To assess whether this calibration overfits the evaluation data, we additionally perform leave-one-sequence-out (LOSO) calibration. In each run, the fusion parameters are selected using all but one sequence and evaluated on the held-out sequence. Across all evaluated settings, the LOSO results remain consistently above the native host, indicating that the observed improvements are not simply due to overfitting the calibration sequences.
+
 Refer-KITTI is highly imbalanced, with only about one-sixth of the language expressions referring to moving objects. Consequently, improvements in motion understanding may have only a limited impact on pooled HOTA. Therefore, moving-class HOTA is used as the primary evaluation metric, while pooled HOTA is reported to reflect overall benchmark performance.
 
 \subsection{Main results}
