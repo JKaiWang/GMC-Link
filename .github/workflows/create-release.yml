@@ -15,8 +15,8 @@ on:
 
       asset_path:
         description: "要上傳的檔案路徑"
-        required: true
-        default: "release/submission_mainv3.zip"
+        required: false
+        default: ""
         type: string
       
       release_notes:
