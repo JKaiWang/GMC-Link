@@ -1,0 +1,138 @@
+name: Create Tag and Release
+
+on: 
+  workflow_dispatch:
+    inputs:
+      version: 
+        description: "Release version, for example v3.0.0"
+        required: true
+        type: string
+      target:
+        description: "要建立tag 的branch、tag or commit SHA"
+        required: true
+        default: "main"
+        type: string
+
+      asset_path:
+        description: "要上傳的檔案路徑"
+        required: true
+        default: "release/submission_mainv3.zip"
+        type: string
+      
+      release_notes:
+        description: "Release 說明"
+        required: false
+        default: ""
+        type: string
+      prerelease: 
+        description: "是否為 Pre-release"
+        required: true
+        default: false
+        type: boolean
+
+permissions: 
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.target }}
+          fetch-depth: 0
+      
+      - name: Validate inputs
+        shell: bash
+        env:
+          VERSION: ${{ inputs.version }}
+          ASSET_PATH: ${{ inputs.asset_path}}
+
+        run: | 
+          set -euo pipefail
+
+          if [[ ! "$VERSION" =~ ^v[0-9]+(\.[0-9]+){1,2}([.-][A-Za-z0-9.-]+)?$ ]]; then
+            echo "錯誤：版本格式不正確: $VERSION"
+            echo "for example: v3.0 ; v3.1.0 ; v3.1.0-beta.1 ..."
+            exit 1
+          fi
+
+          if [[ ! -f "$ASSET_PATH" ]]; then
+            echo "錯誤：找不到檔案：$ASSET_PATH"
+            echo "目前可用的 ZIP 檔案："
+            find . -type f -name "*.zip" -print
+            exit 1
+          fi
+
+          echo "找到附件："
+          ls -lh "$ASSET_PATH"
+      - name: Check existing tag
+        shell: bash
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+
+          if git ls-remote --exit-code \
+            --tags origin "refs/tags/$VERSION" > /dev/null 2>&1; then
+            echo "錯誤：Tag $VERSION 已經存在"
+            exit 1
+          fi
+
+      - name: Create and push tag
+        shell: bash
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git tag -a "$VERSION" -m "Release $VERSION"
+          git push origin "$VERSION"
+
+      - name: Create GitHub Release and upload asset
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+          ASSET_PATH: ${{ inputs.asset_path }}
+          RELEASE_NOTES: ${{ inputs.release_notes }}
+          IS_PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          set -euo pipefail
+
+          ARGS=(
+            "$VERSION"
+            "$ASSET_PATH"
+            --title "$VERSION"
+            --verify-tag
+          )
+
+          if [[ -n "$RELEASE_NOTES" ]]; then
+            printf '%s\n' "$RELEASE_NOTES" > release-notes.txt
+            ARGS+=(--notes-file release-notes.txt)
+          else
+            ARGS+=(--generate-notes)
+          fi
+
+          if [[ "$IS_PRERELEASE" == "true" ]]; then
+            ARGS+=(--prerelease)
+          else
+            ARGS+=(--latest)
+          fi
+
+          gh release create "${ARGS[@]}"
+
+      - name: Show release information
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          gh release view "$VERSION"
+
