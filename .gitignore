@@ -261,3 +261,6 @@ hota_eval_ikun_v2*/
 
 # MacOS 
 .DS_Store
+
+# LaTeX submission packages (build on demand)
+paper/latex/*.zip
