@@ -264,3 +264,18 @@ hota_eval_ikun_v2*/
 
 # LaTeX submission packages (build on demand)
 paper/latex/*.zip
+
+# Experiment caches (closed-lever provenance, regenerable)
+gmc_link/clip_logit_*_cache.json
+gmc_link/rerank_clipL14_*_cache.json
+gmc_link/depth_cache_lidar/
+
+# CodeGraph index
+.codegraph/
+
+# LaTeX build artifacts (2027 ICASSP paper v2)
+2027_ICASSP/*.aux
+2027_ICASSP/*.blg
+2027_ICASSP/*.log
+2027_ICASSP/*.out
+2027_ICASSP/*.synctex.gz

@@ -1,0 +1,151 @@
+\begin{thebibliography}{10}
+
+\bibitem{ikun}
+Yunhao Du, Cheng Lei, Zhicheng Zhao, and Fei Su,
+\newblock ``{iKUN}: Speak to trackers without retraining,''
+\newblock in {\em Proceedings of the IEEE/CVF Conference on Computer Vision and
+  Pattern Recognition (CVPR)}. 2024, pp. 19135--19144, IEEE.
+
+\bibitem{hota}
+Jonathon Luiten, Aljo{\v{s}}a Os{\v{e}}p, Patrick Dendorfer, Philip Torr,
+  Andreas Geiger, Laura Leal-Taix{\'e}, and Bastian Leibe,
+\newblock ``{HOTA}: A higher order metric for evaluating multi-object
+  tracking,''
+\newblock {\em International Journal of Computer Vision}, vol. 129, no. 2, pp.
+  548--578, 2021.
+
+\bibitem{flexhook}
+Weize Li, Yunhao Du, Qixiang Yin, Zhicheng Zhao, and Fei Su,
+\newblock ``Rethinking two-stage referring-by-tracking in referring
+  multi-object tracking: Make it strong again,'' 2025,
+\newblock Accepted to CVPR 2026.
+
+\bibitem{temprmot}
+Yani Zhang, Dongming Wu, Wencheng Han, and Xingping Dong,
+\newblock ``Bootstrapping referring multi-object tracking,'' 2024,
+\newblock Introduces TempRMOT and Refer-KITTI-V2.
+
+\bibitem{transrmot}
+Dongming Wu, Wencheng Han, Tiancai Wang, Xingping Dong, Xiangyu Zhang, and
+  Jianbing Shen,
+\newblock ``Referring multi-object tracking,''
+\newblock in {\em Proceedings of the IEEE/CVF Conference on Computer Vision and
+  Pattern Recognition (CVPR)}. 2023, pp. 14633--14642, IEEE.
+
+\bibitem{vmrmot}
+Weiyi Lv, Ning Zhang, Hanyang Sun, Haoran Jiang, Kai Zhao, Jing Xiao, and Dan
+  Zeng,
+\newblock ``Vision--motion--reference alignment for referring multi-object
+  tracking via multi-modal large language models,'' 2025.
+
+\bibitem{botsort}
+Nir Aharon, Roy Orfaig, and Ben-Zion Bobrovsky,
+\newblock ``{BoT-SORT}: Robust associations multi-pedestrian tracking,'' 2022.
+
+\bibitem{ucmctrack}
+Kefu Yi, Kai Luo, Xiaolei Luo, Jiangui Huang, Hao Wu, Rongdong Hu, and Wei Hao,
+\newblock ``{UCMCTrack}: Multi-object tracking with uniform camera motion
+  compensation,''
+\newblock in {\em Proceedings of the AAAI Conference on Artificial
+  Intelligence}. 2024, vol.~38, pp. 6702--6710, AAAI Press.
+
+\bibitem{kitti}
+Andreas Geiger, Philip Lenz, Christoph Stiller, and Raquel Urtasun,
+\newblock ``Vision meets robotics: The {KITTI} dataset,''
+\newblock {\em International Journal of Robotics Research}, vol. 32, no. 11,
+  pp. 1231--1237, 2013.
+
+\bibitem{refergpt}
+Tzoulio Chamiti, Leandro Di~Bella, Adrian Munteanu, and Nikos Deligiannis,
+\newblock ``Refergpt: Towards zero-shot referring multi-object tracking,''
+  2025,
+\newblock CVPR Workshops.
+
+\bibitem{mex}
+Huu-Thien Tran, Phuoc-Sang Pham, Thai-Son Tran, and Khoa Luu,
+\newblock ``Mex: Memory-efficient approach to referring multi-object
+  tracking,'' 2025.
+
+\bibitem{mlstrack}
+Zeliang Ma, Song Yang, Zhe Cui, Zhicheng Zhao, Fei Su, Delong Liu, and Jingyu
+  Wang,
+\newblock ``{MLS-Track}: Multilevel semantic interaction in {RMOT},'' arXiv
+  preprint arXiv:2404.12031, 2024.
+
+\bibitem{deeprmot}
+Wenyan He, Yajun Jian, Yang Lu, and Hanzi Wang,
+\newblock ``Visual-linguistic representation learning with deep cross-modality
+  fusion for referring multi-object tracking,''
+\newblock in {\em ICASSP 2024 -- 2024 IEEE International Conference on
+  Acoustics, Speech and Signal Processing (ICASSP)}. IEEE, 2024, pp.
+  6310--6314.
+
+\bibitem{cdrmot}
+Shaofeng Liang, Runwei Guan, Wangwang Lian, Daizong Liu, Xiaolou Sun, Dongming
+  Wu, Yutao Yue, Weiping Ding, and Hui Xiong,
+\newblock ``Cognitive disentanglement for referring multi-object tracking,''
+\newblock {\em Information Fusion}, vol. 124, pp. 103349, 2025.
+
+\bibitem{tellmewhat}
+Wenjun Huang, Yang Ni, Hanning Chen, Yirui He, Ian Bryant, Yezi Liu, and Mohsen
+  Imani,
+\newblock ``Tell me what to track: Infusing robust language guidance for
+  enhanced referring multi-object tracking,'' arXiv preprint arXiv:2412.12561,
+  2024.
+
+\bibitem{orb}
+Ethan Rublee, Vincent Rabaud, Kurt Konolige, and Gary Bradski,
+\newblock ``{ORB}: An efficient alternative to {SIFT} or {SURF},''
+\newblock in {\em 2011 International Conference on Computer Vision (ICCV)}.
+  2011, pp. 2564--2571, IEEE.
+
+\bibitem{ransac}
+Martin~A. Fischler and Robert~C. Bolles,
+\newblock ``Random sample consensus: A paradigm for model fitting with
+  applications to image analysis and automated cartography,''
+\newblock {\em Communications of the ACM}, vol. 24, no. 6, pp. 381--395, 1981.
+
+\bibitem{emap}
+Navid Mahdian, Mohammad Jani, Amir~M. Soufi~Enayati, and Homayoun Najjaran,
+\newblock ``Ego-motion aware target prediction module for robust multi-object
+  tracking,'' 2024.
+
+\bibitem{iranianandan}
+Michal Irani and P.~Anandan,
+\newblock ``A unified approach to moving object detection in 2{D} and 3{D}
+  scenes,''
+\newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  vol. 20, no. 6, pp. 577--589, 1998.
+
+\bibitem{hartleyzisserman}
+Richard Hartley and Andrew Zisserman,
+\newblock {\em Multiple View Geometry in Computer Vision},
+\newblock Cambridge University Press, 2nd edition, 2004.
+
+\bibitem{bideau}
+Pia Bideau and Erik Learned-Miller,
+\newblock ``It's moving! a probabilistic model for causal motion segmentation
+  in moving camera videos,''
+\newblock in {\em Computer Vision -- ECCV 2016}. 2016, vol. 9912 of {\em
+  Lecture Notes in Computer Science}, pp. 433--449, Springer.
+
+\bibitem{scaramuzza}
+Davide Scaramuzza and Friedrich Fraundorfer,
+\newblock ``Visual odometry [tutorial],''
+\newblock {\em IEEE Robotics \& Automation Magazine}, vol. 18, no. 4, pp.
+  80--92, 2011.
+
+\bibitem{sbert}
+Nils Reimers and Iryna Gurevych,
+\newblock ``{Sentence-BERT}: Sentence embeddings using siamese
+  {BERT}-networks,''
+\newblock in {\em Proceedings of the 2019 Conference on Empirical Methods in
+  Natural Language Processing and the 9th International Joint Conference on
+  Natural Language Processing (EMNLP-IJCNLP)}, Hong Kong, China, 2019, pp.
+  3982--3992, Association for Computational Linguistics.
+
+\bibitem{infonce}
+Aaron van~den Oord, Yazhe Li, and Oriol Vinyals,
+\newblock ``Representation learning with contrastive predictive coding,'' 2018.
+
+\end{thebibliography}
