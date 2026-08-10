@@ -1,17 +1,17 @@
-"""Pre-compute 13D ego-compensated motion vectors per (video, GT obj_id, frame).
+"""Pre-compute 12D ego-compensated motion vectors per (video, GT obj_id, frame).
 
-Mirrors run_precompute_motion_13d.py but reads bbox sequences from
+Mirrors run_precompute_motion_12d.py but reads bbox sequences from
 Refer-KITTI_labels.json instead of YOLOv8-NS predict.txt. Used for FiLM
 training where RMOT_Dataset keys by GT obj_id (Track_Dataset still keys
 by NS tracker id at inference time, served from the NS-derived cache).
 
-Output: /home/seanachan/GMC-Link/iKUN/motion_13d_cache_v1/{video}.pt
-        dict[obj_id: int][frame_id: int] = np.ndarray((13,), dtype=float32)
+Output: /home/seanachan/GMC-Link/iKUN/motion_12d_cache_v1/{video}.pt
+        dict[obj_id: int][frame_id: int] = np.ndarray((12,), dtype=float32)
 
 Usage:
     conda activate RMOT
-    python run_precompute_motion_13d_gt.py
-    python run_precompute_motion_13d_gt.py --seqs 0001 0002
+    python run_precompute_motion_12d_gt.py
+    python run_precompute_motion_12d_gt.py --seqs 0001 0002
 """
 import argparse, json, os, sys
 from collections import defaultdict
@@ -29,7 +29,7 @@ from utils import RESOLUTION
 
 LABELS_JSON = "/home/seanachan/GMC-Link/Refer-KITTI_labels.json"
 KITTI_IMG = "/home/seanachan/data/Dataset/refer-kitti/KITTI/training/image_02"
-OUT_ROOT = "/home/seanachan/GMC-Link/iKUN/motion_13d_cache_v1"
+OUT_ROOT = "/home/seanachan/GMC-Link/iKUN/motion_12d_cache_v1"
 
 # iKUN VIDEOS["train"] (15 seqs); test {0005,0011,0013} stay NS-derived
 TRAIN_SEQS = ["0001","0002","0003","0004","0006","0007","0008","0009","0010","0012",
@@ -69,7 +69,7 @@ def _process_video(video, labels, manager):
         print(f"  [{video}] no GT tracks, skip")
         return {}
 
-    cache = defaultdict(dict)  # obj_id -> {frame_id: np.ndarray(13,)}
+    cache = defaultdict(dict)  # obj_id -> {frame_id: np.ndarray(12,)}
     img_dir = Path(KITTI_IMG) / video
     frame_ids = sorted(tracks_per_frame.keys())
     dummy_lang = torch.zeros(1, 384)

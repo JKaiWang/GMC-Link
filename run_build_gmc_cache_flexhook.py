@@ -29,7 +29,6 @@ TRACK_DIR   = "/home/seanachan/FlexHook/FlexHook/tracker_outputs/Temp-NeuralSORT
 FRAME_DIR   = "/home/seanachan/data/Dataset/refer-kitti/KITTI/training/image_02"
 GMC_WEIGHTS = os.environ.get("GMC_WEIGHTS", "gmc_link_weights_v1train.pth")
 GMC_SUFFIX  = os.environ.get("GMC_SUFFIX", "")
-GMC_RAW_COS = os.environ.get("GMC_RAW_COS", "0") == "1"
 GMC_DEPTH_ARCH = os.environ.get("GMC_DEPTH_ARCH", "fh_v1")
 GMC_DEPTH_DIR  = os.environ.get("GMC_DEPTH_DIR",  "gmc_link/depth_cache")
 DEVICE      = "cuda" if torch.cuda.is_available() else "cpu"
@@ -115,7 +114,7 @@ def build(seq):
                     z = depth_cache.lookup(oid, f1)
                     if z is not None:
                         depth_z_lookup[oid] = float(z)
-            scores, _, _ = linker.process_frame(frame_img, active, text_emb, detections=det_arr, raw_cos=GMC_RAW_COS, depth_z_lookup=depth_z_lookup, seq=seq, frame_id=f1, clip_feat_cache=clip_cache)
+            scores, _, _ = linker.process_frame(frame_img, active, text_emb, detections=det_arr, raw_cos=True, depth_z_lookup=depth_z_lookup, seq=seq, frame_id=f1, clip_feat_cache=clip_cache)
             for oid, g in scores.items():
                 per_expr.setdefault(str(f1), {})[str(oid)] = float(g)
         cache[expression] = per_expr

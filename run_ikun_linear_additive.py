@@ -1,33 +1,18 @@
-"""iKUN cascade+simcalib + linear additive GMC bias on 3-seq POOLED HOTA.
+"""iKUN cascade+simcalib + single-alpha additive GMC fusion on 3-seq POOLED HOTA.
 
-Mirrors FlexHook fusion form (which beat paper on V2, +0.497 on V1):
+Fusion (2026-08-10 simplification, all expressions, no class branching):
 
-    motion expr:     fused = cs + b + alpha*(gmc - 0.5)*scale
-                     keep iff fused > thr_motion
-    appearance expr: fused = cs + b
-                     keep iff fused > 0  (baseline gating)
+    fused = cs + b + alpha * gmc        # gmc = raw cosine in [-1, +1]
+    keep iff fused > 0.0                # native baseline gate (frozen)
 
-No MLP. Plain hand-tuned linear additive form.
+alpha=0 reproduces the native cascade+simcalib baseline exactly (44.224 local,
+paper-pure 44.564). GMC caches contain raw cosine (builders emit raw cos unconditionally).
 
-Reference baselines (3-seq pooled HOTA, paper-canonical gt_template_old):
-  paper-pure (alpha=0)  44.564  (paper README claim)
-  local B (alpha=0)     44.224  (cli-fork drift 0.34)
-  hand-tuned alpha=0.5+thr  43.910  (NEG, see project_phase5_stack_pooled_negative)
-  hand-tuned alpha=1.0      43.260  (NEG)
-  learned residual MLP      42.919  (NEG, project_ikun_learned_residual_negative)
-
-Goal: test whether FlexHook's WINNING linear-additive recipe (which beat paper on
-both V1 and V2 FlexHook) generalizes to iKUN cascade architecture. Different
-fusion form than the legacy iKUN tries (MLP, raw alpha bias without thr).
+The motion-keyword classifier below is used ONLY for per-class HOTA grouping
+(MOVING/STATIC/APPEARANCE rows), never in the fusion path.
 
 Usage:
-    python run_ikun_linear_additive.py --alpha 1.0 --gmc_scale 0.9 --thr 0.17
-    python run_ikun_linear_additive.py --grid
-
-Grid mode (2026-05-02 Path 1): motion locked at ship recipe (α=1, sc=0.9, thr=+0.17),
-sweep APPEARANCE-axis bias. Project memory project_gmc_is_motion_plus_bbox_specialist
-shows APPEAR raw sep +0.264 > motion +0.172. APPEAR = 77% of V1 frames; if class HOTA
-gains +1.0, pool gain ≈ +0.77 (4× current iKUN gain).
+    GMC_SUFFIX=_sw12d_seed0 python run_ikun_linear_additive.py --alpha 0.3
 """
 import argparse, json, os, shutil, subprocess, sys
 from collections import defaultdict
@@ -47,13 +32,12 @@ TEXT_FEAT_JSON = os.environ.get("IKUN_TEXT_FEAT_JSON", "/home/seanachan/GMC-Link
 CASCADE_FULL   = os.environ.get("IKUN_CASCADE_JSON", "/home/seanachan/GMC-Link/iKUN/ikun_results_v1_cascade_full.json")
 _GMC_SUFFIX = os.environ.get("GMC_SUFFIX", "")  # e.g. "_seed0"
 _GMC_CACHE_VER = os.environ.get("GMC_CACHE_VER", "v1")  # v1|v2 cache filename tag
-RAW_COS    = os.environ.get("GMC_RAW_COS", "0") == "1"  # Arm B: GMC cache contains raw cosine [-1,+1]
 GMC_CACHE_TPL  = "/home/seanachan/GMC-Link/gmc_link/gmc_scores_" + _GMC_CACHE_VER + "_{seq}" + _GMC_SUFFIX + "_cache.json"
 TRACKEVAL      = "/home/seanachan/TempRMOT/TrackEval/scripts/run_mot_challenge.py"
 _OUT_SUFFIX = os.environ.get("OUT_SUFFIX", "")  # e.g. "_seed0"
 OUT_ROOT       = os.environ.get("IKUN_OUT_ROOT", "/home/seanachan/GMC-Link/hota_eval_ikun_linear_additive" + _OUT_SUFFIX)
 
-TEST_SEQS = ["0005", "0011", "0013"]
+TEST_SEQS = os.environ.get("GMC_EVAL_SEQS", "0005,0011,0013").split(",")  # LOSO folds override
 FRAMES = {"0005": (0, 296), "0011": (0, 372), "0013": (0, 339)}
 SIM_A, SIM_B, SIM_TAU = 8.0, -0.1, 100.0
 
@@ -101,8 +85,7 @@ def merged_ns(seq):
     return ns
 
 
-def gen_predicts(text_feat, gmc_caches, alpha, gmc_scale, thr_motion, run_dir,
-                 alpha_a=0.0, scale_a=0.0, thr_a=0.0):
+def gen_predicts(text_feat, gmc_caches, alpha, run_dir):
     res_dir = os.path.join(run_dir, "results")
     if os.path.exists(res_dir): shutil.rmtree(res_dir)
     os.makedirs(res_dir, exist_ok=True)
@@ -127,7 +110,6 @@ def gen_predicts(text_feat, gmc_caches, alpha, gmc_scale, thr_motion, run_dir,
 
             ikun_scores = load_ikun_scores(CASCADE_FULL, seq, expr)
             b = bias.get(expr, 0.0)
-            motion = is_motion(expr)
             per_expr_gmc = gmc_seq.get(expr, {})
 
             rows = []
@@ -136,23 +118,9 @@ def gen_predicts(text_feat, gmc_caches, alpha, gmc_scale, thr_motion, run_dir,
                 for oid, x, y, w, h in dets:
                     cs = ikun_scores.get(fid, {}).get(oid)
                     if cs is None: continue
-                    if motion:
-                        default = 0.0 if RAW_COS else 0.5
-                        gmc = float(per_expr_gmc.get(str(fid), {}).get(str(oid), default))
-                        gmc_term = gmc if RAW_COS else (gmc - 0.5)
-                        fused = cs + b + alpha * gmc_term * gmc_scale
-                        thr = thr_motion
-                    else:
-                        if scale_a != 0.0:
-                            default = 0.0 if RAW_COS else 0.5
-                            gmc = float(per_expr_gmc.get(str(fid), {}).get(str(oid), default))
-                            gmc_term = gmc if RAW_COS else (gmc - 0.5)
-                            fused = cs + b + alpha_a * gmc_term * scale_a
-                            thr = thr_a
-                        else:
-                            fused = cs + b
-                            thr = 0.0
-                    if fused > thr:
+                    gmc = float(per_expr_gmc.get(str(fid), {}).get(str(oid), 0.0))
+                    fused = cs + b + alpha * gmc
+                    if fused > 0.0:
                         rows.append((fid, oid, x, y, w, h))
 
             with open(os.path.join(outd, "predict.txt"), "w") as f:
@@ -193,67 +161,33 @@ def run_te(seqmap_path, results_dir, class_filter=None):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--alpha", type=float, default=0.65)
-    p.add_argument("--gmc_scale", type=float, default=10.0)
-    p.add_argument("--thr", type=float, default=3.0)
-    p.add_argument("--alpha_appear", type=float, default=0.0)
-    p.add_argument("--gmc_scale_appear", type=float, default=0.0)
-    p.add_argument("--thr_appear", type=float, default=0.0)
-    p.add_argument("--grid", action="store_true")
+    p.add_argument("--alpha", type=float, required=True)
     args = p.parse_args()
 
     print("Loading text_feat + GMC caches...", flush=True)
     text_feat = json.load(open(TEXT_FEAT_JSON))
     gmc_caches = {s: json.load(open(GMC_CACHE_TPL.format(seq=s))) for s in TEST_SEQS}
 
-    if args.grid:
-        # Path 1: APPEARANCE-axis GMC extension. Motion ship LOCKED at (α=1.0, sc=0.9, thr=+0.17 → pool 44.400).
-        # Sweep appearance bias (alpha_a, scale_a, thr_a). APPEAR is 77% of frames; raw sep +0.264 > motion +0.172.
-        # tuple: (tag, alpha_m, scale_m, thr_m, alpha_a, scale_a, thr_a)
-        M_A, M_S, M_T = 1.0, 0.9, 0.17
-        # Refine 3: refine 2 peak sc=0.25 thr=0.10 → 44.601 (+0.201, beats paper +0.037).
-        # Map ridge top with sc=0.25-0.4 × thr=0.10-0.15. Identify peak vs cliff.
-        configs = [
-            ("appear_sc025_thrp12",  M_A, M_S, M_T, 1.0, 0.25, 0.12),
-            ("appear_sc025_thrp15",  M_A, M_S, M_T, 1.0, 0.25, 0.15),
-            ("appear_sc03_thrp1",    M_A, M_S, M_T, 1.0, 0.30, 0.10),
-            ("appear_sc03_thrp13",   M_A, M_S, M_T, 1.0, 0.30, 0.13),
-            ("appear_sc035_thrp1",   M_A, M_S, M_T, 1.0, 0.35, 0.10),
-            ("appear_sc035_thrp13",  M_A, M_S, M_T, 1.0, 0.35, 0.13),
-            ("appear_sc04_thrp13",   M_A, M_S, M_T, 1.0, 0.40, 0.13),
-            ("appear_sc04_thrp17",   M_A, M_S, M_T, 1.0, 0.40, 0.17),
-        ]
-    else:
-        tag = f"a{args.alpha}_scale{args.gmc_scale}_thr{args.thr}"
-        if args.gmc_scale_appear != 0.0:
-            tag += f"_aa{args.alpha_appear}_sca{args.gmc_scale_appear}_thra{args.thr_appear}"
-        configs = [(tag, args.alpha, args.gmc_scale, args.thr,
-                    args.alpha_appear, args.gmc_scale_appear, args.thr_appear)]
-
-    os.makedirs(OUT_ROOT, exist_ok=True)
-    rows = []
-    for tag, a, sc, thr, a_a, sc_a, thr_a in configs:
-        run_dir = os.path.join(OUT_ROOT, tag)
-        os.makedirs(run_dir, exist_ok=True)
-        print(f"\n=== {tag}: motion(α={a}, sc={sc}, thr={thr}) "
-              f"appear(α={a_a}, sc={sc_a}, thr={thr_a}) ===", flush=True)
-        res_dir, sm = gen_predicts(text_feat, gmc_caches, a, sc, thr, run_dir,
-                                    alpha_a=a_a, scale_a=sc_a, thr_a=thr_a)
-        pooled = run_te(sm, res_dir)
-        moving = run_te(sm, res_dir, class_filter="MOVING")
-        static = run_te(sm, res_dir, class_filter="STATIC")
-        appear = run_te(sm, res_dir, class_filter="APPEARANCE")
-        rows.append((tag, a, sc, thr, a_a, sc_a, thr_a, pooled, appear, moving, static))
-        print(f"  pooled={pooled}  APPEAR={appear}  MOVING={moving}  STATIC={static}", flush=True)
-
-    print("\n=== iKUN linear-additive GMC sweep summary ===")
-    print("tag                       α_m  sc_m  thr_m  α_a  sc_a  thr_a  pooled   APPEAR   MOVING   STATIC")
-    for tag, a, sc, thr, a_a, sc_a, thr_a, p_, ap, mo, st in rows:
-        print(f"{tag:<25} {a:4.2f} {sc:4.2f} {thr:5.2f}  {a_a:4.2f} {sc_a:4.2f} {thr_a:5.2f}  "
-              f"{p_:.3f}   {ap:.3f}   {mo:.3f}   {st:.3f}")
-    print("\niKUN paper-pure baseline:  44.564")
-    print("Local B (alpha=0):         44.224")
-    print("Motion-only ship (eff09_thrp17): 44.400")
+    tag = f"alpha{args.alpha}"
+    run_dir = os.path.join(OUT_ROOT, tag)
+    os.makedirs(run_dir, exist_ok=True)
+    print(f"\n=== {tag}: fused = cs + b + {args.alpha} * gmc, gate 0.0 ===", flush=True)
+    res_dir, sm = gen_predicts(text_feat, gmc_caches, args.alpha, run_dir)
+    result = {
+        "arch": "ikun",
+        "alpha": args.alpha,
+        "gmc_suffix": _GMC_SUFFIX,
+        "pooled": run_te(sm, res_dir),
+        "moving": run_te(sm, res_dir, class_filter="MOVING"),
+        "static": run_te(sm, res_dir, class_filter="STATIC"),
+        "appearance": run_te(sm, res_dir, class_filter="APPEARANCE"),
+    }
+    with open(os.path.join(run_dir, "result.json"), "w") as f:
+        json.dump(result, f, indent=2)
+    print(f"  pooled={result['pooled']}  MOVING={result['moving']}  "
+          f"STATIC={result['static']}  APPEAR={result['appearance']}", flush=True)
+    print(f"  result.json → {run_dir}")
+    print("\nReference: paper-pure 44.564 | reproduced native (alpha=0) 44.224")
 
 
 if __name__ == "__main__":

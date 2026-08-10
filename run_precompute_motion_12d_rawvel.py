@@ -1,28 +1,28 @@
-"""Ablation: 13D vector with RAW velocity (no ego-compensation) for FiLM.
+"""Ablation: 12D vector with RAW velocity (no ego-compensation) for FiLM.
 
 Monkey-patches `GMCLinkManager.ego_engine.estimate_homography` to return identity,
 so residual_velocity collapses to raw velocity. Runs both pipelines so the rawvel
 cache covers both train (GT-keyed, 15 seqs) and test (NS-keyed, 3 seqs):
-  - run_precompute_motion_13d_gt._process_video  → train seqs
-  - run_precompute_motion_13d._process_video     → test seqs
+  - run_precompute_motion_12d_gt._process_video  → train seqs
+  - run_precompute_motion_12d._process_video     → test seqs
 
-Output: /home/seanachan/GMC-Link/iKUN/motion_13d_cache_rawvel_v1/{video}.pt
-        same shape as motion_13d_cache_v1, channels 0-5 are RAW velocity.
+Output: /home/seanachan/GMC-Link/iKUN/motion_12d_cache_rawvel_v1/{video}.pt
+        same shape as motion_12d_cache_v1, channels 0-5 are RAW velocity.
 
 Usage:
     conda activate RMOT
-    python run_precompute_motion_13d_rawvel.py
+    python run_precompute_motion_12d_rawvel.py
 """
 import argparse, json, os, sys, types
 sys.path.insert(0, "/home/seanachan/GMC-Link")
 import numpy as np
 import torch
 
-import run_precompute_motion_13d as ns_base
-import run_precompute_motion_13d_gt as gt_base
+import run_precompute_motion_12d as ns_base
+import run_precompute_motion_12d_gt as gt_base
 from gmc_link.manager import GMCLinkManager
 
-OUT_ROOT = "/home/seanachan/GMC-Link/iKUN/motion_13d_cache_rawvel_v1"
+OUT_ROOT = "/home/seanachan/GMC-Link/iKUN/motion_12d_cache_rawvel_v1"
 
 # iKUN VIDEOS["train"] (15 seqs) and VIDEOS["test"] / val (3 seqs)
 TRAIN_SEQS = ["0001","0002","0003","0004","0006","0007","0008","0009","0010","0012",

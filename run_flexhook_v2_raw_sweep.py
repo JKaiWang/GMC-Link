@@ -1,15 +1,17 @@
-"""FlexHook V2 + GMC Phase 5 sweep on 4-seq POOLED HOTA (Refer-KITTI V2).
+"""FlexHook V2 + single-alpha additive GMC fusion on 4-seq POOLED HOTA (Refer-KITTI V2).
 
-Mirrors run_flexhook_phase5_gmc_sweep.py for the V2 benchmark:
-- Reads FlexHook V2 result_0.json (kitti2 ckpt, Temp-NeuralSORT-kitti2 tracker)
-- Fuses with FlexHook V2 GMC cache (gmc_scores_flexhook_v2_{seq}_cache.json)
-- Same form: fused = margin + alpha * (gmc - 0.5) * scale + bias_motion
-- Same paper-canonical V1 winner: alpha=1, gmc_scale=10, thr=0
-- 4 test seqs: 0005, 0011, 0013, 0019 (~862 expr-seq pairs)
+Fusion (2026-08-10 simplification, all expressions, no class branching):
+
+    margin = score[1] - score[0]
+    fused  = margin + alpha * gmc       # gmc = raw cosine in [-1, +1]
+    keep   = fused > 0.0                # native baseline gate (frozen)
+
+alpha=0 reproduces the reproduced-native FlexHook V2 baseline (42.526).
+GMC caches contain raw cosine (builders emit raw cos unconditionally). The keyword
+classifier (V2-expanded list) is used ONLY for per-class HOTA grouping.
 
 Usage:
-    python run_flexhook_v2_phase5_gmc_sweep.py --alpha 1 --gmc_scale 10 --thr 0
-    python run_flexhook_v2_phase5_gmc_sweep.py --grid
+    GMC_SUFFIX=_sw12d_seed0 python run_flexhook_v2_raw_sweep.py --alpha 3
 """
 import argparse, json, os, shutil, subprocess, sys
 from collections import defaultdict
@@ -21,13 +23,12 @@ TRACK_DIR    = "/home/seanachan/FlexHook/FlexHook/tracker_outputs/Temp-NeuralSOR
 DATA_ROOT    = "/home/seanachan/data/Dataset/refer-kitti-v2"
 GT_TEMPLATE  = "/home/seanachan/FlexHook/datasets/refer-kitti-v2/gt_template_gen"
 _GMC_SUFFIX  = os.environ.get("GMC_SUFFIX", "")
-RAW_COS      = os.environ.get("GMC_RAW_COS", "0") == "1"  # Arm B: GMC cache contains raw cosine [-1,+1]
 GMC_CACHE_TPL= "/home/seanachan/GMC-Link/gmc_link/gmc_scores_flexhook_v2_raw_{seq}" + _GMC_SUFFIX + "_cache.json"
 TRACKEVAL    = "/home/seanachan/TempRMOT/TrackEval/scripts/run_mot_challenge.py"
 _OUT_SUFFIX  = os.environ.get("OUT_SUFFIX", "")
 OUT_ROOT     = "/home/seanachan/GMC-Link/hota_eval_flexhook_v2_raw_gmc" + _OUT_SUFFIX
 
-TEST_SEQS = ["0005", "0011", "0013", "0019"]
+TEST_SEQS = os.environ.get("GMC_EVAL_SEQS", "0005,0011,0013,0019").split(",")  # LOSO folds override
 FRAMES = {"0005": (0, 296), "0011": (0, 372), "0013": (0, 339), "0019": (0, 1058)}
 MOTION_KW = ["moving", "walking", "running", "turning", "faster", "slower",
              "braking", "parking", "parked", "stopped", "stop", "stand",
@@ -66,9 +67,7 @@ def load_tracks(seq):
     return tracks
 
 
-def gen_predicts(cls_dict, tracks_by_seq, gmc_caches, alpha, gmc_scale, thr_motion, run_dir,
-                 alpha_a=0.0, scale_a=0.0, thr_a=0.0,
-                 alpha_s=0.0, scale_s=0.0, thr_s=0.0):
+def gen_predicts(cls_dict, tracks_by_seq, gmc_caches, alpha, run_dir):
     res_dir = os.path.join(run_dir, "results")
     if os.path.exists(res_dir): shutil.rmtree(res_dir)
     os.makedirs(res_dir, exist_ok=True)
@@ -122,32 +121,8 @@ def gen_predicts(cls_dict, tracks_by_seq, gmc_caches, alpha, gmc_scale, thr_moti
                     score = frame_dict.get(expr_text)
                     if score is None: continue
                     margin = float(score[1] - score[0])
-
-                    cls = classify(expr_id)
-                    default = 0.0 if RAW_COS else 0.5
-                    if cls == "STATIC" and scale_s != 0.0:
-                        gmc = gmc_seq.get(expr_id, {}).get(str(fid_pred), {}).get(str(oid_int), default)
-                        gmc_term = gmc if RAW_COS else (gmc - 0.5)
-                        bias = alpha_s * gmc_term * scale_s
-                        thr = thr_s
-                    elif cls == "MOVING" or cls == "STATIC":
-                        # Preserve ship: STATIC inherits MOTION bias when scale_s=0
-                        if alpha != 0.0:
-                            gmc = gmc_seq.get(expr_id, {}).get(str(fid_pred), {}).get(str(oid_int), default)
-                            gmc_term = gmc if RAW_COS else (gmc - 0.5)
-                            bias = alpha * gmc_term * gmc_scale
-                        else:
-                            bias = 0.0
-                        thr = thr_motion
-                    else:
-                        if alpha_a != 0.0 and scale_a != 0.0:
-                            gmc = gmc_seq.get(expr_id, {}).get(str(fid_pred), {}).get(str(oid_int), default)
-                            gmc_term = gmc if RAW_COS else (gmc - 0.5)
-                            bias = alpha_a * gmc_term * scale_a
-                        else:
-                            bias = 0.0
-                        thr = thr_a
-                    if margin + bias > thr:
+                    gmc = float(gmc_seq.get(expr_id, {}).get(str(fid_pred), {}).get(str(oid_int), 0.0))
+                    if margin + alpha * gmc > 0.0:
                         pred_buf[expr_id].append(bbox_str)
 
         for expr_id in expr_text_by_id:
@@ -193,23 +168,14 @@ def run_te(seqmap, results_dir, class_filter=None):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--alpha", type=float, default=0.0)
-    p.add_argument("--gmc_scale", type=float, default=10.0)
-    p.add_argument("--thr", type=float, default=0.0)
-    p.add_argument("--alpha_appear", type=float, default=0.0)
-    p.add_argument("--gmc_scale_appear", type=float, default=0.0)
-    p.add_argument("--thr_appear", type=float, default=0.0)
-    p.add_argument("--alpha_static", type=float, default=0.0)
-    p.add_argument("--gmc_scale_static", type=float, default=0.0)
-    p.add_argument("--thr_static", type=float, default=0.0)
-    p.add_argument("--grid", action="store_true")
+    p.add_argument("--alpha", type=float, required=True)
     args = p.parse_args()
 
     print(f"Loading FlexHook V2 result_0.json ({RESULT_JSON})...", flush=True)
     with open(RESULT_JSON) as fh:
         cls_dict = json.load(fh)
 
-    print("Loading GMC V2 caches...", flush=True)
+    print("Loading GMC caches...", flush=True)
     gmc_caches = {}
     for s in TEST_SEQS:
         cp = GMC_CACHE_TPL.format(seq=s)
@@ -222,71 +188,26 @@ def main():
     print("Loading tracks...", flush=True)
     tracks_by_seq = {seq: load_tracks(seq) for seq in TEST_SEQS}
 
-    if args.grid:
-        # 2026-05-03 STATIC recipe-split. Lock V2 motion ship (α=0.4, sc=10, thr=+1.3)
-        # + V2 appear ship (α=1.0, sc=3.5, thr=+1.2). Sweep STATIC sc_s + thr_s.
-        # Goal: recover STATIC class loss (Δ=−0.040 in gap diagnosis) on V2.
-        M_A, M_S, M_T = 0.4,  10.0, +1.3
-        A_A, A_S, A_T = 1.0,  3.5,  +1.2
-        configs = [
-            # (tag, αm, sm, tm, αa, sa, ta, αs, ss, ts)
-            ("v2_static_off",        M_A, M_S, M_T, A_A, A_S, A_T,  0.0, 0.0,  0.0),
-            ("v2_static_sc05_thr12", M_A, M_S, M_T, A_A, A_S, A_T,  1.0, 0.5,  +1.2),
-            ("v2_static_sc1_thr12",  M_A, M_S, M_T, A_A, A_S, A_T,  1.0, 1.0,  +1.2),
-            ("v2_static_sc15_thr12", M_A, M_S, M_T, A_A, A_S, A_T,  1.0, 1.5,  +1.2),
-            ("v2_static_sc2_thr12",  M_A, M_S, M_T, A_A, A_S, A_T,  1.0, 2.0,  +1.2),
-            ("v2_static_sc25_thr12", M_A, M_S, M_T, A_A, A_S, A_T,  1.0, 2.5,  +1.2),
-            ("v2_static_neg",        M_A, M_S, M_T, A_A, A_S, A_T, -1.0, 3.5,  +1.2),
-        ]
-    else:
-        tag = f"a{args.alpha}_scale{args.gmc_scale}_thr{args.thr}"
-        if args.gmc_scale_appear != 0.0:
-            tag += f"_aa{args.alpha_appear}_sca{args.gmc_scale_appear}_thra{args.thr_appear}"
-        if args.gmc_scale_static != 0.0:
-            tag += f"_as{args.alpha_static}_scs{args.gmc_scale_static}_thrs{args.thr_static}"
-        configs = [(tag, args.alpha, args.gmc_scale, args.thr,
-                    args.alpha_appear, args.gmc_scale_appear, args.thr_appear,
-                    args.alpha_static, args.gmc_scale_static, args.thr_static)]
-
-    os.makedirs(OUT_ROOT, exist_ok=True)
-    rows = []
-    for cfg in configs:
-        tag, a, sc, thr, a_a, sc_a, thr_a, a_s, sc_s, thr_s = cfg
-        run_dir = os.path.join(OUT_ROOT, tag)
-        os.makedirs(run_dir, exist_ok=True)
-        print(f"\n=== {tag}: motion(α={a}, sc={sc}, thr={thr}) "
-              f"appear(α={a_a}, sc={sc_a}, thr={thr_a}) "
-              f"static(α={a_s}, sc={sc_s}, thr={thr_s}) ===", flush=True)
-        res_dir, sm = gen_predicts(cls_dict, tracks_by_seq, gmc_caches, a, sc, thr, run_dir,
-                                    alpha_a=a_a, scale_a=sc_a, thr_a=thr_a,
-                                    alpha_s=a_s, scale_s=sc_s, thr_s=thr_s)
-        pooled = run_te(sm, res_dir)
-        moving = run_te(sm, res_dir, class_filter="MOVING")
-        static = run_te(sm, res_dir, class_filter="STATIC")
-        appear = run_te(sm, res_dir, class_filter="APPEARANCE")
-        rows.append((tag, a, sc, thr, a_a, sc_a, thr_a, a_s, sc_s, thr_s, pooled, appear, moving, static))
-        print(f"  pooled={pooled}  APPEAR={appear}  MOVING={moving}  STATIC={static}", flush=True)
-
-    print("\n=== FlexHook V2 Phase 5 + GMC sweep summary ===")
-    print(f"{'tag':<28} {'α_m':>4} {'sc_m':>5} {'thr_m':>5} {'α_a':>4} {'sc_a':>5} {'thr_a':>5} "
-          f"{'α_s':>5} {'sc_s':>5} {'thr_s':>5} {'pooled':>8} {'APPEAR':>8} {'MOVING':>8} {'STATIC':>8}")
-    base = next((r for r in rows if "off" in r[0] or "ctrl" in r[0] or "baseline" in r[0]), None)
-    fmt = lambda v: f"{v:>8.3f}" if v is not None else "    None"
-    for tag, a, sc, thr, a_a, sc_a, thr_a, a_s, sc_s, thr_s, pl, ap, m, s in rows:
-        print(f"{tag:<28} {a:>4.2f} {sc:>5.1f} {thr:>+5.2f} {a_a:>4.2f} {sc_a:>5.1f} {thr_a:>+5.2f} "
-              f"{a_s:>+5.2f} {sc_s:>5.1f} {thr_s:>+5.2f} "
-              f"{fmt(pl)} {fmt(ap)} {fmt(m)} {fmt(s)}")
-    if base is not None:
-        bp, bs = base[10], base[13]
-        print(f"\nΔ vs ctrl ({base[0]}):")
-        for tag, a, sc, thr, a_a, sc_a, thr_a, a_s, sc_s, thr_s, pl, ap, m, s in rows:
-            dp = (pl - bp) if (pl is not None and bp is not None) else None
-            ds = (s  - bs) if (s  is not None and bs is not None) else None
-            dp_s = f"{dp:>+7.3f}" if dp is not None else "   None"
-            ds_s = f"{ds:>+7.3f}" if ds is not None else "   None"
-            print(f"  {tag:<28}  Δpool={dp_s}  ΔSTATIC={ds_s}")
-    print(f"\nFlexHook V2 paper claim: 42.526")
-    print(f"V2 motion+appear ship: 42.799")
+    tag = f"alpha{args.alpha}"
+    run_dir = os.path.join(OUT_ROOT, tag)
+    os.makedirs(run_dir, exist_ok=True)
+    print(f"\n=== {tag}: fused = margin + {args.alpha} * gmc, gate 0.0 ===", flush=True)
+    res_dir, sm = gen_predicts(cls_dict, tracks_by_seq, gmc_caches, args.alpha, run_dir)
+    result = {
+        "arch": "fh_v2",
+        "alpha": args.alpha,
+        "gmc_suffix": _GMC_SUFFIX,
+        "pooled": run_te(sm, res_dir),
+        "moving": run_te(sm, res_dir, class_filter="MOVING"),
+        "static": run_te(sm, res_dir, class_filter="STATIC"),
+        "appearance": run_te(sm, res_dir, class_filter="APPEARANCE"),
+    }
+    with open(os.path.join(run_dir, "result.json"), "w") as f:
+        json.dump(result, f, indent=2)
+    print(f"  pooled={result['pooled']}  MOVING={result['moving']}  "
+          f"STATIC={result['static']}  APPEAR={result['appearance']}", flush=True)
+    print(f"  result.json → {run_dir}")
+    print("\nReference: published 42.526 | reproduced native (alpha=0) 42.526")
 
 
 if __name__ == "__main__":

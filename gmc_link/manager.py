@@ -36,7 +36,7 @@ class GMCLinkManager:
     """
 
     # Multi-scale frame gaps matching training. GMC_GAPS env overrides for the
-    # -multiscale ablation (e.g. GMC_GAPS=5,5,5 collapses to a single gap, 13D kept).
+    # -multiscale ablation (e.g. GMC_GAPS=5,5,5 collapses to a single gap, 12D kept).
     FRAME_GAPS = [int(g) for g in os.environ.get("GMC_GAPS", "2,5,10").split(",")]  # short, mid, long
 
     # World-XY projection scale: tunes 95th-percentile world dX/dY input to ~1.0
@@ -62,7 +62,7 @@ class GMCLinkManager:
         self.cosine_buffer = ScoreBuffer(alpha=0.4)
 
         self.extra_features: list = []
-        motion_dim = 13
+        motion_dim = 12
         self.temperature = 1.0
         # CLIP-feat (Exp 39): ckpt meta drives aligner ctor + runtime extraction.
         self.use_clip_feat = False
@@ -76,7 +76,7 @@ class GMCLinkManager:
         if weights_path:
             checkpoint = torch.load(weights_path, map_location=device)
             if isinstance(checkpoint, dict) and "model" in checkpoint:
-                motion_dim = checkpoint.get("motion_dim", 13)
+                motion_dim = checkpoint.get("motion_dim", 12)
                 self.extra_features = checkpoint.get("extra_features") or []
                 self.temperature = checkpoint.get("temperature", 1.0)
                 ckpt_lang_dim = checkpoint.get("lang_dim")
@@ -98,8 +98,8 @@ class GMCLinkManager:
 
         # 17D depth path
         self.use_depth = bool(use_depth)
-        if self.use_depth and motion_dim == 13:
-            motion_dim = 17
+        if self.use_depth and motion_dim == 12:
+            motion_dim = 16
         self.motion_dim = motion_dim
 
         # World-XY projection: swap image dx/dy for metric world dX/dY
@@ -166,7 +166,6 @@ class GMCLinkManager:
         self.homography_buffer: deque = deque(maxlen=frame_gap + 1)
 
         # Background residual buffer for noise floor estimation
-        self.bg_residual_buffer: deque = deque(maxlen=frame_gap + 1)
 
     def encode_clip_image_bboxes(
         self,
@@ -246,7 +245,7 @@ class GMCLinkManager:
         Returns:
             scores_dict: {track_id: alignment score} — if raw_cos=False (default), sigmoid+EMA
                          smoothed [0,1]; if raw_cos=True, raw cosine [-1,+1] (no smoothing).
-            velocities_dict: {track_id: 13D motion vector}
+            velocities_dict: {track_id: 12D motion vector}
             cosine_dict: {track_id: EMA-smoothed cosine similarity} (raw cosine, asymmetric EMA)
         """
         if not active_tracks:
@@ -262,10 +261,9 @@ class GMCLinkManager:
         if update_state:
             if self.prev_frame is not None:
                 # Estimate H_{t-1 -> t} and background warp residual
-                H_prev_to_curr, bg_residual = self.ego_engine.estimate_homography(
+                H_prev_to_curr, _ = self.ego_engine.estimate_homography(
                     self.prev_frame, frame, self.prev_detections
                 )
-                self.bg_residual_buffer.append(bg_residual)
 
                 # Update ALL cumulative homographies by composing with new homography
                 updated_homographies = deque(maxlen=self.frame_gap + 1)
@@ -288,17 +286,6 @@ class GMCLinkManager:
                 self.prev_detections = [tuple(d) for d in detections]
             else:
                 self.prev_detections = None
-
-        # Pre-compute background noise floor (shared across all tracks)
-        if len(self.bg_residual_buffer) > 0:
-            bg_stack = np.array(list(self.bg_residual_buffer))
-            bg_max = np.max(np.abs(bg_stack), axis=0)
-            bg_magnitude = np.sqrt(
-                (bg_max[0] / float(img_w) * VELOCITY_SCALE) ** 2
-                + (bg_max[1] / float(img_h) * VELOCITY_SCALE) ** 2
-            )
-        else:
-            bg_magnitude = 0.0
 
         track_ids = []
         compensated_velocities = []
@@ -398,27 +385,20 @@ class GMCLinkManager:
                 dx_l, dy_l = 0.0, 0.0
                 dw, dh = 0.0, 0.0
 
-            # Build 13D vector: residual velocity + spatial
+            # Build 12D vector: residual velocity + spatial
             w_n = curr_w / float(img_w)
             h_n = curr_h / float(img_h)
             cx_n = curr_centroid[0] / float(img_w)
             cy_n = curr_centroid[1] / float(img_h)
 
-            # SNR from mid-scale residual speed (bg_magnitude pre-computed above)
-            obj_speed = np.sqrt(dx_m ** 2 + dy_m ** 2)
-            snr = obj_speed / (bg_magnitude + 1e-6)
-
-            # -snr ablation zeroes the snr slot (keeps 13D arch; removes the signal).
-            _snr = 0.0 if os.environ.get("GMC_NO_SNR") == "1" else snr
             _motion_list = [dx_s, dy_s, dx_m, dy_m, dx_l, dy_l,
-                            dw, dh, cx_n, cy_n, w_n, h_n, _snr]
+                            dw, dh, cx_n, cy_n, w_n, h_n]
             spatial_motion = np.array(_motion_list, dtype=np.float32)
 
             # World-XY projection: swap image dx/dy for metric world dX/dY.
             # Each smoothed slot s_norm = (pixel_dx / W) * VELOCITY_SCALE.
             # Recover pixels (× W / VELOCITY_SCALE), project (× Z / f), re-normalize
             # (× VELOCITY_SCALE_WORLD). Combined factor = (W/VELOCITY_SCALE)·(Z/f)·SCALE_WORLD.
-            # snr stays image-domain (slot 12) — bg + obj ratio coherent only in pixel space.
             if self.world_xy and self.intrinsics is not None and seq is not None:
                 f_x, f_y, _, _ = self.intrinsics.get(seq)
                 z_raw = None
