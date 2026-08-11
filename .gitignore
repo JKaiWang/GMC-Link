@@ -283,7 +283,9 @@ CLAUDE.md.bak-*
 
 # Local tooling + internal planning (not part of the public repo)
 .claude/
-paper/
+paper/*.md
+paper/*.txt
+!paper/REPRODUCIBILITY.md
 2027_ICASSP/ICASSP2024_Paper_Templates/
 2027_ICASSP/format.*
 2027_ICASSP/Template.pdf

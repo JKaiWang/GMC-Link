@@ -1,0 +1,252 @@
+%%% -*-BibTeX-*-
+%%% Do NOT edit. File created by BibTeX with style
+%%% ACM-Reference-Format-Journals [18-Jan-2012].
+
+\begin{thebibliography}{16}
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{} and \showURL{}.  The latter two
+%%% do not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showURL}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showURL #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
+\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
+\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
+\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
+\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
+\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
+\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
+\ifx \showURL      \undefined \def \showURL       {\relax}        \fi
+% The following commands are used for tagged output and should be
+% invisible to TeX
+\providecommand\bibfield[2]{#2}
+\providecommand\bibinfo[2]{#2}
+\providecommand\natexlab[1]{#1}
+\providecommand\showeprint[2][]{arXiv:#2}
+
+\bibitem[Aharon et~al\mbox{.}(2022)]%
+        {botsort}
+\bibfield{author}{\bibinfo{person}{Nir Aharon}, \bibinfo{person}{Roy Orfaig},
+  {and} \bibinfo{person}{Ben-Zion Bobrovsky}.} \bibinfo{year}{2022}\natexlab{}.
+\newblock \bibinfo{title}{{BoT-SORT}: Robust Associations Multi-Pedestrian
+  Tracking}.
+\newblock
+\showeprint[arxiv]{2206.14651}~[cs.CV]
+\href{https://doi.org/10.48550/arXiv.2206.14651}{doi:\nolinkurl{10.48550/arXiv.2206.14651}}
+
+
+\bibitem[Du et~al\mbox{.}(2024)]%
+        {ikun}
+\bibfield{author}{\bibinfo{person}{Yunhao Du}, \bibinfo{person}{Cheng Lei},
+  \bibinfo{person}{Zhicheng Zhao}, {and} \bibinfo{person}{Fei Su}.}
+  \bibinfo{year}{2024}\natexlab{}.
+\newblock \showarticletitle{{iKUN}: Speak to Trackers without Retraining}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the IEEE/CVF Conference on Computer
+  Vision and Pattern Recognition (CVPR)}}. \bibinfo{publisher}{IEEE},
+  \bibinfo{pages}{19135--19144}.
+\newblock
+\href{https://doi.org/10.1109/CVPR52733.2024.01810}{doi:\nolinkurl{10.1109/CVPR52733.2024.01810}}
+
+
+\bibitem[Fischler and Bolles(1981)]%
+        {ransac}
+\bibfield{author}{\bibinfo{person}{Martin~A. Fischler} {and}
+  \bibinfo{person}{Robert~C. Bolles}.} \bibinfo{year}{1981}\natexlab{}.
+\newblock \showarticletitle{Random Sample Consensus: A Paradigm for Model
+  Fitting with Applications to Image Analysis and Automated Cartography}.
+\newblock \bibinfo{journal}{\emph{Commun. ACM}} \bibinfo{volume}{24},
+  \bibinfo{number}{6} (\bibinfo{year}{1981}), \bibinfo{pages}{381--395}.
+\newblock
+\href{https://doi.org/10.1145/358669.358692}{doi:\nolinkurl{10.1145/358669.358692}}
+
+
+\bibitem[He et~al\mbox{.}(2024)]%
+        {deeprmot}
+\bibfield{author}{\bibinfo{person}{Wenyan He}, \bibinfo{person}{Yajun Jian},
+  \bibinfo{person}{Yang Lu}, {and} \bibinfo{person}{Hanzi Wang}.}
+  \bibinfo{year}{2024}\natexlab{}.
+\newblock \showarticletitle{Visual-Linguistic Representation Learning with Deep
+  Cross-Modality Fusion for Referring Multi-Object Tracking}. In
+  \bibinfo{booktitle}{\emph{ICASSP 2024 -- 2024 IEEE International Conference
+  on Acoustics, Speech and Signal Processing (ICASSP)}}. IEEE,
+  \bibinfo{pages}{6310--6314}.
+\newblock
+\href{https://doi.org/10.1109/ICASSP48485.2024.10447535}{doi:\nolinkurl{10.1109/ICASSP48485.2024.10447535}}
+
+
+\bibitem[Huang et~al\mbox{.}(2024)]%
+        {tellmewhat}
+\bibfield{author}{\bibinfo{person}{Wenjun Huang}, \bibinfo{person}{Yang Ni},
+  \bibinfo{person}{Hanning Chen}, \bibinfo{person}{Yirui He},
+  \bibinfo{person}{Ian Bryant}, \bibinfo{person}{Yezi Liu}, {and}
+  \bibinfo{person}{Mohsen Imani}.} \bibinfo{year}{2024}\natexlab{}.
+\newblock \bibinfo{title}{Tell Me What to Track: Infusing Robust Language
+  Guidance for Enhanced Referring Multi-Object Tracking}.
+\newblock \bibinfo{howpublished}{arXiv preprint arXiv:2412.12561}.
+\newblock
+\showeprint[arxiv]{2412.12561}~[cs.CV]
+
+
+\bibitem[Li et~al\mbox{.}(2025)]%
+        {flexhook}
+\bibfield{author}{\bibinfo{person}{Weize Li}, \bibinfo{person}{Yunhao Du},
+  \bibinfo{person}{Qixiang Yin}, \bibinfo{person}{Zhicheng Zhao}, {and}
+  \bibinfo{person}{Fei Su}.} \bibinfo{year}{2025}\natexlab{}.
+\newblock \bibinfo{title}{Rethinking Two-Stage Referring-by-Tracking in
+  Referring Multi-Object Tracking: Make it Strong Again}.
+\newblock
+\showeprint[arxiv]{2503.07516}~[cs.CV]
+\href{https://doi.org/10.48550/arXiv.2503.07516}{doi:\nolinkurl{10.48550/arXiv.2503.07516}}
+\newblock
+\shownote{Accepted to CVPR 2026}.
+
+
+\bibitem[Liang et~al\mbox{.}(2025)]%
+        {cdrmot}
+\bibfield{author}{\bibinfo{person}{Shaofeng Liang}, \bibinfo{person}{Runwei
+  Guan}, \bibinfo{person}{Wangwang Lian}, \bibinfo{person}{Daizong Liu},
+  \bibinfo{person}{Xiaolou Sun}, \bibinfo{person}{Dongming Wu},
+  \bibinfo{person}{Yutao Yue}, \bibinfo{person}{Weiping Ding}, {and}
+  \bibinfo{person}{Hui Xiong}.} \bibinfo{year}{2025}\natexlab{}.
+\newblock \showarticletitle{Cognitive Disentanglement for Referring
+  Multi-Object Tracking}.
+\newblock \bibinfo{journal}{\emph{Information Fusion}}  \bibinfo{volume}{124}
+  (\bibinfo{year}{2025}), \bibinfo{pages}{103349}.
+\newblock
+\href{https://doi.org/10.1016/j.inffus.2025.103349}{doi:\nolinkurl{10.1016/j.inffus.2025.103349}}
+
+
+\bibitem[Luiten et~al\mbox{.}(2021)]%
+        {hota}
+\bibfield{author}{\bibinfo{person}{Jonathon Luiten},
+  \bibinfo{person}{Aljo{\v{s}}a Os{\v{e}}p}, \bibinfo{person}{Patrick
+  Dendorfer}, \bibinfo{person}{Philip Torr}, \bibinfo{person}{Andreas Geiger},
+  \bibinfo{person}{Laura Leal-Taix{\'e}}, {and} \bibinfo{person}{Bastian
+  Leibe}.} \bibinfo{year}{2021}\natexlab{}.
+\newblock \showarticletitle{{HOTA}: A Higher Order Metric for Evaluating
+  Multi-Object Tracking}.
+\newblock \bibinfo{journal}{\emph{International Journal of Computer Vision}}
+  \bibinfo{volume}{129}, \bibinfo{number}{2} (\bibinfo{year}{2021}),
+  \bibinfo{pages}{548--578}.
+\newblock
+\href{https://doi.org/10.1007/s11263-020-01375-2}{doi:\nolinkurl{10.1007/s11263-020-01375-2}}
+
+
+\bibitem[Lv et~al\mbox{.}(2025)]%
+        {vmrmot}
+\bibfield{author}{\bibinfo{person}{Weiyi Lv}, \bibinfo{person}{Ning Zhang},
+  \bibinfo{person}{Hanyang Sun}, \bibinfo{person}{Haoran Jiang},
+  \bibinfo{person}{Kai Zhao}, \bibinfo{person}{Jing Xiao}, {and}
+  \bibinfo{person}{Dan Zeng}.} \bibinfo{year}{2025}\natexlab{}.
+\newblock \bibinfo{title}{Vision--Motion--Reference Alignment for Referring
+  Multi-Object Tracking via Multi-Modal Large Language Models}.
+\newblock
+\showeprint[arxiv]{2511.17681}~[cs.CV]
+\href{https://doi.org/10.48550/arXiv.2511.17681}{doi:\nolinkurl{10.48550/arXiv.2511.17681}}
+
+
+\bibitem[Ma et~al\mbox{.}(2024)]%
+        {mlstrack}
+\bibfield{author}{\bibinfo{person}{Zeliang Ma}, \bibinfo{person}{Song Yang},
+  \bibinfo{person}{Zhe Cui}, \bibinfo{person}{Zhicheng Zhao},
+  \bibinfo{person}{Fei Su}, \bibinfo{person}{Delong Liu}, {and}
+  \bibinfo{person}{Jingyu Wang}.} \bibinfo{year}{2024}\natexlab{}.
+\newblock \bibinfo{title}{{MLS-Track}: Multilevel Semantic Interaction in
+  {RMOT}}.
+\newblock \bibinfo{howpublished}{arXiv preprint arXiv:2404.12031}.
+\newblock
+\showeprint[arxiv]{2404.12031}~[cs.CV]
+
+
+\bibitem[Reimers and Gurevych(2019)]%
+        {sbert}
+\bibfield{author}{\bibinfo{person}{Nils Reimers} {and} \bibinfo{person}{Iryna
+  Gurevych}.} \bibinfo{year}{2019}\natexlab{}.
+\newblock \showarticletitle{{Sentence-BERT}: Sentence Embeddings using Siamese
+  {BERT}-Networks}. In \bibinfo{booktitle}{\emph{Proceedings of the 2019
+  Conference on Empirical Methods in Natural Language Processing and the 9th
+  International Joint Conference on Natural Language Processing
+  (EMNLP-IJCNLP)}}. \bibinfo{publisher}{Association for Computational
+  Linguistics}, \bibinfo{address}{Hong Kong, China},
+  \bibinfo{pages}{3982--3992}.
+\newblock
+\href{https://doi.org/10.18653/v1/D19-1410}{doi:\nolinkurl{10.18653/v1/D19-1410}}
+
+
+\bibitem[Rublee et~al\mbox{.}(2011)]%
+        {orb}
+\bibfield{author}{\bibinfo{person}{Ethan Rublee}, \bibinfo{person}{Vincent
+  Rabaud}, \bibinfo{person}{Kurt Konolige}, {and} \bibinfo{person}{Gary
+  Bradski}.} \bibinfo{year}{2011}\natexlab{}.
+\newblock \showarticletitle{{ORB}: An Efficient Alternative to {SIFT} or
+  {SURF}}. In \bibinfo{booktitle}{\emph{2011 International Conference on
+  Computer Vision (ICCV)}}. \bibinfo{publisher}{IEEE},
+  \bibinfo{pages}{2564--2571}.
+\newblock
+\href{https://doi.org/10.1109/ICCV.2011.6126544}{doi:\nolinkurl{10.1109/ICCV.2011.6126544}}
+
+
+\bibitem[van~den Oord et~al\mbox{.}(2018)]%
+        {infonce}
+\bibfield{author}{\bibinfo{person}{Aaron van~den Oord}, \bibinfo{person}{Yazhe
+  Li}, {and} \bibinfo{person}{Oriol Vinyals}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \bibinfo{title}{Representation Learning with Contrastive Predictive
+  Coding}.
+\newblock
+\showeprint[arxiv]{1807.03748}~[cs.LG]
+
+
+\bibitem[Wu et~al\mbox{.}(2023)]%
+        {transrmot}
+\bibfield{author}{\bibinfo{person}{Dongming Wu}, \bibinfo{person}{Wencheng
+  Han}, \bibinfo{person}{Tiancai Wang}, \bibinfo{person}{Xingping Dong},
+  \bibinfo{person}{Xiangyu Zhang}, {and} \bibinfo{person}{Jianbing Shen}.}
+  \bibinfo{year}{2023}\natexlab{}.
+\newblock \showarticletitle{Referring Multi-Object Tracking}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the IEEE/CVF Conference on Computer
+  Vision and Pattern Recognition (CVPR)}}. \bibinfo{publisher}{IEEE},
+  \bibinfo{pages}{14633--14642}.
+\newblock
+\href{https://doi.org/10.1109/CVPR52729.2023.01406}{doi:\nolinkurl{10.1109/CVPR52729.2023.01406}}
+
+
+\bibitem[Yi et~al\mbox{.}(2024)]%
+        {ucmctrack}
+\bibfield{author}{\bibinfo{person}{Kefu Yi}, \bibinfo{person}{Kai Luo},
+  \bibinfo{person}{Xiaolei Luo}, \bibinfo{person}{Jiangui Huang},
+  \bibinfo{person}{Hao Wu}, \bibinfo{person}{Rongdong Hu}, {and}
+  \bibinfo{person}{Wei Hao}.} \bibinfo{year}{2024}\natexlab{}.
+\newblock \showarticletitle{{UCMCTrack}: Multi-Object Tracking with Uniform
+  Camera Motion Compensation}. In \bibinfo{booktitle}{\emph{Proceedings of the
+  AAAI Conference on Artificial Intelligence}}, Vol.~\bibinfo{volume}{38}.
+  \bibinfo{publisher}{AAAI Press}, \bibinfo{pages}{6702--6710}.
+\newblock
+\href{https://doi.org/10.1609/aaai.v38i7.28493}{doi:\nolinkurl{10.1609/aaai.v38i7.28493}}
+
+
+\bibitem[Zhang et~al\mbox{.}(2024)]%
+        {temprmot}
+\bibfield{author}{\bibinfo{person}{Yani Zhang}, \bibinfo{person}{Dongming Wu},
+  \bibinfo{person}{Wencheng Han}, {and} \bibinfo{person}{Xingping Dong}.}
+  \bibinfo{year}{2024}\natexlab{}.
+\newblock \bibinfo{title}{Bootstrapping Referring Multi-Object Tracking}.
+\newblock
+\showeprint[arxiv]{2406.05039}~[cs.CV]
+\href{https://doi.org/10.48550/arXiv.2406.05039}{doi:\nolinkurl{10.48550/arXiv.2406.05039}}
+\newblock
+\shownote{Introduces TempRMOT and Refer-KITTI-V2}.
+
+
+\end{thebibliography}
