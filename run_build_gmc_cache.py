@@ -115,6 +115,6 @@ def build(seq):
 
 
 if __name__ == "__main__":
-    seqs = sys.argv[1:] if len(sys.argv) > 1 else ["0005", "0013"]
+    seqs = sys.argv[1:] if len(sys.argv) > 1 else ["0005", "0011", "0013"]
     for s in seqs:
         build(s)

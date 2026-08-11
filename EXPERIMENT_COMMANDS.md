@@ -87,6 +87,11 @@ For each fold: leave one sequence out, sweep α on the remaining seqs, pick the
 pooled-best α; final α* = median over folds; report full-test numbers at α*.
 `GMC_EVAL_SEQS` restricts the eval to the fold's sequences.
 
+⚠️ LOSO runs write into the SAME `hota_eval_*_sw12d_seed{N}/alpha{A}/result.json`
+dirs as full-test runs (OUT_SUFFIX collision) — fold results clobber full-test
+result.json. Always re-run the full-test eval at the final α* AFTER Phase 4,
+or read full-test numbers only from `results/alpha_sweep_*.json` (immutable).
+
 ```bash
 # V1 hosts (3 folds). Repeat per arch: ikun, fh_v1.
 for HOLD in 0005 0011 0013; do
