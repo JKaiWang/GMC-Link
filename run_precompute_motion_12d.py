@@ -1,16 +1,16 @@
-"""Pre-compute 13D ego-compensated motion vectors per (video, obj_id, frame).
+"""Pre-compute 12D ego-compensated motion vectors per (video, obj_id, frame).
 
 Reads YOLOv8-NS tracks from /home/seanachan/GMC-Link/NeuralSORT/{seq}/{car,pedestrian}/predict.txt.
 Runs GMCLinkManager.process_frame frame-by-frame to populate centroid history + cumulative
-homographies, then extracts the 13D vector from velocities_dict.
+homographies, then extracts the 12D vector from velocities_dict.
 
-Output: /home/seanachan/GMC-Link/iKUN/motion_13d_cache_v1/{video}.pt
-        dict[obj_id: int][frame_id: int] = np.ndarray((13,), dtype=float32)
+Output: /home/seanachan/GMC-Link/iKUN/motion_12d_cache_v1/{video}.pt
+        dict[obj_id: int][frame_id: int] = np.ndarray((12,), dtype=float32)
 
 Usage:
     conda activate RMOT
-    python run_precompute_motion_13d.py
-    python run_precompute_motion_13d.py --seqs 0005 0011 0013
+    python run_precompute_motion_12d.py
+    python run_precompute_motion_12d.py --seqs 0005 0011 0013
 """
 import argparse, os, sys
 from collections import defaultdict
@@ -26,7 +26,7 @@ from gmc_link.manager import GMCLinkManager
 
 NS_ROOT = "/home/seanachan/GMC-Link/NeuralSORT"
 KITTI_IMG = "/home/seanachan/data/Dataset/refer-kitti/KITTI/training/image_02"
-OUT_ROOT = "/home/seanachan/GMC-Link/iKUN/motion_13d_cache_v1"
+OUT_ROOT = "/home/seanachan/GMC-Link/iKUN/motion_12d_cache_v1"
 
 TRAIN_SEQS = ["0001","0002","0003","0004","0006","0007","0008","0009","0010","0012",
               "0014","0015","0016","0017","0018","0019","0020"]
@@ -87,7 +87,7 @@ def _process_video(video, manager):
         print(f"  [{video}] no tracks, skip")
         return {}
 
-    cache = defaultdict(dict)  # obj_id -> {frame_id: np.ndarray(13,)}
+    cache = defaultdict(dict)  # obj_id -> {frame_id: np.ndarray(12,)}
     img_dir = Path(KITTI_IMG) / video
     frame_ids = sorted(tracks_per_frame.keys())
     dummy_lang = torch.zeros(1, 384)

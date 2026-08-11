@@ -29,7 +29,6 @@ FRAME_DIR   = os.environ.get("GMC_FRAME_DIR", "/home/seanachan/data/Dataset/refe
 CACHE_VER   = os.environ.get("GMC_CACHE_VER", "v1")  # cache filename version tag (v1|v2)
 GMC_WEIGHTS = os.environ.get("GMC_WEIGHTS", "gmc_link_weights_v1train.pth")
 GMC_SUFFIX  = os.environ.get("GMC_SUFFIX", "")  # appended before _cache.json: e.g. "_seed0"
-GMC_RAW_COS = os.environ.get("GMC_RAW_COS", "0") == "1"  # Arm B: dump raw cosine (skip sigmoid+EMA)
 GMC_DEPTH_ARCH = os.environ.get("GMC_DEPTH_ARCH", "ikun")  # depth cache arch tag
 GMC_DEPTH_DIR  = os.environ.get("GMC_DEPTH_DIR",  "gmc_link/depth_cache")
 DEVICE      = "cuda" if torch.cuda.is_available() else "cpu"
@@ -105,7 +104,7 @@ def build(seq):
                     z = depth_cache.lookup(oid, f1)
                     if z is not None:
                         depth_z_lookup[oid] = float(z)
-            scores, _, _ = linker.process_frame(frame_img, active, text_emb, detections=det_arr, raw_cos=GMC_RAW_COS, depth_z_lookup=depth_z_lookup, seq=seq, frame_id=f1, clip_feat_cache=clip_cache)
+            scores, _, _ = linker.process_frame(frame_img, active, text_emb, detections=det_arr, raw_cos=True, depth_z_lookup=depth_z_lookup, seq=seq, frame_id=f1, clip_feat_cache=clip_cache)
             for oid, g in scores.items():
                 per_expr.setdefault(str(f1), {})[str(oid)] = float(g)
         cache[expression] = per_expr
@@ -116,6 +115,6 @@ def build(seq):
 
 
 if __name__ == "__main__":
-    seqs = sys.argv[1:] if len(sys.argv) > 1 else ["0005", "0013"]
+    seqs = sys.argv[1:] if len(sys.argv) > 1 else ["0005", "0011", "0013"]
     for s in seqs:
         build(s)

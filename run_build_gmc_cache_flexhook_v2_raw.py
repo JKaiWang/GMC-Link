@@ -27,7 +27,6 @@ FRAME_DIR    = os.path.join(V2_DATA_ROOT, "KITTI/training/image_02")
 EXPR_ROOT    = os.path.join(V2_DATA_ROOT, "expression")
 GMC_WEIGHTS  = os.environ.get("GMC_WEIGHTS", "gmc_link_weights_v1train.pth")
 GMC_SUFFIX   = os.environ.get("GMC_SUFFIX", "")
-GMC_RAW_COS  = os.environ.get("GMC_RAW_COS", "0") == "1"  # Arm B: dump raw cosine, skip sigmoid+EMA
 GMC_DEPTH_ARCH = os.environ.get("GMC_DEPTH_ARCH", "fh_v2")
 GMC_DEPTH_DIR  = os.environ.get("GMC_DEPTH_DIR",  "gmc_link/depth_cache")
 DEVICE       = "cuda" if torch.cuda.is_available() else "cpu"
@@ -110,28 +109,16 @@ def project_motion(linker, motions, lang_dim=384, clip_feats_list=None):
 
 
 def score_one_expression(linker, motion_emb, keys, text_emb, temperature):
-    """Pass 3 per expression: cosine → sigmoid → EMA(per oid). Returns
-    cache_expr[str(fid)][str(oid)] = float.
-
-    If GMC_RAW_COS=1 env set, dumps raw cosine [-1,+1] (skip sigmoid + skip EMA)
-    for Arm B fusion experiments."""
+    """Pass 3 per expression: raw cosine [-1,+1] scores (ship path, no
+    sigmoid/EMA). Returns cache_expr[str(fid)][str(oid)] = float."""
     with torch.no_grad():
         lang_emb = linker.aligner.encode_lang(text_emb)  # (1, 256)
         cos_sim = (motion_emb @ lang_emb.t()).squeeze(-1)  # (N,)
-        if GMC_RAW_COS:
-            raw_scores = cos_sim.cpu().numpy()
-        else:
-            raw_scores = torch.sigmoid((cos_sim - SCORE_MARGIN) / temperature).cpu().numpy()
+        raw_scores = cos_sim.cpu().numpy()
 
     cache_expr = {}
-    if GMC_RAW_COS:
-        for (f1, oid), raw in zip(keys, raw_scores):
-            cache_expr.setdefault(str(f1), {})[str(oid)] = float(raw)
-    else:
-        score_buffer = ScoreBuffer(alpha=0.4)
-        for (f1, oid), raw in zip(keys, raw_scores):
-            smoothed = score_buffer.smooth(oid, float(raw))
-            cache_expr.setdefault(str(f1), {})[str(oid)] = smoothed
+    for (f1, oid), raw in zip(keys, raw_scores):
+        cache_expr.setdefault(str(f1), {})[str(oid)] = float(raw)
     return cache_expr
 
 

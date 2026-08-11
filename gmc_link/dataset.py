@@ -122,8 +122,7 @@ def _build_cache_key(
     # frame_gaps already covers the -multiscale (GMC_GAPS) ablation.
     if os.environ.get("GMC_RAWVEL") == "1":
         key_obj["rawvel"] = True
-    if os.environ.get("GMC_NO_SNR") == "1":
-        key_obj["no_snr"] = "zeroed13d"  # v2: zero slot, keep 13D (busts stale 12D cache)
+    key_obj["dims"] = 12  # rho/snr removed 2026-08-10; busts stale 13D caches
     # NB: class_filter intentionally NOT in cache key. Anchor-mask mode keeps
     # the full motion-filtered pool; only the loss anchor_mask depends on it.
     # Same cached (motion, lang, labels, id_to_class) serves all class_filter values.
@@ -331,7 +330,7 @@ def compute_per_track_extras(extra_features, scale_velocities, ego_dx_m=0.0,
             ``omf_stats`` requested, zeros are emitted.
 
     Returns:
-        list of float values to append to the base 13D vector
+        list of float values to append to the base 12D vector
     """
     if not extra_features:
         return []
@@ -696,7 +695,7 @@ def is_motion_expression(sentence):
 
 
 # Appearance / spatial / person-attribute tokens whose presence indicates the
-# expression carries non-motion semantic content the 13D motion vector cannot
+# expression carries non-motion semantic content the 12D motion vector cannot
 # encode (color, shape, side, person attrs, clothing).
 APPEARANCE_KEYWORDS = [
     # color
@@ -743,7 +742,7 @@ def select_expressions(all_expressions, motion_filter):
 
 
 # ── Motion-type grouping ────────────────────────────────────────────
-# Maps fine-grained expressions → 6 motion-type groups that the 13D
+# Maps fine-grained expressions → 6 motion-type groups that the 12D
 # features can actually distinguish.  Priority order matters: "moving
 # turning cars" → TURNING (more specific), not MOVING.
 
@@ -1113,13 +1112,13 @@ def _generate_positive_pairs(
     """
     Generate positive (motion, language) pairs with residual velocity (raw - ego).
 
-    Base 13D vector: [res_dx_s, res_dy_s, res_dx_m, res_dy_m, res_dx_l, res_dy_l,
-                      dw, dh, cx, cy, w, h, snr]
+    Base 12D vector: [res_dx_s, res_dy_s, res_dx_m, res_dy_m, res_dx_l, res_dy_l,
+                      dw, dh, cx, cy, w, h]
     + optional extra features appended.
 
     World-XY projection: when ``world_xy=True``, swap image-domain residual
     (dx, dy) per scale for metric world (dX, dY) via inverse pinhole
-    `world_dX = pixel_dx * Z / f_x`. snr stays image-domain (slot 12)
+    `world_dX = pixel_dx * Z / f_x`.
     so bg + obj ratio remains coherent. Z lookup matches use_depth path;
     default 30m fallback when depth missing.
     """
@@ -1140,7 +1139,7 @@ def _generate_positive_pairs(
                                  "nn_dist", "track_density")]
     needs_neighbors = len(relational_feats) > 0
 
-    primary_gap_idx = 1  # mid-scale (gap=5) is the primary for dw/dh/snr
+    primary_gap_idx = 1  # mid-scale (gap=5) is the primary for dw/dh
 
     # Pre-compute per-track mid-scale velocities for relational features
     # {frame_id: {track_id: (dx_m, dy_m, cx_n, cy_n)}}
@@ -1177,7 +1176,6 @@ def _generate_positive_pairs(
 
             # Find future frames at each scale — warped velocity
             scale_velocities = []
-            best_bg_residual = np.zeros(2, dtype=np.float32)
             ego_dx_m, ego_dy_m = 0.0, 0.0
             any_valid = False
 
@@ -1185,14 +1183,13 @@ def _generate_positive_pairs(
                 future_j = _find_future_frame(sorted_frames, i, gap)
                 if future_j is not None:
                     future_fid = sorted_frames[future_j]
-                    dx, dy, bg_res, e_dx, e_dy = _compute_velocity_at_gap(
+                    dx, dy, _bg_res, e_dx, e_dy = _compute_velocity_at_gap(
                         centroids, curr_fid, future_fid, frame_shape,
                         seq, frame_dir, orb_engine,
                     )
                     scale_velocities.append((dx, dy))
                     any_valid = True
                     if gap_idx == primary_gap_idx:
-                        best_bg_residual = bg_res
                         ego_dx_m, ego_dy_m = e_dx, e_dy
                 else:
                     scale_velocities.append((0.0, 0.0))
@@ -1293,15 +1290,6 @@ def _generate_positive_pairs(
             cx_n, cy_n = cx1 / w, cy1 / h
             bw_n, bh_n = bw1 / w, bh1 / h
 
-            # SNR from primary (mid) scale warped speed (image-domain)
-            mid_dx, mid_dy = scale_velocities[primary_gap_idx]
-            obj_speed = np.sqrt(mid_dx ** 2 + mid_dy ** 2)
-            bg_mag = np.sqrt(
-                (best_bg_residual[0] / w * VELOCITY_SCALE) ** 2
-                + (best_bg_residual[1] / h * VELOCITY_SCALE) ** 2
-            )
-            snr = obj_speed / (bg_mag + 1e-6)
-
             # World-XY projection: swap image dx/dy for metric world dX/dY.
             # Each smoothed slot s_norm = (pixel_dx / W) * VELOCITY_SCALE.
             # Recover pixels (× W / VELOCITY_SCALE), project (× Z / f), re-normalize
@@ -1322,13 +1310,12 @@ def _generate_positive_pairs(
                 sy = (h / VELOCITY_SCALE) * z_eff / f_y * 2.0
                 scale_velocities = [(dx * sx, dy * sy) for dx, dy in scale_velocities]
 
-            # Base 13D vector; -snr ablation zeroes the snr slot (must match manager.py).
-            _snr = 0.0 if os.environ.get("GMC_NO_SNR") == "1" else snr
+            # Base 12D vector (must match manager.py slot order).
             base_vec = [
                 scale_velocities[0][0], scale_velocities[0][1],
                 scale_velocities[1][0], scale_velocities[1][1],
                 scale_velocities[2][0], scale_velocities[2][1],
-                dw, dh, cx_n, cy_n, bw_n, bh_n, _snr,
+                dw, dh, cx_n, cy_n, bw_n, bh_n,
             ]
 
             # Depth-augmentation 4D: [Z_n, dZ_res_short, dZ_res_mid, dZ_res_long].

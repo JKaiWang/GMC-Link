@@ -18,7 +18,7 @@ class TemporalMotionEncoder(nn.Module):
 
     def __init__(
         self,
-        motion_dim: int = 13,
+        motion_dim: int = 12,
         d_model: int = 64,
         n_head: int = 4,
         dim_feedforward: int = 128,
@@ -31,11 +31,11 @@ class TemporalMotionEncoder(nn.Module):
         self.seq_len = seq_len
 
         # Normalize inputs before projection — SNR and velocity can have extreme
-        # outliers (e.g. snr → ∞ when ego-motion ≈ 0) that would blow up attention
+        # outliers that would blow up attention
         # softmax and produce NaN gradients.
         self.input_norm = nn.LayerNorm(motion_dim)
 
-        # Per-frame projection: 13D → d_model
+        # Per-frame projection: 12D → d_model
         self.input_proj = nn.Linear(motion_dim, d_model)
 
         # Learnable [CLS] token
@@ -113,7 +113,7 @@ class MotionLanguageAligner(nn.Module):
 
     def __init__(
         self,
-        motion_dim: int = 13,
+        motion_dim: int = 12,
         lang_dim: int = 384,
         embed_dim: int = 256,
         architecture: str = "mlp",
@@ -175,7 +175,7 @@ class MotionLanguageAligner(nn.Module):
         if use_clip_feat and fusion_site == "input_concat":
             self.clip_proj = nn.Linear(clip_feat_dim, clip_proj_dim)
             # Zero-init: clip_proj(x) = 0 → concat = [motion, zeros] → bit-exact
-            # 13D-only baseline at step 0.
+            # 12D-only baseline at step 0.
             nn.init.zeros_(self.clip_proj.weight)
             nn.init.zeros_(self.clip_proj.bias)
             effective_motion_dim = motion_dim + clip_proj_dim
@@ -203,17 +203,17 @@ class MotionLanguageAligner(nn.Module):
                 nn.LayerNorm(embed_dim),
             )
 
-        # Identity-init depth columns: zero W[:, 13:motion_dim] of the first
+        # Identity-init depth columns: zero W[:, 12:motion_dim] of the first
         # Linear so the depth tail multiplies to zero at step 0. Bit-exact
-        # gate vs a 13D aligner whose first-13 weight columns match.
+        # gate vs a 12D aligner whose first-12 weight columns match.
         if (
             identity_init_depth
             and architecture == "mlp"
-            and motion_dim > 13
+            and motion_dim > 12
             and not (use_clip_feat and fusion_site == "input_concat")
         ):
             with torch.no_grad():
-                self.motion_projector[0].weight[:, 13:motion_dim].zero_()
+                self.motion_projector[0].weight[:, 12:motion_dim].zero_()
 
         # ── Late-concat: parallel appearance arm ────────────────────
         if use_clip_feat and fusion_site == "late_concat":

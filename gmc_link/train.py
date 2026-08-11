@@ -257,7 +257,7 @@ def setup_data(
 
 def setup_model_and_optimizer(
     device: torch.device, lang_dim: int, learning_rate: float, epochs: int,
-    learnable_temp: bool = False, motion_dim: int = 13,
+    learnable_temp: bool = False, motion_dim: int = 12,
     architecture: str = "mlp", seq_len: int = 10,
     loss_name: str = "infonce", beta: float = 1.0,
     use_clip_feat: bool = False, clip_feat_dim: int = 512, clip_proj_dim: int = 64,
@@ -477,7 +477,7 @@ def _run_single_stage(
         print("ERROR: No training data found.")
         return
 
-    motion_dim = 13 + compute_extra_dims(extra_features) + (4 if use_depth else 0)
+    motion_dim = 12 + compute_extra_dims(extra_features) + (4 if use_depth else 0)
     model, criterion, optimizer, scheduler = setup_model_and_optimizer(
         device, lang_dim, lr, epochs, learnable_temp=learnable_temp,
         motion_dim=motion_dim,
@@ -683,7 +683,7 @@ def main() -> None:
                 print(f"ERROR: Unknown feature '{f}'. Valid: {list(EXTRA_FEATURE_DIMS.keys())}")
                 return
         extra_dims = compute_extra_dims(extra_features)
-        print(f"Extra features: {extra_features} (+{extra_dims}D → {13 + extra_dims}D)")
+        print(f"Extra features: {extra_features} (+{extra_dims}D → {12 + extra_dims}D)")
 
     # --- Configuration ---
     device = torch.device(
