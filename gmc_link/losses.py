@@ -1,6 +1,7 @@
 """
 Loss functions for the GMC-Link alignment network.
 """
+import os
 import torch
 from torch import nn
 import torch.nn.functional as F
@@ -35,7 +36,11 @@ class AlignmentLoss(nn.Module):
         """
         Args:
             sim_matrix:   (B, B) cosine similarity matrix from model.forward()
-            sentence_ids: unused, kept for API compatibility
+            sentence_ids: (B,) label ids. GMC_FNM=1: off-diagonal same-label
+                          logits are masked to -inf in both CE directions
+                          (false-negative masking; audit A1 — at stage-1 group
+                          labels ~30% of in-batch negatives share the anchor's
+                          label). Default: ignored (ship-reproducible).
             anchor_mask:  optional (B,) bool/float tensor — only masked anchors
                           contribute to loss. Negatives stay full-batch (cross-class
                           retention). Used by per-class specialist training.
@@ -50,6 +55,12 @@ class AlignmentLoss(nn.Module):
             logits = sim_matrix * self.log_inv_temp.exp()  # sim * (1/τ)
         else:
             logits = sim_matrix / self._init_temperature
+
+        if sentence_ids is not None and os.environ.get("GMC_FNM") == "1":
+            ids = torch.as_tensor(sentence_ids, device=device)
+            same = ids.unsqueeze(0) == ids.unsqueeze(1)
+            same.fill_diagonal_(False)
+            logits = logits.masked_fill(same, float("-inf"))  # symmetric mask: applies to logits.t() too
 
         # Targets: diagonal pairs are positives
         targets = torch.arange(B, device=device)

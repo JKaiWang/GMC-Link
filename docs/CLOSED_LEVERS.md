@@ -43,6 +43,7 @@ file itself.
 | Strict motion filter | −0.142; mixed samples teach invariance | project_strict_filter_negative |
 | Text encoder swap (BGE-base 768D) | worst of 7; encoder lever falsified | project_exp36d_bge_negative |
 | Curriculum, V1+V2 joint train | flat | project_exp36e_*, project_exp36c_* |
+| Group-level FNM in stage-1 InfoNCE (GMC_FNM=1, 2026-08-14) | pooled NEG all 3 archs every α>0 (iKUN −0.23 at own peak); same-group negatives load-bearing for STATIC/APPEAR | project_full_audit_2026_08_13 (A1), results/fnm{,_warm11}/ |
 | sw-arch search (18 runs), temporal transformer | exhausted / dead | project_autoresearch_aligner_arch_exhausted_2026_06_13, project_seq_encoder_hota_rescreen_flat_2026_06_11 |
 
 ## Hosts / trackers / detectors
