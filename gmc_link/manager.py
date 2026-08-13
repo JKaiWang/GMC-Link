@@ -369,7 +369,11 @@ class GMCLinkManager:
                     residual_velocities[2][0], residual_velocities[2][1],
                     dw_raw, dh_raw,
                 ], dtype=np.float32)
-                if update_state:
+                # GMC_MOTION_EMA=0 ablation: bypass MotionBuffer EMA (training
+                # features are raw diffs — dataset.py has no EMA; audit A2).
+                if os.environ.get("GMC_MOTION_EMA") == "0":
+                    smoothed_v = full_raw_v
+                elif update_state:
                     smoothed_v = self.motion_buffer.smooth(tid, full_raw_v)
                 else:
                     smoothed_v = self.motion_buffer.peek(tid, full_raw_v)
