@@ -179,13 +179,21 @@ def main():
         if os.path.exists(cp):
             with open(cp) as fh:
                 gmc_caches[s] = json.load(fh)
+        elif args.alpha != 0:
+            # missing cache at alpha>0 would silently evaluate as native (flat
+            # sweep labeled as fused) — fail loudly instead, matching iKUN.
+            raise FileNotFoundError(
+                f"GMC cache missing: {cp} (check GMC_SUFFIX; alpha>0 needs it)")
         else:
-            print(f"  WARN: {cp} missing — alpha will silently default to 0 for {s}")
+            print(f"  WARN: {cp} missing (alpha=0, cache unused)")
 
     print("Loading tracks...", flush=True)
     tracks_by_seq = {seq: load_tracks(seq) for seq in TEST_SEQS}
 
     tag = f"alpha{args.alpha}"
+    if os.environ.get("GMC_EVAL_SEQS"):
+        # fold-scoped output dir: LOSO runs must never clobber full-test result.json
+        tag += "_seqs" + "-".join(TEST_SEQS)
     run_dir = os.path.join(OUT_ROOT, tag)
     os.makedirs(run_dir, exist_ok=True)
     print(f"\n=== {tag}: fused = margin + {args.alpha} * gmc, gate 0.0 ===", flush=True)
@@ -194,6 +202,7 @@ def main():
         "arch": "fh_v1",
         "alpha": args.alpha,
         "gmc_suffix": _GMC_SUFFIX,
+        "eval_seqs": TEST_SEQS,
         "pooled": run_te(sm, res_dir),
         "moving": run_te(sm, res_dir, class_filter="MOVING"),
         "static": run_te(sm, res_dir, class_filter="STATIC"),

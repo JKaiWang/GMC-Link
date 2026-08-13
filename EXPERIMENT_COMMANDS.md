@@ -87,10 +87,13 @@ For each fold: leave one sequence out, sweep α on the remaining seqs, pick the
 pooled-best α; final α* = median over folds; report full-test numbers at α*.
 `GMC_EVAL_SEQS` restricts the eval to the fold's sequences.
 
-⚠️ LOSO runs write into the SAME `hota_eval_*_sw12d_seed{N}/alpha{A}/result.json`
-dirs as full-test runs (OUT_SUFFIX collision) — fold results clobber full-test
-result.json. Always re-run the full-test eval at the final α* AFTER Phase 4,
-or read full-test numbers only from `results/alpha_sweep_*.json` (immutable).
+FIXED 2026-08-13 (was ⚠️ clobber landmine): when `GMC_EVAL_SEQS` is set, eval
+scripts now write to fold-scoped dirs `alpha{A}_seqs{S1-S2}/` and record
+`eval_seqs` in result.json, so fold runs can no longer clobber full-test
+`alpha{A}/result.json`. FH scripts also now FAIL (FileNotFoundError) on missing
+GMC cache at α>0 instead of silently evaluating as native. Historical dirs
+written before 2026-08-13 may still hold fold outputs — check `eval_seqs` /
+pooled magnitude before trusting; `results/alpha_sweep_*.json` stays canonical.
 
 ```bash
 # V1 hosts (3 folds). Repeat per arch: ikun, fh_v1.

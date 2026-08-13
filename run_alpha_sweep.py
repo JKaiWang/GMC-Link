@@ -41,8 +41,13 @@ def run_one(arch, seed, alpha, suffix_template, dry_run):
     suffix = suffix_template.format(seed=seed)
     env = dict(os.environ, GMC_SUFFIX=suffix, OUT_SUFFIX=suffix)
     cmd = [sys.executable, os.path.join(REPO, cfg["script"]), "--alpha", str(alpha)]
+    tag = f"alpha{alpha}"
+    seqs_env = os.environ.get("GMC_EVAL_SEQS")
+    if seqs_env:
+        # eval scripts fold-scope their output dir when GMC_EVAL_SEQS is set
+        tag += "_seqs" + "-".join(seqs_env.split(","))
     result_path = os.path.join(
-        REPO, cfg["out_root"] + suffix, f"alpha{alpha}", "result.json")
+        REPO, cfg["out_root"] + suffix, tag, "result.json")
     if dry_run:
         print(f"DRY  GMC_SUFFIX={suffix} {' '.join(cmd)}  →  {result_path}")
         return None

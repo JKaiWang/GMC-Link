@@ -169,6 +169,9 @@ def main():
     gmc_caches = {s: json.load(open(GMC_CACHE_TPL.format(seq=s))) for s in TEST_SEQS}
 
     tag = f"alpha{args.alpha}"
+    if os.environ.get("GMC_EVAL_SEQS"):
+        # fold-scoped output dir: LOSO runs must never clobber full-test result.json
+        tag += "_seqs" + "-".join(TEST_SEQS)
     run_dir = os.path.join(OUT_ROOT, tag)
     os.makedirs(run_dir, exist_ok=True)
     print(f"\n=== {tag}: fused = cs + b + {args.alpha} * gmc, gate 0.0 ===", flush=True)
@@ -177,6 +180,7 @@ def main():
         "arch": "ikun",
         "alpha": args.alpha,
         "gmc_suffix": _GMC_SUFFIX,
+        "eval_seqs": TEST_SEQS,
         "pooled": run_te(sm, res_dir),
         "moving": run_te(sm, res_dir, class_filter="MOVING"),
         "static": run_te(sm, res_dir, class_filter="STATIC"),
