@@ -551,6 +551,30 @@ at 53.716); the local V1 −0.190 vs the mlp ship is an accepted trade for sw un
 
 ---
 
+## 10. Full-Pipeline Audit (2026-08-13) — defects found, none previously documented
+
+13-agent audit of every stage (12D single-α ship), all candidates adversarially
+verified against `docs/CLOSED_LEVERS.md`. Ranked plan: `docs/IMPROVEMENT_PLAN_2026_08_13.md`.
+Memory: `project_full_audit_2026_08_13`. Findings (status at audit time):
+
+| # | Defect | Evidence | Status |
+|---|--------|----------|--------|
+| A1 | Ship stage-1 training has **NO False-Negative Masking** (docs claimed "InfoNCE + FNM"); default `AlignmentLoss.forward` ignores `sentence_ids`; hninfo+FNM hard-blocked for stage 1. ~30% of in-batch negatives are same-group false negatives at B=256 / 6 group labels (~117/255 for "moving" anchors) | `losses.py:34-60`, `train.py:458-462`, measured on `cache/training_data/120ae7403763dfc8.npz` | OPEN — DO-NOW 5 |
+| A2 | **Inference-only MotionBuffer EMA (α=0.3)** on the 8 velocity dims; training features are raw. 2026-08-10 "EMA removal" was score-side only. Prior removal measurement POSITIVE for iKUN (pool +0.07..+0.10, MOVING +0.75..1.02; commit b00d232), reverted, never tested on 12D ship | `manager.py:372-375` vs `dataset.py` (no EMA); memory `project_noema_validation_2026_05_19` | OPEN — DO-NOW 4 |
+| A3 | **Warmup garbage fused at full α**: 25.1% of NeuralSORT test track-frames lack long-gap dims, 5.5% all-zero velocity (= "stationary"-coded), 2.7% fully-zero first-frame vector; on FH the GMC term also sits inside the detection gate | `manager.py:353-354,380-386`; measured over 4,950 track-frames | **MEASURED POSITIVE 2026-08-13** (`filter_warmup_cache.py` T≥11 mask, zero hyperparams, full-test sweeps n=3, `results/warm11/`): iKUN @α=0.5 pooled 44.634±0.095 (vs no-mask ship 44.512±0.104, **+0.122**; = old 18-param recipe number; mean beats paper-pure 44.564), MOVING 30.043±0.351 (−0.18 vs ship, within noise), APPEAR 46.517 (+0.21). FH V1 @α=5 53.235±0.004 (+0.078 vs ship@2; +0.125 vs native). FH V2 @α=5 42.670±0.040 (flat vs ship 42.684); slug-MOVING anomaly gone at α=1–3 (Δ≈0.00). α=0 ≡ natives exactly all archs. LOSO complete (`results/warm11/loso_*`): α* = 0.5 / 5 / 5 (fold argmaxes iKUN {0.2, 1.0-boundary, 0.5}; V1 {5,7,5}; V2 {5,3,5,7}) → full-test at α* = the numbers above; gate PASSED on iKUN/V1, V2 non-inferior (−0.014, 1σ). Ship adoption pending user/professor decision |
+| A4 | **V2 per-class grouping label-space broken**: classifier runs on paraphrase slugs with an ad-hoc keyword list, cache scores canonical raw_sentence; 108/862 exprs disagree; V2 "MOVING" row = 38% canonical-APPEARANCE; 25 true-MOVING hidden in APPEARANCE. The V2 MOVING-negative anomaly is confounded by this AND localizes to seq 0019 (hold-0019 LOSO fold: MOVING rises with α) | `run_flexhook_v2_raw_sweep.py:33-49,143`; `results/loso_fh_v2_hold0019/` | **ADJUDICATED 2026-08-13** (`run_v2_canonical_regroup.py`, n=3, regenerated full-test predicts): canonical-MOVING (136 exprs) α5 38.096±0.035 vs α0 38.154, Δ=−0.058 — still ≤0 ⇒ anomaly is STRUCTURAL (host-deficit inverse law), not a grouping artifact. BUT slug "MOVING" 48.018 was inflated by the 66 direction paraphrases (their own row: 55.35, Δ+0.011 flat); true canonical MOVING baseline = 38.15. STATIC Δ+0.196, APPEAR Δ+0.169. Paper must report canonical grouping. `results/v2_canonical_regroup.json` |
+| A5 | **LOSO clobber live on disk**: `hota_eval_flexhook_v2_raw_gmc_sw12d_seed*/alpha*/result.json` held 3-seq fold outputs (pooled 51.006) instead of full-test 42.684; fold runs and full-test share output paths | verified on disk 2026-08-13; memory `project_loso_outsuffix_clobber_landmine_2026_08_11` | FIXING — DO-NOW 1 |
+| A6 | FH eval scripts WARN-and-continue on missing GMC cache → α>0 silently evaluates as native (typo'd `GMC_SUFFIX` = flat sweep labeled as fused); iKUN hard-crashes — inconsistent | `run_flexhook_phase5_gmc_sweep.py:177-183`, `run_flexhook_v2_raw_sweep.py:180-186` | FIXING — DO-NOW 1 |
+| A7 | iKUN LOSO fragile: fold argmaxes {0.2, 1.0-censored-at-grid-boundary, 0.5}; fold-chosen α=1.0 is full-test −0.444; grid step 0.2 leaves peak unresolved | `results/loso_ikun_hold*/` | LATER 2 |
+| A8 | Keyword router has 15 stems (iKUN) / 25 (V2), docs claimed "~38"; 14/126 V1 direction exprs (counter/same/horizon-direction) misroute to APPEARANCE | `run_ikun_linear_additive.py:44-45` | LATER 5 |
+| A9 | 7/916 frame transitions emit wild homographies (max 5592px corner disp), poisoning ~4.3% of (frame,gap) ego slots via cumulative composition; identity fallback never fires (0/916) | instrumented over 0005/0011/0013 | LATER 4 |
+| A10 | Cache builders recompute ego per-expression (num_exprs× redundant ORB+RANSAC) with cv2 process-global RNG → same frame pair can get different H across expressions | `run_build_gmc_cache.py:88-90` | LATER 7 |
+| A11 | 193/862 V2 test expr JSONs lack `raw_sentence` → ship caches silently encode paraphrase text for ~24% of exprs (mostly appearance/spatial) | `run_build_gmc_cache_flexhook_v2_raw.py:158` | LATER 7 |
+
+Killed at verification (do not pursue): `max(gmc,0)` clamp (twice-closed fusion family);
+per-expression mean-centering as ship change (threshold family, Gate C; diagnostic-only);
+V2 3-α arm (recipe-split family); V2 canonical-text A/B (already the ship — `_raw` = raw_sentence).
+
 ## Key Bugs Fixed Along the Way
 
 | File | Bug | Fix |

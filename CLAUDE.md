@@ -89,7 +89,7 @@ pip install -e .
 - Legacy `mlp` arch is code default (`--architecture mlp`): independent dual-MLP per modality (motion 12→256→512→256, lang 384→256→512→256) → L2-norm. Asymmetric per-modality projectors. Prior ship arch until 2026-05-21.
 - Inference (ship): raw cosine (no sigmoid, no EMA) — cache builders emit raw cos unconditionally (GMC_RAW_COS env removed 2026-08-10).
 - Legacy inference (mlp ship era): sigmoid + EMA smoothing.
-- Train symmetric InfoNCE loss + False-Negative Masking (`gmc_link/losses.py`)
+- Train symmetric InfoNCE loss (`gmc_link/losses.py`). NOTE (audit 2026-08-13): ship stage-1 path has NO False-Negative Masking — default `AlignmentLoss` ignores `sentence_ids`; FNM-capable `HardNegativeInfoNCE` is blocked for stage 1 (see RESEARCH_NOTES §10 A1)
 - Language embeddings: SentenceTransformer (all-MiniLM-L6-v2, 384D) via `gmc_link/text_utils.py`
 
 **Stage 4 — Single-α Additive Fusion** (`run_ikun_linear_additive.py`, `run_flexhook_phase5_gmc_sweep.py`, `run_flexhook_v2_raw_sweep.py`):
@@ -160,11 +160,11 @@ HOTA-eval (TrackEval per-arch consumer: iKUN / FH V1 / FH V2)
 
 - **ORB over optical flow**: ORB+Homography beat Farneback + RAFT on KITTI planar scenes; better outlier rejection via RANSAC
 - **Decision-level fusion only**: Feature-level injection (motion into CLIP) caused catastrophic regression (−21.7% F1); always fuse at decision level
-- **False-Negative Masking**: Multiple train samples share same expression; FNM prevent same-sentence pairs penalized as negatives
+- **False-Negative Masking**: intended design (prevent same-sentence pairs penalized as negatives) but NOT ACTIVE in ship stage-1 training (audit 2026-08-13, RESEARCH_NOTES §10 A1); ~30% of in-batch negatives are same-group false negatives at B=256
 - **Cumulative homography**: Store original coords, warp once with composed H — more numerically stable than iterative per-frame warp
 - **Multi-scale temporal velocity**: Three frame gaps (2, 5, 10) capture short/mid/long motion patterns; dominant ablation gain (+0.047 separation)
 - **ρ/SNR feature REMOVED (2026-08-10)**: ablation showed no HOTA cost; professor-directed simplification → 12D
-- **Motion keyword detection**: ~38 motion keywords (moving, turning, parking, etc.) determine class for per-axis fusion in linear additive ship
+- **Motion keyword detection**: keyword stems (moving, turning, parking, etc.) determine class for per-class HOTA grouping. Actual counts (audit 2026-08-13): 15 stems in `run_ikun_linear_additive.py`, 25 in `run_flexhook_v2_raw_sweep.py` (old "~38" claim wrong); 14/126 V1 direction exprs misroute to APPEARANCE (RESEARCH_NOTES §10 A8)
 - **Not for temporal trackers**: GMC-Link designed for spatially-ignorant vision-language frameworks (e.g., TransRMOT, iKUN). Cascading onto trackers with native temporal memory (e.g., TempRMOT) cause structural regression from redundant temporal constraints
 - **Per-class GMC-relevance damping (2026-05-21)**: ship recipe sc_a (appear axis) is 7-11× smaller than sc_m (motion axis) per arch. GMC = motion signal is NOISE on appearance exprs ("black cars"). Hand-tuned damping suppresses this. Auto-deriving via std-matching falsified (variant B, all 3 archs NEG, see `project_variant_b_std_matching_negative_2026_05_21`).
 - **Learned fusion heads = NEG**: F1-optimized MLP fusion head (`fusion_head.py`) crashes HOTA (−3.79 pool). Residual additive MLP on iKUN NEG. Hand-tuned linear additive strictly safer.
