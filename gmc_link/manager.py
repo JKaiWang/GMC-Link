@@ -4,23 +4,24 @@ Inference Manager linking tracks to text prompts using physical vectors and spat
 UPDATED: Now uses cumulative homography method for better numerical stability
 and debugging capabilities.
 """
-from typing import Dict, List, Tuple, Any, Optional
-from collections import deque
 import os
-import torch
-import numpy as np
+from collections import deque
+from typing import Any
 
-from .utils import (
-    normalize_velocity,
-    MotionBuffer,
-    ScoreBuffer,
-    warp_points,
-    VELOCITY_SCALE,
-)
+import numpy as np
+import torch
+
 from .alignment import MotionLanguageAligner
 from .core import ORBHomographyEngine
 from .dataset import compute_per_track_extras
 from .ego.ego_router import EgoRouter, make_ego_router
+from .utils import (
+    VELOCITY_SCALE,
+    MotionBuffer,
+    ScoreBuffer,
+    normalize_velocity,
+    warp_points,
+)
 
 
 class GMCLinkManager:
@@ -111,7 +112,7 @@ class GMCLinkManager:
         else:
             self.intrinsics = None
         # per-track Z history: {track_id: [(frame_id, z_meters), ...]}
-        self._z_history: Dict[int, list] = {}
+        self._z_history: dict[int, list] = {}
 
         self.aligner = MotionLanguageAligner(
             motion_dim=motion_dim, lang_dim=lang_dim, embed_dim=256,
@@ -155,11 +156,11 @@ class GMCLinkManager:
         self.prev_detections = None
 
         # CUMULATIVE HOMOGRAPHY: Store original coordinates (never warped)
-        self.centroid_history: Dict[int, deque] = {}
-        self.wh_history: Dict[int, deque] = {}
+        self.centroid_history: dict[int, deque] = {}
+        self.wh_history: dict[int, deque] = {}
         # Per-track scale-velocity history for accel_multiscale: {tid: [(frame_idx, scale_vels)]}
         # frame_idx is the manager's live frame counter (monotone); deque keeps last max_gap+1 entries.
-        self.scale_vel_history: Dict[int, deque] = {}
+        self.scale_vel_history: dict[int, deque] = {}
         self._frame_counter: int = -1
 
         # Store cumulative homographies: H[i] warps frame[t-i] -> current frame
@@ -173,7 +174,7 @@ class GMCLinkManager:
     def encode_clip_image_bboxes(
         self,
         frame: np.ndarray,
-        bboxes_xyxy: List[Tuple[int, int, int, int]],
+        bboxes_xyxy: list[tuple[int, int, int, int]],
     ) -> torch.Tensor:
         """Run CLIP B/32 image encoder on bbox crops. Returns (N, clip_feat_dim) fp32.
         Used by both process_frame (1-pass) and FH V2 builder (2-pass)."""
@@ -202,10 +203,10 @@ class GMCLinkManager:
 
     def _compute_dz_residual(
         self,
-        z_now: Dict[int, float],
-        z_prev: Dict[int, float],
+        z_now: dict[int, float],
+        z_prev: dict[int, float],
         stationary_ids: set,
-    ) -> Dict[int, float]:
+    ) -> dict[int, float]:
         """Per-track dZ with ego-Z compensation.
 
         dZ_ego = median(dZ) over stationary tracks; dZ_residual = dZ_track − dZ_ego.
@@ -222,16 +223,16 @@ class GMCLinkManager:
     def process_frame(
         self,
         frame: np.ndarray,
-        active_tracks: List[Any],
+        active_tracks: list[Any],
         language_embedding: torch.Tensor,
-        detections: Optional[np.ndarray] = None,
+        detections: np.ndarray | None = None,
         update_state: bool = True,
         raw_cos: bool = False,
-        depth_z_lookup: Optional[Dict[int, float]] = None,
-        seq: Optional[str] = None,
-        frame_id: Optional[int] = None,
-        clip_feat_cache: Optional[dict] = None,
-    ) -> Tuple[Dict[int, float], Dict[int, np.ndarray], Dict[int, float]]:
+        depth_z_lookup: dict[int, float] | None = None,
+        seq: str | None = None,
+        frame_id: int | None = None,
+        clip_feat_cache: dict | None = None,
+    ) -> tuple[dict[int, float], dict[int, np.ndarray], dict[int, float]]:
         """
         Process a frame: compute centroid-difference velocities per tracked object,
         and return alignment scores against a language prompt.
@@ -261,7 +262,12 @@ class GMCLinkManager:
         frame_shape = (img_h, img_w)
 
         # CUMULATIVE HOMOGRAPHY UPDATE
-        use_ground = os.environ.get("GMC_GROUND") == "1"
+        # Attribution split (2026-08-15): GMC_GROUND_MODE ∈ {full, point, road}
+        # decouples the two GMC_GROUND=1 factors; GMC_GROUND=1 ≡ mode "full".
+        _gmode = os.environ.get("GMC_GROUND_MODE", "")
+        use_ground = os.environ.get("GMC_GROUND") == "1" or _gmode == "full"
+        use_road = use_ground or _gmode == "road"      # road-plane ego chain
+        use_bottom = use_ground or _gmode == "point"   # bottom-center warp point
         if update_state:
             if self.prev_frame is not None:
                 # Estimate H_{t-1 -> t} and background warp residual
@@ -282,7 +288,7 @@ class GMCLinkManager:
                 updated_homographies.append(np.eye(3, dtype=np.float32))
                 self.homography_buffer = updated_homographies
 
-                if use_ground:
+                if use_road:
                     # Parallel road-plane chain; fall back to the global step H
                     # when the road fit fails (keeps the chain alive).
                     R_step = self.ego_engine.estimate_road_homography(
@@ -298,7 +304,7 @@ class GMCLinkManager:
             else:
                 # First frame: identity homography
                 self.homography_buffer.append(np.eye(3, dtype=np.float32))
-                if use_ground:
+                if use_road:
                     self.road_h_buffer.append(np.eye(3, dtype=np.float32))
 
             self.prev_frame = frame.copy()
@@ -310,11 +316,11 @@ class GMCLinkManager:
         track_ids = []
         compensated_velocities = []
         # CLIP path: collect bbox crops per appended track for batch encode after loop.
-        clip_bbox_xyxy: List[Tuple[int, int, int, int]] = []
+        clip_bbox_xyxy: list[tuple[int, int, int, int]] = []
         # Depth path: collect per-track raw dZ-per-gap, defer ego-Z comp until after loop
-        per_track_z_now: Dict[int, float] = {}
-        per_track_dz_raw: Dict[int, Dict[int, float]] = {}
-        per_track_res_speed: Dict[int, float] = {}
+        per_track_z_now: dict[int, float] = {}
+        per_track_dz_raw: dict[int, dict[int, float]] = {}
+        per_track_res_speed: dict[int, float] = {}
 
         for track in active_tracks:
             if not hasattr(track, "centroid") or track.centroid is None:
@@ -352,17 +358,20 @@ class GMCLinkManager:
                 while len(homographies) < T:
                     homographies.insert(0, np.eye(3, dtype=np.float32))
 
-                # GMC_GROUND=1: residual at bbox BOTTOM-CENTER (ground-contact)
-                # points via the road-plane chain — geometrically exact for
-                # ground objects, sidesteps the depth-parallax wall (A14).
-                if use_ground:
+                # GMC_GROUND=1 (mode "full"): residual at bbox BOTTOM-CENTER
+                # (ground-contact) points via the road-plane chain — geometrically
+                # exact for ground objects, sidesteps the depth-parallax wall (A14).
+                # Modes "point"/"road" toggle the two factors independently.
+                if use_bottom:
                     pt_hist = [c + np.array([0.0, wh[1] / 2.0])
                                for c, wh in zip(centroid_hist, wh_hist)]
+                else:
+                    pt_hist = centroid_hist
+                if use_road:
                     ego_Hs = list(self.road_h_buffer)[-T:]
                     while len(ego_Hs) < T:
                         ego_Hs.insert(0, np.eye(3, dtype=np.float32))
                 else:
-                    pt_hist = centroid_hist
                     ego_Hs = homographies
 
                 # Multi-scale: residual velocity = raw - ego
@@ -501,13 +510,13 @@ class GMCLinkManager:
                 per_track_res_speed[tid] = float(np.sqrt(dx_m ** 2 + dy_m ** 2))
                 if z_now is not None:
                     hist = self._z_history.get(tid, [])
-                    z_at_gap: Dict[int, Optional[float]] = {g: None for g in self.FRAME_GAPS}
+                    z_at_gap: dict[int, float | None] = {g: None for g in self.FRAME_GAPS}
                     for past_fid, past_z in reversed(hist):
                         lag = self._frame_counter - past_fid
                         for g in self.FRAME_GAPS:
                             if z_at_gap[g] is None and lag >= g:
                                 z_at_gap[g] = past_z
-                    dz_raw_g: Dict[int, float] = {}
+                    dz_raw_g: dict[int, float] = {}
                     for g in self.FRAME_GAPS:
                         if z_at_gap[g] is not None:
                             dz_raw_g[g] = z_now - z_at_gap[g]
@@ -539,7 +548,7 @@ class GMCLinkManager:
         # Stationary criterion: residual mid-scale speed < 0.01 (≈1 px/frame at KITTI W=1242).
         if self.use_depth and depth_z_lookup is not None:
             stat_ids = {tid for tid, mag in per_track_res_speed.items() if mag < 0.01}
-            dz_ego_per_gap: Dict[int, float] = {}
+            dz_ego_per_gap: dict[int, float] = {}
             for g in self.FRAME_GAPS:
                 stat_dz = [per_track_dz_raw[tid][g]
                            for tid in stat_ids

@@ -4,17 +4,16 @@ Dataset generation for GMC-Link: spatial-temporal feature extraction from Refer-
 import hashlib
 import json
 import os
-from typing import Dict, List, Tuple, Any
+from typing import Any
 
 import cv2
 import numpy as np
 import torch
 from torch.utils.data import Dataset
 
-from gmc_link.utils import VELOCITY_SCALE, warp_points
-from gmc_link.core import ORBHomographyEngine
 from gmc_link.ego.ego_router import make_ego_router
 from gmc_link.features.omf_stats import per_bbox_omf_stats
+from gmc_link.utils import VELOCITY_SCALE, warp_points
 
 HOMOGRAPHY_CACHE = {}
 
@@ -130,6 +129,9 @@ def _build_cache_key(
     # Ground-plane arm (2026-08-15): bottom-center points + road-plane chain.
     if os.environ.get("GMC_GROUND") == "1":
         key_obj["ground"] = True
+    # Attribution split (2026-08-15): point/road factors toggled independently.
+    if os.environ.get("GMC_GROUND_MODE"):
+        key_obj["ground_mode"] = os.environ.get("GMC_GROUND_MODE")
     key_obj["dims"] = 12  # rho/snr removed 2026-08-10; busts stale 13D caches
     # NB: class_filter intentionally NOT in cache key. Anchor-mask mode keeps
     # the full motion-filtered pool; only the loss anchor_mask depends on it.
@@ -517,7 +519,7 @@ class ClipFeatCache:
         v = self._d.get(key)
         return v if v is not None else self._zero
 
-    def lookup_keys(self, keys: List[str]) -> Tuple[np.ndarray, int, int]:
+    def lookup_keys(self, keys: list[str]) -> tuple[np.ndarray, int, int]:
         """Resolve list of keys → (N, dim) fp32 array. Returns (arr, n_hit, n_miss)."""
         n = len(keys)
         out = np.zeros((n, self._dim), dtype=np.float32)
@@ -803,8 +805,8 @@ def motion_type_group(sentence):
 
 
 def _collect_expressions(
-    data_root: str, sequences: List[str], text_encoder: Any
-) -> Tuple[List[Dict[str, Any]], Dict[str, np.ndarray], List[str]]:
+    data_root: str, sequences: list[str], text_encoder: Any
+) -> tuple[list[dict[str, Any]], dict[str, np.ndarray], list[str]]:
     """
     Load JSON expressions and compute language embeddings using batch encoding.
     """
@@ -869,9 +871,9 @@ def _collect_expressions(
 def _extract_target_centroids(
     data_root: str,
     seq: str,
-    label_map: Dict[str, List[int]],
-    frame_shape: Tuple[int, int] = (375, 1242),
-) -> Dict[int, Dict[int, Tuple[float, float]]]:
+    label_map: dict[str, list[int]],
+    frame_shape: tuple[int, int] = (375, 1242),
+) -> dict[int, dict[int, tuple[float, float]]]:
     """
     Extract centroid coordinates and dimensions (cx, cy, w, h) in pixel space for target
     object tracks across frames.
@@ -884,7 +886,7 @@ def _extract_target_centroids(
         return {}
 
     labels_by_frame = load_labels_with_ids(labels_dir)
-    frame_ids = sorted([int(fid) for fid in label_map.keys()])
+    frame_ids = sorted([int(fid) for fid in label_map])
     h, w = frame_shape
 
     track_centroids = {}
@@ -915,8 +917,8 @@ def _extract_target_centroids(
 def _extract_all_track_centroids(
     data_root: str,
     seq: str,
-    frame_shape: Tuple[int, int] = (375, 1242),
-) -> Dict[int, Dict[int, Tuple[float, float, float, float]]]:
+    frame_shape: tuple[int, int] = (375, 1242),
+) -> dict[int, dict[int, tuple[float, float, float, float]]]:
     """
     Extract centroid coordinates for ALL tracks (not just GT) across all frames.
     Returns mapping: {track_id: {frame_id: (cx_px, cy_px, w_px, h_px)}}
@@ -947,13 +949,13 @@ def _extract_all_track_centroids(
 
 
 def _precompute_frame_track_data(
-    all_track_centroids: Dict[int, Dict[int, Tuple]],
-    frame_shape: Tuple[int, int],
-    frame_gaps: List[int],
+    all_track_centroids: dict[int, dict[int, tuple]],
+    frame_shape: tuple[int, int],
+    frame_gaps: list[int],
     seq: str,
     frame_dir: str,
     orb_engine: Any,
-) -> Dict[int, Dict[int, Tuple[float, float, float, float]]]:
+) -> dict[int, dict[int, tuple[float, float, float, float]]]:
     """
     Pre-compute mid-scale residual velocity + normalized position for ALL tracks
     at each frame in a sequence. Used as neighbor context for relational features.
@@ -1032,9 +1034,12 @@ def _compute_velocity_at_gap(
     homography = None
     bg_residual = np.zeros(2, dtype=np.float32)
     composed = os.environ.get("GMC_TRAIN_COMPOSED_EGO") == "1"
-    ground = os.environ.get("GMC_GROUND") == "1"
+    _gmode = os.environ.get("GMC_GROUND_MODE", "")
+    ground = os.environ.get("GMC_GROUND") == "1" or _gmode == "full"
+    use_road = ground or _gmode == "road"      # road-plane composed chain
+    use_bottom = ground or _gmode == "point"   # bottom-center warp point
     if frame_dir is not None and orb_engine is not None and seq is not None:
-        if ground:
+        if use_road:
             # Ground arm: composed per-frame ROAD-plane chain (LK on road band;
             # fallback to global step H when the road fit fails).
             cache_key = (seq, curr_fid, future_fid, "road")
@@ -1103,7 +1108,7 @@ def _compute_velocity_at_gap(
 
     cx1, cy1, _, bh1 = centroids[curr_fid]
     cx2, cy2, _, bh2 = centroids[future_fid]
-    if ground:
+    if use_bottom:
         # Ground arm: velocities at bbox BOTTOM-CENTER (must match manager.py).
         cy1 = cy1 + bh1 / 2.0
         cy2 = cy2 + bh2 / 2.0
@@ -1159,23 +1164,23 @@ def _frame_cohort_dz_ego(
 
 
 def _generate_positive_pairs(
-    track_centroids: Dict[int, Dict[int, Tuple[float, float, float, float]]],
+    track_centroids: dict[int, dict[int, tuple[float, float, float, float]]],
     embedding: np.ndarray,
     expression_id: int,
-    frame_gaps: List[int],
-    frame_shape: Tuple[int, int],
+    frame_gaps: list[int],
+    frame_shape: tuple[int, int],
     seq: str = None,
     frame_dir: str = None,
     orb_engine: Any = None,
-    extra_features: List[str] = None,
-    all_track_centroids_for_frame: Dict[int, Dict[int, Tuple]] = None,
-    track_boundaries: List = None,
+    extra_features: list[str] = None,
+    all_track_centroids_for_frame: dict[int, dict[int, tuple]] = None,
+    track_boundaries: list = None,
     ego_router_name: str = "orb",
-    clip_keys: List[str] = None,
+    clip_keys: list[str] = None,
     use_depth: bool = False,
     depth_cache: Any = None,
     world_xy: bool = False,
-) -> Tuple[List[np.ndarray], List[np.ndarray], List[int]]:
+) -> tuple[list[np.ndarray], list[np.ndarray], list[int]]:
     """
     Generate positive (motion, language) pairs with residual velocity (raw - ego).
 
@@ -1215,7 +1220,7 @@ def _generate_positive_pairs(
     # Pre-compute frame-level cohort dZ_ego per (frame_id, gap) lazily.
     # Uses absolute (frame, frame+gap) pairs across ALL tracks in depth_cache,
     # so it's an unbiased ego-Z estimator independent of expression filtering.
-    cohort_dz_ego_cache: Dict[Tuple[int, int], float] = {}
+    cohort_dz_ego_cache: dict[tuple[int, int], float] = {}
 
     needs_accel_multiscale = "accel_multiscale" in per_track_feats
     needs_omf_stats = "omf_stats" in per_track_feats
@@ -1485,12 +1490,12 @@ def _generate_positive_pairs(
 
 
 def _vectors_to_sequences(
-    motion_data: List[np.ndarray],
-    language_data: List[np.ndarray],
-    labels: List[int],
-    track_boundaries: List[dict],
+    motion_data: list[np.ndarray],
+    language_data: list[np.ndarray],
+    labels: list[int],
+    track_boundaries: list[dict],
     seq_len: int = 10,
-) -> Tuple[List[np.ndarray], List[np.ndarray], List[np.ndarray], List[int]]:
+) -> tuple[list[np.ndarray], list[np.ndarray], list[np.ndarray], list[int]]:
     """
     Convert per-frame motion vectors into sliding-window sequences.
 
@@ -1549,12 +1554,12 @@ def _vectors_to_sequences(
 
 def build_training_data(
     data_root: str,
-    sequences: List[str],
+    sequences: list[str],
     text_encoder: Any,
-    frame_gaps: List[int] = None,
-    frame_shape: Tuple[int, int] = (375, 1242),
+    frame_gaps: list[int] = None,
+    frame_shape: tuple[int, int] = (375, 1242),
     use_group_labels: bool = False,
-    extra_features: List[str] = None,
+    extra_features: list[str] = None,
     seq_len: int = 0,
     ego_router_name: str = "orb",
     motion_filter: str = "loose",
@@ -1563,7 +1568,7 @@ def build_training_data(
     use_depth: bool = False,
     depth_cache_dir: str = None,
     world_xy: bool = False,
-) -> Tuple:
+) -> tuple:
     """
     Build (motion, language, expression_id) training triples for contrastive learning.
 
@@ -1595,7 +1600,7 @@ def build_training_data(
         world_xy=world_xy,
     )
 
-    depth_caches: Dict[str, Any] = {}
+    depth_caches: dict[str, Any] = {}
     if use_depth:
         if depth_cache_dir is None:
             raise ValueError("use_depth=True requires depth_cache_dir")
@@ -1617,7 +1622,7 @@ def build_training_data(
         print(f"  [cache] MISS key={cache_key} — building from scratch")
 
     clip_cache = None
-    all_clip_keys: List[str] = []
+    all_clip_keys: list[str] = []
     if clip_cache_path is not None:
         print(f"  Loading CLIP feature cache: {clip_cache_path}")
         clip_cache = ClipFeatCache(clip_cache_path)
@@ -1784,7 +1789,7 @@ def build_training_data(
     # For group labels, class is taken from the first expression mapped to
     # that group; class-conditional training is not the design intent of
     # group-label curriculum but the lookup must be defined regardless.
-    from gmc_link.expr_class import classify_expression, CLASS_LABELS
+    from gmc_link.expr_class import CLASS_LABELS, classify_expression
     class_str_to_int = {c: i for i, c in enumerate(CLASS_LABELS)}
     id_to_class = [-1] * (max(labels) + 1 if labels else 0)
     if use_group_labels:
