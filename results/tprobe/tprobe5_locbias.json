@@ -1,0 +1,22 @@
+{
+  "XZ_only": {
+    "seq_heldout": 0.6672,
+    "within_seq": 0.584
+  },
+  "seqid_only": {
+    "seq_heldout": 0.4826,
+    "within_seq": 0.6728
+  },
+  "XZ+seqid": {
+    "seq_heldout": 0.4826,
+    "within_seq": 0.7508
+  },
+  "dheading_only": {
+    "seq_heldout": 0.5554,
+    "within_seq": 0.5718
+  },
+  "full": {
+    "seq_heldout": 0.7176,
+    "within_seq": 0.7408
+  }
+}

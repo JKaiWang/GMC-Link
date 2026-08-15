@@ -1,0 +1,93 @@
+{
+  "A_turning_by_ego_yaw": {
+    "raw": {
+      "tercile_bounds_degpf": [
+        0.0027,
+        0.0315
+      ],
+      "stable": {
+        "f1": 0.5381,
+        "n": 1509,
+        "pos": 74
+      },
+      "mid": {
+        "f1": 0.5332,
+        "n": 1501,
+        "pos": 60
+      },
+      "rotating": {
+        "f1": 0.6533,
+        "n": 1547,
+        "pos": 146
+      }
+    },
+    "gmc": {
+      "tercile_bounds_degpf": [
+        0.0027,
+        0.0315
+      ],
+      "stable": {
+        "f1": 0.4792,
+        "n": 1509,
+        "pos": 74
+      },
+      "mid": {
+        "f1": 0.4879,
+        "n": 1501,
+        "pos": 60
+      },
+      "rotating": {
+        "f1": 0.6758,
+        "n": 1547,
+        "pos": 146
+      }
+    },
+    "gnd": {
+      "tercile_bounds_degpf": [
+        0.0027,
+        0.0315
+      ],
+      "stable": {
+        "f1": 0.5055,
+        "n": 1509,
+        "pos": 74
+      },
+      "mid": {
+        "f1": 0.5125,
+        "n": 1501,
+        "pos": 60
+      },
+      "rotating": {
+        "f1": 0.6636,
+        "n": 1547,
+        "pos": 146
+      }
+    }
+  },
+  "B_oracle_components": {
+    "turning": {
+      "position_XZ": 0.6672,
+      "velocity_vXvZ": 0.3324,
+      "heading_roty": 0.3779,
+      "heading_world": 0.4616,
+      "dheading": 0.5554,
+      "full": 0.7176
+    },
+    "counter": {
+      "position_XZ": 0.739,
+      "velocity_vXvZ": 0.7381,
+      "heading_roty": 0.5915,
+      "heading_world": 0.3933,
+      "dheading": 0.5383,
+      "full": 0.6224
+    },
+    "moving_vs_static": {
+      "position_XZ": 0.8271,
+      "velocity_vXvZ": 0.8396,
+      "heading_roty": 0.5936,
+      "heading_world": 0.5931,
+      "dheading": 0.5374,
+      "full": 0.7816
+    }
+  }
+}

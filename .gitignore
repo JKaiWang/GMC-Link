@@ -295,3 +295,6 @@ paper/*.txt
 2027_ICASSP/gmc.pdf
 *.pptx
 2027_ICASSP/submission_mainv3/
+
+# T-probe raw sample dumps (regenerable via diagnostics/tprobe*.py)
+results/tprobe/*.npy

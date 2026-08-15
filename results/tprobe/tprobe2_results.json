@@ -1,0 +1,43 @@
+{
+  "moving_vs_static": {
+    "raw": 0.8583,
+    "gmc": 0.8564,
+    "gnd": 0.8138,
+    "rel": 0.8393
+  },
+  "turning": {
+    "raw": 0.5762,
+    "gmc": 0.5405,
+    "gnd": 0.5586,
+    "rel": 0.6236
+  },
+  "counter": {
+    "raw": 0.786,
+    "gmc": 0.8082,
+    "gnd": 0.7755,
+    "rel": 0.769
+  },
+  "turning_by_ego_rotation": {
+    "quartile_bounds_deg": [
+      0.0025,
+      0.0043,
+      0.1065
+    ],
+    "q1_stable": {
+      "gmc": 0.5033,
+      "gnd": 0.517
+    },
+    "q2": {
+      "gmc": 0.4127,
+      "gnd": 0.441
+    },
+    "q3": {
+      "gmc": 0.6492,
+      "gnd": 0.6753
+    },
+    "q4_rotating": {
+      "gmc": null,
+      "gnd": null
+    }
+  }
+}

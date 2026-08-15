@@ -1,0 +1,17 @@
+{
+  "moving_vs_static": {
+    "macro_f1": 0.7816,
+    "n_te": 2357,
+    "pos": 908
+  },
+  "turning": {
+    "macro_f1": 0.7176,
+    "n_te": 5068,
+    "pos": 341
+  },
+  "counter": {
+    "macro_f1": 0.6224,
+    "n_te": 5068,
+    "pos": 809
+  }
+}
