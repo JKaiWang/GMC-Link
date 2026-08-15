@@ -1,0 +1,392 @@
+{
+  "arch": "fh_v1",
+  "suffix_template": "_sw12d_seed{seed}_nomema_warm11",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "fusion": "s_final = s_host + alpha * s_gmc (raw cos), gate 0.0",
+  "per_seed": [
+    {
+      "arch": "fh_v1",
+      "alpha": 0.0,
+      "gmc_suffix": "_sw12d_seed0_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 50.92,
+      "moving": 38.875,
+      "static": 50.12,
+      "appearance": 53.198,
+      "seed": 0
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 0.0,
+      "gmc_suffix": "_sw12d_seed1_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 50.92,
+      "moving": 38.875,
+      "static": 50.12,
+      "appearance": 53.198,
+      "seed": 1
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 0.0,
+      "gmc_suffix": "_sw12d_seed2_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 50.92,
+      "moving": 38.875,
+      "static": 50.12,
+      "appearance": 53.198,
+      "seed": 2
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 1.0,
+      "gmc_suffix": "_sw12d_seed0_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 50.995,
+      "moving": 38.979,
+      "static": 50.246,
+      "appearance": 53.253,
+      "seed": 0
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 1.0,
+      "gmc_suffix": "_sw12d_seed1_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 50.983,
+      "moving": 38.903,
+      "static": 50.266,
+      "appearance": 53.242,
+      "seed": 1
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 1.0,
+      "gmc_suffix": "_sw12d_seed2_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 50.988,
+      "moving": 38.95,
+      "static": 50.247,
+      "appearance": 53.247,
+      "seed": 2
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 2.0,
+      "gmc_suffix": "_sw12d_seed0_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 51.076,
+      "moving": 39.22,
+      "static": 50.463,
+      "appearance": 53.27,
+      "seed": 0
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 2.0,
+      "gmc_suffix": "_sw12d_seed1_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 51.045,
+      "moving": 39.066,
+      "static": 50.469,
+      "appearance": 53.251,
+      "seed": 1
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 2.0,
+      "gmc_suffix": "_sw12d_seed2_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 51.062,
+      "moving": 39.089,
+      "static": 50.391,
+      "appearance": 53.29,
+      "seed": 2
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 3.0,
+      "gmc_suffix": "_sw12d_seed0_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 51.143,
+      "moving": 39.435,
+      "static": 50.56,
+      "appearance": 53.309,
+      "seed": 0
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 3.0,
+      "gmc_suffix": "_sw12d_seed1_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 51.075,
+      "moving": 39.04,
+      "static": 50.56,
+      "appearance": 53.277,
+      "seed": 1
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 3.0,
+      "gmc_suffix": "_sw12d_seed2_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 51.097,
+      "moving": 39.105,
+      "static": 50.494,
+      "appearance": 53.312,
+      "seed": 2
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 5.0,
+      "gmc_suffix": "_sw12d_seed0_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 51.181,
+      "moving": 39.787,
+      "static": 50.756,
+      "appearance": 53.257,
+      "seed": 0
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 5.0,
+      "gmc_suffix": "_sw12d_seed1_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 51.106,
+      "moving": 39.336,
+      "static": 50.704,
+      "appearance": 53.237,
+      "seed": 1
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 5.0,
+      "gmc_suffix": "_sw12d_seed2_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 51.148,
+      "moving": 39.489,
+      "static": 50.657,
+      "appearance": 53.283,
+      "seed": 2
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 7.0,
+      "gmc_suffix": "_sw12d_seed0_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 51.16,
+      "moving": 39.843,
+      "static": 50.814,
+      "appearance": 53.195,
+      "seed": 0
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 7.0,
+      "gmc_suffix": "_sw12d_seed1_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 51.115,
+      "moving": 39.357,
+      "static": 50.834,
+      "appearance": 53.214,
+      "seed": 1
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 7.0,
+      "gmc_suffix": "_sw12d_seed2_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 51.13,
+      "moving": 39.547,
+      "static": 50.71,
+      "appearance": 53.231,
+      "seed": 2
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 10.0,
+      "gmc_suffix": "_sw12d_seed0_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 51.102,
+      "moving": 40.036,
+      "static": 51.017,
+      "appearance": 53.036,
+      "seed": 0
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 10.0,
+      "gmc_suffix": "_sw12d_seed1_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 51.081,
+      "moving": 39.586,
+      "static": 51.012,
+      "appearance": 53.098,
+      "seed": 1
+    },
+    {
+      "arch": "fh_v1",
+      "alpha": 10.0,
+      "gmc_suffix": "_sw12d_seed2_nomema_warm11",
+      "eval_seqs": [
+        "0011",
+        "0013"
+      ],
+      "pooled": 51.067,
+      "moving": 39.61,
+      "static": 50.804,
+      "appearance": 53.123,
+      "seed": 2
+    }
+  ],
+  "aggregate": [
+    {
+      "alpha": 0.0,
+      "n_seeds": 3,
+      "pooled_mean": 50.92,
+      "pooled_std": 0.0,
+      "moving_mean": 38.875,
+      "moving_std": 0.0,
+      "static_mean": 50.12,
+      "static_std": 0.0,
+      "appearance_mean": 53.198,
+      "appearance_std": 0.0
+    },
+    {
+      "alpha": 1.0,
+      "n_seeds": 3,
+      "pooled_mean": 50.989,
+      "pooled_std": 0.006,
+      "moving_mean": 38.944,
+      "moving_std": 0.038,
+      "static_mean": 50.253,
+      "static_std": 0.011,
+      "appearance_mean": 53.247,
+      "appearance_std": 0.006
+    },
+    {
+      "alpha": 2.0,
+      "n_seeds": 3,
+      "pooled_mean": 51.061,
+      "pooled_std": 0.016,
+      "moving_mean": 39.125,
+      "moving_std": 0.083,
+      "static_mean": 50.441,
+      "static_std": 0.043,
+      "appearance_mean": 53.27,
+      "appearance_std": 0.02
+    },
+    {
+      "alpha": 3.0,
+      "n_seeds": 3,
+      "pooled_mean": 51.105,
+      "pooled_std": 0.035,
+      "moving_mean": 39.193,
+      "moving_std": 0.212,
+      "static_mean": 50.538,
+      "static_std": 0.038,
+      "appearance_mean": 53.299,
+      "appearance_std": 0.019
+    },
+    {
+      "alpha": 5.0,
+      "n_seeds": 3,
+      "pooled_mean": 51.145,
+      "pooled_std": 0.038,
+      "moving_mean": 39.537,
+      "moving_std": 0.229,
+      "static_mean": 50.706,
+      "static_std": 0.05,
+      "appearance_mean": 53.259,
+      "appearance_std": 0.023
+    },
+    {
+      "alpha": 7.0,
+      "n_seeds": 3,
+      "pooled_mean": 51.135,
+      "pooled_std": 0.023,
+      "moving_mean": 39.582,
+      "moving_std": 0.245,
+      "static_mean": 50.786,
+      "static_std": 0.067,
+      "appearance_mean": 53.213,
+      "appearance_std": 0.018
+    },
+    {
+      "alpha": 10.0,
+      "n_seeds": 3,
+      "pooled_mean": 51.083,
+      "pooled_std": 0.018,
+      "moving_mean": 39.744,
+      "moving_std": 0.253,
+      "static_mean": 50.944,
+      "static_std": 0.122,
+      "appearance_mean": 53.086,
+      "appearance_std": 0.045
+    }
+  ]
+}
