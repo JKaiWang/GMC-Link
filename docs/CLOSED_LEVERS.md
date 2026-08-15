@@ -44,6 +44,8 @@ file itself.
 | Text encoder swap (BGE-base 768D) | worst of 7; encoder lever falsified | project_exp36d_bge_negative |
 | Curriculum, V1+V2 joint train | flat | project_exp36e_*, project_exp36c_* |
 | Group-level FNM in stage-1 InfoNCE (GMC_FNM=1, 2026-08-14) | pooled NEG all 3 archs every α>0 (iKUN −0.23 at own peak); same-group negatives load-bearing for STATIC/APPEAR | project_full_audit_2026_08_13 (A1), results/fnm{,_warm11}/ |
+| Train-time composed ego (D2, 2026-08-15) | NEG: iKUN pooled −0.20 (44.453@0.3 vs sim-arm 44.656), MOVING −0.49; training's noisier direct ego is load-bearing noise augmentation (teaches parallax invariance) — train/eval ego asymmetry stays AS-IS; closes the TD-2 parity family in BOTH directions (A14 killed inference→direct, D2 kills train→composed) | RESEARCH_NOTES §10 A15, results/cego/ |
+| Keypoint detector / estimator family (2026-08-14, CPU screen, 8 configs) | no Pareto win vs ship ORB1500+RANSAC (bg_res 0.896-0.898px, 15-18ms): AKAZE/BRISK/SIFT, ORB 3000/5000 kps, MAGSAC (1500/3000) ALL trade median accuracy for tail robustness (best tail = 3-4 wild vs 8-9, worst residual +10%); MAGSAC even admits a 15280px monster RANSAC rejects; tail already handled free by GMC_HGATE; frame-skip monsters unfixable at detector level | diag_feature_ab.py + MAGSAC/nfeatures screen, RESEARCH_NOTES §10 A12 |
 | sw-arch search (18 runs), temporal transformer | exhausted / dead | project_autoresearch_aligner_arch_exhausted_2026_06_13, project_seq_encoder_hota_rescreen_flat_2026_06_11 |
 
 ## Hosts / trackers / detectors
