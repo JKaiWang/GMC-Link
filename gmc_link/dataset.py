@@ -122,6 +122,14 @@ def _build_cache_key(
     # frame_gaps already covers the -multiscale (GMC_GAPS) ablation.
     if os.environ.get("GMC_RAWVEL") == "1":
         key_obj["rawvel"] = True
+    # D2 (2026-08-15): train-time ego via composed per-frame chain (matches
+    # inference; A14 referee measured composed strictly better than direct).
+    if os.environ.get("GMC_TRAIN_COMPOSED_EGO") == "1":
+        key_obj["train_composed_ego"] = True
+        key_obj["ego_model"] = os.environ.get("GMC_MODEL", "homography")
+    # Ground-plane arm (2026-08-15): bottom-center points + road-plane chain.
+    if os.environ.get("GMC_GROUND") == "1":
+        key_obj["ground"] = True
     key_obj["dims"] = 12  # rho/snr removed 2026-08-10; busts stale 13D caches
     # NB: class_filter intentionally NOT in cache key. Anchor-mask mode keeps
     # the full motion-filtered pool; only the loss anchor_mask depends on it.
@@ -1023,11 +1031,66 @@ def _compute_velocity_at_gap(
 
     homography = None
     bg_residual = np.zeros(2, dtype=np.float32)
+    composed = os.environ.get("GMC_TRAIN_COMPOSED_EGO") == "1"
+    ground = os.environ.get("GMC_GROUND") == "1"
     if frame_dir is not None and orb_engine is not None and seq is not None:
-        cache_key = (seq, curr_fid, future_fid)
-        if cache_key in HOMOGRAPHY_CACHE:
+        if ground:
+            # Ground arm: composed per-frame ROAD-plane chain (LK on road band;
+            # fallback to global step H when the road fit fails).
+            cache_key = (seq, curr_fid, future_fid, "road")
+            if cache_key not in HOMOGRAPHY_CACHE:
+                H = np.eye(3, dtype=np.float32)
+                ok = True
+                for a in range(curr_fid, future_fid):
+                    k1 = (seq, a, a + 1, "roadstep")
+                    if k1 not in HOMOGRAPHY_CACHE:
+                        ia = cv2.imread(os.path.join(frame_dir, f"{a:06d}.png"))
+                        ib = cv2.imread(os.path.join(frame_dir, f"{a + 1:06d}.png"))
+                        if ia is None or ib is None:
+                            HOMOGRAPHY_CACHE[k1] = (None, bg_residual)
+                        else:
+                            R = orb_engine.estimate_road_homography(ia, ib)
+                            if R is None:
+                                R, _ = orb_engine.estimate_homography(ia, ib)
+                            HOMOGRAPHY_CACHE[k1] = (R, bg_residual)
+                    Hs, _ = HOMOGRAPHY_CACHE[k1]
+                    if Hs is None:
+                        ok = False
+                        break
+                    H = Hs @ H
+                HOMOGRAPHY_CACHE[cache_key] = (H if ok else None, bg_residual)
             homography, bg_residual = HOMOGRAPHY_CACHE[cache_key]
+        elif composed and (seq, curr_fid, future_fid, "composed") in HOMOGRAPHY_CACHE:
+            homography, bg_residual = HOMOGRAPHY_CACHE[(seq, curr_fid, future_fid, "composed")]
+        elif not composed and (seq, curr_fid, future_fid) in HOMOGRAPHY_CACHE:
+            homography, bg_residual = HOMOGRAPHY_CACHE[(seq, curr_fid, future_fid)]
+        elif composed:
+            cache_key = (seq, curr_fid, future_fid, "composed")
+            # D2: compose per-frame-step transforms (matches inference-side
+            # cumulative composition; A14: composed beats direct at every gap).
+            # Step H's are shared across anchors/gaps via their own cache keys.
+            H = np.eye(3, dtype=np.float32)
+            ok = True
+            for a in range(curr_fid, future_fid):
+                k1 = (seq, a, a + 1, "step")
+                if k1 not in HOMOGRAPHY_CACHE:
+                    ia = cv2.imread(os.path.join(frame_dir, f"{a:06d}.png"))
+                    ib = cv2.imread(os.path.join(frame_dir, f"{a + 1:06d}.png"))
+                    if ia is None or ib is None:
+                        HOMOGRAPHY_CACHE[k1] = (None, np.zeros(2, dtype=np.float32))
+                    else:
+                        HOMOGRAPHY_CACHE[k1] = orb_engine.estimate_homography(
+                            ia, ib, prev_bboxes=None
+                        )
+                Hs, _ = HOMOGRAPHY_CACHE[k1]
+                if Hs is None:
+                    ok = False
+                    break
+                H = Hs @ H
+            homography = H if ok else None
+            HOMOGRAPHY_CACHE[cache_key] = (homography, bg_residual)
         else:
+            cache_key = (seq, curr_fid, future_fid)
             curr_img_path = os.path.join(frame_dir, f"{curr_fid:06d}.png")
             future_img_path = os.path.join(frame_dir, f"{future_fid:06d}.png")
             img_curr = cv2.imread(curr_img_path)
@@ -1038,8 +1101,12 @@ def _compute_velocity_at_gap(
                 )
             HOMOGRAPHY_CACHE[cache_key] = (homography, bg_residual)
 
-    cx1, cy1, _, _ = centroids[curr_fid]
-    cx2, cy2, _, _ = centroids[future_fid]
+    cx1, cy1, _, bh1 = centroids[curr_fid]
+    cx2, cy2, _, bh2 = centroids[future_fid]
+    if ground:
+        # Ground arm: velocities at bbox BOTTOM-CENTER (must match manager.py).
+        cy1 = cy1 + bh1 / 2.0
+        cy2 = cy2 + bh2 / 2.0
 
     # Synthetic jitter (+/- 2 pixels)
     j_cx2 = cx2 + np.random.uniform(-2.0, 2.0)

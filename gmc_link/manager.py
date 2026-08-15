@@ -164,6 +164,9 @@ class GMCLinkManager:
 
         # Store cumulative homographies: H[i] warps frame[t-i] -> current frame
         self.homography_buffer: deque = deque(maxlen=frame_gap + 1)
+        # GMC_GROUND=1: parallel ground-plane (road) transform chain; residual
+        # velocity computed at bbox BOTTOM-CENTER (ground-contact) points.
+        self.road_h_buffer: deque = deque(maxlen=frame_gap + 1)
 
         # Background residual buffer for noise floor estimation
 
@@ -258,6 +261,7 @@ class GMCLinkManager:
         frame_shape = (img_h, img_w)
 
         # CUMULATIVE HOMOGRAPHY UPDATE
+        use_ground = os.environ.get("GMC_GROUND") == "1"
         if update_state:
             if self.prev_frame is not None:
                 # Estimate H_{t-1 -> t} and background warp residual
@@ -273,13 +277,29 @@ class GMCLinkManager:
                     # Composition: frame[t_old] -> frame[t]
                     H_cumulative = H_prev_to_curr @ H_old
                     updated_homographies.append(H_cumulative)
-                
+
                 # Current frame has identity homography (maps to itself)
                 updated_homographies.append(np.eye(3, dtype=np.float32))
                 self.homography_buffer = updated_homographies
+
+                if use_ground:
+                    # Parallel road-plane chain; fall back to the global step H
+                    # when the road fit fails (keeps the chain alive).
+                    R_step = self.ego_engine.estimate_road_homography(
+                        self.prev_frame, frame, self.prev_detections
+                    )
+                    if R_step is None:
+                        R_step = H_prev_to_curr
+                    updated_road = deque(maxlen=self.frame_gap + 1)
+                    for R_old in self.road_h_buffer:
+                        updated_road.append(R_step @ R_old)
+                    updated_road.append(np.eye(3, dtype=np.float32))
+                    self.road_h_buffer = updated_road
             else:
                 # First frame: identity homography
                 self.homography_buffer.append(np.eye(3, dtype=np.float32))
+                if use_ground:
+                    self.road_h_buffer.append(np.eye(3, dtype=np.float32))
 
             self.prev_frame = frame.copy()
             if detections is not None:
@@ -332,16 +352,29 @@ class GMCLinkManager:
                 while len(homographies) < T:
                     homographies.insert(0, np.eye(3, dtype=np.float32))
 
+                # GMC_GROUND=1: residual at bbox BOTTOM-CENTER (ground-contact)
+                # points via the road-plane chain — geometrically exact for
+                # ground objects, sidesteps the depth-parallax wall (A14).
+                if use_ground:
+                    pt_hist = [c + np.array([0.0, wh[1] / 2.0])
+                               for c, wh in zip(centroid_hist, wh_hist)]
+                    ego_Hs = list(self.road_h_buffer)[-T:]
+                    while len(ego_Hs) < T:
+                        ego_Hs.insert(0, np.eye(3, dtype=np.float32))
+                else:
+                    pt_hist = centroid_hist
+                    ego_Hs = homographies
+
                 # Multi-scale: residual velocity = raw - ego
                 residual_velocities = []
                 for gap in self.FRAME_GAPS:
                     if T > gap:
                         # Raw velocity (normalized)
-                        v_raw = centroid_hist[-1] - centroid_hist[-(gap + 1)]
+                        v_raw = pt_hist[-1] - pt_hist[-(gap + 1)]
                         v_norm = normalize_velocity(v_raw, frame_shape)
                         # Per-object ego displacement (normalized)
-                        old_c = centroid_hist[-(gap + 1)]
-                        H_old = homographies[T - 1 - gap]
+                        old_c = pt_hist[-(gap + 1)]
+                        H_old = ego_Hs[T - 1 - gap]
                         warped_old = warp_points(np.array([old_c]), H_old)[0]
                         ego_v = normalize_velocity(warped_old - old_c, frame_shape)
                         # Residual = raw - ego (object-only motion).
