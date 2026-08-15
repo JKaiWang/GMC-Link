@@ -9,13 +9,10 @@ Usage:
 """
 
 import argparse
-import csv
 import os
 from collections import defaultdict
 
 import cv2
-import numpy as np
-
 
 # ── Paths ────────────────────────────────────────────────────────────
 

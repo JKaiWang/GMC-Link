@@ -13,7 +13,12 @@ Usage:
     python run_loso_calibration_flexhook.py --host v1 --seeds 0 1 2
     python run_loso_calibration_flexhook.py --host v2 --seeds 0 1 2
 """
-import argparse, json, os, shutil, sys, time
+import argparse
+import json
+import os
+import shutil
+import sys
+import time
 
 os.environ["GMC_RAW_COS"] = "1"  # must precede module import
 

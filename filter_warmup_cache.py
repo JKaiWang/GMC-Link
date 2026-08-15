@@ -17,7 +17,9 @@ Usage:
     python filter_warmup_cache.py --archs ikun --seeds 0
 Writes gmc_scores_*_{suffix}_warm11_cache.json next to the inputs.
 """
-import argparse, json, os
+import argparse
+import json
+import os
 
 GMC_DIR = "/home/seanachan/GMC-Link/gmc_link"
 T_MIN = 11  # keep iff contiguous history T >= T_MIN (> max FRAME_GAPS = 10)

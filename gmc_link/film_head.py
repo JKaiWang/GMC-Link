@@ -5,7 +5,7 @@ This makes a checkpoint loaded with strict=False bit-exact to the frozen iKUN ba
 before any training, so we can verify integration without retraining.
 """
 import torch
-import torch.nn as nn
+from torch import nn
 
 
 class MotionFiLMHead(nn.Module):

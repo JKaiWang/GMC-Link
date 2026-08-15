@@ -47,7 +47,6 @@ import torch
 
 from gmc_link.manager import GMCLinkManager
 
-
 CLASS_TAG = {"car": b"c", "pedestrian": b"p"}
 
 # Same (H, W) table FlexHook uses (data/utils.py RESOLUTION). Required to

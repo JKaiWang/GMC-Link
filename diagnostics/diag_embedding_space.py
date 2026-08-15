@@ -9,15 +9,19 @@ and embedding variance.
 Usage:
     python diagnostics/diag_embedding_space.py
 """
-import sys, os
+import os
+import sys
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 import argparse
 from collections import defaultdict
+
+import matplotlib
 import numpy as np
 import torch
-import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
@@ -157,21 +161,21 @@ def main():
     print(f"    Motion: mean={motion_norms.mean():.4f} std={motion_norms.std():.6f}")
     print(f"    Language: mean={lang_norms.mean():.4f} std={lang_norms.std():.6f}")
 
-    print(f"\n  Mean Per-Dim Variance (higher = more spread, 0 = collapse):")
+    print("\n  Mean Per-Dim Variance (higher = more spread, 0 = collapse):")
     print(f"    Motion embeddings:  {motion_var:.6f}")
     print(f"    Language embeddings: {lang_var:.6f}")
 
-    print(f"\n  Intra-Class Cosine (motion↔motion, same expression):")
+    print("\n  Intra-Class Cosine (motion↔motion, same expression):")
     print(f"    mean={intra.mean():.4f}  std={intra.std():.4f}  "
           f"[{intra.min():.4f}, {intra.max():.4f}]")
 
-    print(f"  Inter-Class Cosine (centroid↔centroid, different expressions):")
+    print("  Inter-Class Cosine (centroid↔centroid, different expressions):")
     print(f"    mean={inter.mean():.4f}  std={inter.std():.4f}  "
           f"[{inter.min():.4f}, {inter.max():.4f}]")
 
     print(f"  Intra - Inter gap: {intra.mean() - inter.mean():.4f}")
 
-    print(f"\n  Cross-Modal Cosine (motion→language, same expression):")
+    print("\n  Cross-Modal Cosine (motion→language, same expression):")
     print(f"    mean={cross.mean():.4f}  std={cross.std():.4f}  "
           f"[{cross.min():.4f}, {cross.max():.4f}]")
 

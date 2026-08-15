@@ -13,12 +13,10 @@ near frame edges).
 """
 from __future__ import annotations
 
-from typing import Tuple
-
 import numpy as np
 
 
-def per_bbox_omf_stats(omf_field: np.ndarray, bbox: Tuple[int, int, int, int]) -> np.ndarray:
+def per_bbox_omf_stats(omf_field: np.ndarray, bbox: tuple[int, int, int, int]) -> np.ndarray:
     if omf_field.ndim != 3 or omf_field.shape[2] != 2:
         raise ValueError(
             f"omf_field must have shape (H, W, 2); got {omf_field.shape}"

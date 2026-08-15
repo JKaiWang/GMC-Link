@@ -31,9 +31,9 @@ import numpy as np
 sys.path.insert(0, "/home/seanachan/GMC-Link")
 sys.path.insert(0, "/home/seanachan/iKUN")
 
-from gmc_link.demo_inference import load_neuralsort_tracks
 from utils import expression_conversion as ikun_expression_conversion
 
+from gmc_link.demo_inference import load_neuralsort_tracks
 
 DATA_ROOT      = "/home/seanachan/GMC-Link/refer-kitti"
 TRACK_DIR      = "/home/seanachan/GMC-Link/NeuralSORT"

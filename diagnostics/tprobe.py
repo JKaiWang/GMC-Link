@@ -9,11 +9,15 @@ ridge probe.
 
 Run:  GMC_MODEL=similarity python diagnostics/tprobe.py [--extract-only]
 """
-import argparse, glob, json, os, sys
+import argparse
+import glob
+import json
+import os
+import sys
 from collections import defaultdict
 
-import numpy as np
 import cv2
+import numpy as np
 
 sys.path.insert(0, "/home/seanachan/GMC-Link")
 os.environ.setdefault("GMC_MODEL", "similarity")
@@ -235,8 +239,8 @@ def extract_all():
 
 def probe_all(samples):
     from sklearn.linear_model import LogisticRegression, Ridge
-    from sklearn.preprocessing import StandardScaler
     from sklearn.metrics import f1_score, roc_auc_score
+    from sklearn.preprocessing import StandardScaler
 
     rng = np.random.RandomState(0)
     perm16 = rng.permutation(TMAX)
@@ -268,7 +272,7 @@ def probe_all(samples):
         pr = clf.predict_proba(sc.transform(X[te]))[:, 1]
         return dict(macro_f1=round(float(f1_score(y[te], p, average="macro")), 4),
                     auroc=round(float(roc_auc_score(y[te], pr)), 4),
-                    n_te=int(len(te)), pos_te=int(y[te].sum()))
+                    n_te=len(te), pos_te=int(y[te].sum()))
 
     Xfull = np.stack([s["X"] for s in samples])            # (N, 16, 8)
     X12 = np.stack([s["x12"] for s in samples])            # (N, 12)

@@ -15,11 +15,11 @@ Usage:
     python run_hota_temprmot.py --threshold 0.45 # adjust GMC-Link suppression threshold
 """
 
-import os
-import sys
 import json
+import os
 import shutil
 import subprocess
+import sys
 from collections import defaultdict, deque
 
 import cv2
@@ -30,9 +30,15 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 from gmc_link.alignment import MotionLanguageAligner
 from gmc_link.core import ORBHomographyEngine
-from gmc_link.text_utils import TextEncoder
-from gmc_link.utils import normalize_velocity, MotionBuffer, ScoreBuffer, VELOCITY_SCALE, warp_points
 from gmc_link.demo_inference import classify_expression
+from gmc_link.text_utils import TextEncoder
+from gmc_link.utils import (
+    VELOCITY_SCALE,
+    MotionBuffer,
+    ScoreBuffer,
+    normalize_velocity,
+    warp_points,
+)
 
 # ── Config ──────────────────────────────────────────────────────────────
 TEMPRMOT_RESULTS = "/home/seanachan/TempRMOT/exps/default_rk/results_epoch50"
@@ -303,8 +309,7 @@ def score_expression(
         dead = set(centroid_history.keys()) - active
         for d in dead:
             del centroid_history[d]
-            if d in wh_history:
-                del wh_history[d]
+            wh_history.pop(d, None)
 
     return frame_scores
 
@@ -415,11 +420,11 @@ def main():
         print(f"  {num_frames} frames, {img_w}x{img_h}")
 
         # Pre-compute ego-motion
-        print(f"  Pre-computing ego-motion...")
+        print("  Pre-computing ego-motion...")
         frame_to_frame_H, bg_residuals = precompute_ego_motion(seq)
         cum_buffers = build_cumulative_homographies(frame_to_frame_H, FRAME_GAP)
         bg_res_buffers = build_bg_residual_buffers(bg_residuals, FRAME_GAP)
-        print(f"  Ego-motion ready")
+        print("  Ego-motion ready")
 
         # Process each expression
         out_seq_dir = os.path.join(OUTPUT_ROOT, seq)
@@ -506,7 +511,7 @@ def main():
         "--PLOT_CURVES", "False",
         "--PRINT_CONFIG", "False",
     ]
-    print(f"\nRunning TrackEval...")
+    print("\nRunning TrackEval...")
     result = subprocess.run(cmd, capture_output=True, text=True,
                             cwd=os.path.dirname(TRACKEVAL_SCRIPT))
     print("\n" + "=" * 70)

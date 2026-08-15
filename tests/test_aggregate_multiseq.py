@@ -4,6 +4,7 @@ Uses synthetic .npz fixtures that match the schema produced by
 diagnostics/diag_gt_cosine_distributions.py (Task 2). No real inference.
 """
 from __future__ import annotations
+
 import json
 from pathlib import Path
 
@@ -44,8 +45,8 @@ def synthetic_npz_dir(tmp_path: Path) -> Path:
                     gt, nongt = base_gt, base_nongt
                 results.append({
                     "sentence": sent,
-                    "n_gt": int(len(gt)),
-                    "n_nongt": int(len(nongt)),
+                    "n_gt": len(gt),
+                    "n_nongt": len(nongt),
                     "gt_mean": float(gt.mean()),
                     "gt_std": float(gt.std()),
                     "nongt_mean": float(nongt.mean()),
@@ -81,7 +82,8 @@ def test_load_per_seq_expressions(synthetic_npz_dir: Path):
 
 def test_compute_per_seq_auc_high_when_gt_dominates(synthetic_npz_dir: Path):
     from diagnostics.aggregate_multiseq import (
-        load_per_seq_expressions, compute_per_seq_auc,
+        compute_per_seq_auc,
+        load_per_seq_expressions,
     )
     data = load_per_seq_expressions(synthetic_npz_dir, "model_A", ["0005", "0011", "0013"])
     for sent in data:
@@ -95,7 +97,8 @@ def test_compute_per_seq_auc_high_when_gt_dominates(synthetic_npz_dir: Path):
 
 def test_compute_per_seq_auc_low_when_inverted(synthetic_npz_dir: Path):
     from diagnostics.aggregate_multiseq import (
-        load_per_seq_expressions, compute_per_seq_auc,
+        compute_per_seq_auc,
+        load_per_seq_expressions,
     )
     data = load_per_seq_expressions(synthetic_npz_dir, "model_B", ["0005", "0011", "0013"])
     for sent in data:
@@ -110,7 +113,8 @@ def test_compute_per_seq_auc_low_when_inverted(synthetic_npz_dir: Path):
 
 def test_macro_aggregation_math(synthetic_npz_dir: Path):
     from diagnostics.aggregate_multiseq import (
-        load_per_seq_expressions, aggregate_expression,
+        aggregate_expression,
+        load_per_seq_expressions,
     )
     data = load_per_seq_expressions(synthetic_npz_dir, "model_A", ["0005", "0011", "0013"])
     agg = aggregate_expression(data["moving cars"], seqs=["0005", "0011", "0013"])
@@ -125,7 +129,9 @@ def test_macro_aggregation_math(synthetic_npz_dir: Path):
 def test_micro_aggregation_pools_before_auc(synthetic_npz_dir: Path):
     """Micro AUC must come from concatenated arrays, not averaged per-seq AUCs."""
     from diagnostics.aggregate_multiseq import (
-        load_per_seq_expressions, aggregate_expression, compute_per_seq_auc,
+        aggregate_expression,
+        compute_per_seq_auc,
+        load_per_seq_expressions,
     )
     data = load_per_seq_expressions(synthetic_npz_dir, "model_B", ["0005", "0011", "0013"])
     # On model_B, "moving cars" has one inverted seq (0005) and two clean.
@@ -228,7 +234,8 @@ def test_headline_excludes_single_seq_expressions_from_macro(tmp_path: Path):
 
 def test_write_weight_json_roundtrip(tmp_path: Path, synthetic_npz_dir: Path):
     from diagnostics.aggregate_multiseq import (
-        build_weight_record, write_weight_json,
+        build_weight_record,
+        write_weight_json,
     )
     rec = build_weight_record(
         results_dir=synthetic_npz_dir, model_tag="model_A",
@@ -246,7 +253,8 @@ def test_write_weight_markdown_has_expected_sections(
     tmp_path: Path, synthetic_npz_dir: Path,
 ):
     from diagnostics.aggregate_multiseq import (
-        build_weight_record, write_weight_markdown,
+        build_weight_record,
+        write_weight_markdown,
     )
     rec = build_weight_record(
         results_dir=synthetic_npz_dir, model_tag="model_A",
@@ -278,7 +286,8 @@ def test_write_weight_boxplot_creates_file(
     tmp_path: Path, synthetic_npz_dir: Path,
 ):
     from diagnostics.aggregate_multiseq import (
-        build_weight_record, write_weight_boxplot,
+        build_weight_record,
+        write_weight_boxplot,
     )
     rec = build_weight_record(
         results_dir=synthetic_npz_dir, model_tag="model_A",
@@ -294,7 +303,8 @@ def test_comparison_report_ranks_models_and_includes_max_gap(
     tmp_path: Path, synthetic_npz_dir: Path,
 ):
     from diagnostics.aggregate_multiseq import (
-        build_weight_record, write_comparison_markdown,
+        build_weight_record,
+        write_comparison_markdown,
     )
     rec_a = build_weight_record(
         results_dir=synthetic_npz_dir, model_tag="model_A",

@@ -3,10 +3,10 @@
 This is an integration test: it inspects a real .npz produced by the diagnostic
 script. It is skipped on a clean checkout where no diagnostic has been run yet.
 """
-import numpy as np
-import pytest
 from pathlib import Path
 
+import numpy as np
+import pytest
 
 _CANDIDATE_NPZ_PATHS = [
     Path("diagnostics/results/layer3_gt_cosine_0011.npz"),

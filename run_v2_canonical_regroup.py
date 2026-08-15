@@ -15,7 +15,12 @@ Usage:
     python run_v2_canonical_regroup.py --alphas 0,5 --seeds 0,1,2
 alpha=0 reads seed0's run dir only (no GMC term => identical across seeds).
 """
-import argparse, json, os, statistics, subprocess, sys
+import argparse
+import json
+import os
+import statistics
+import subprocess
+import sys
 
 REPO       = "/home/seanachan/GMC-Link"
 DATA_ROOT  = "/home/seanachan/data/Dataset/refer-kitti-v2"

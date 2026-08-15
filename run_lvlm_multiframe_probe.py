@@ -12,7 +12,6 @@ from collections import defaultdict
 import torch
 from PIL import Image
 
-
 KITTI_ROOT = "/home/seanachan/GMC-Link/refer-kitti/KITTI/training/image_02"
 NS_ROOT = "/home/seanachan/GMC-Link/NeuralSORT"
 
@@ -73,7 +72,11 @@ def main():
     p.add_argument("--model_id", default="Qwen/Qwen2-VL-2B-Instruct")
     args = p.parse_args()
 
-    from transformers import AutoProcessor, BitsAndBytesConfig, Qwen2VLForConditionalGeneration
+    from transformers import (
+        AutoProcessor,
+        BitsAndBytesConfig,
+        Qwen2VLForConditionalGeneration,
+    )
     bnb = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16,
                              bnb_4bit_quant_type="nf4")
     print("Loading model...", flush=True)

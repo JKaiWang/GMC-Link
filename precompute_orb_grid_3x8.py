@@ -24,17 +24,14 @@ Usage::
 from __future__ import annotations
 
 import argparse
-import os
 import time
 from multiprocessing import Pool
 from pathlib import Path
-from typing import List, Tuple
 
 import cv2
 import numpy as np
 
-from gmc_link.features.orb_grid import compute_orb_grid_flow, cell_match_counts
-
+from gmc_link.features.orb_grid import cell_match_counts, compute_orb_grid_flow
 
 DATA_ROOT = Path("/home/seanachan/GMC-Link/refer-kitti")
 OUT_ROOT = Path("/home/seanachan/GMC-Link/cache/orb_grid/3x8")
@@ -51,7 +48,7 @@ V1_EVAL_SEQS = ["0005", "0011", "0013"]
 ALL_SEQS = V1_TRAIN_SEQS + V1_EVAL_SEQS
 
 
-def _process_one(args: Tuple[Path, Path, Path, int, bool]) -> Tuple[str, str]:
+def _process_one(args: tuple[Path, Path, Path, int, bool]) -> tuple[str, str]:
     """Worker: compute and write one (seq, frame) entry. Returns (status, path)."""
     img_dir, out_seq, _seq_name, fid, count_cells = args
     out_npz = out_seq / f"{fid:06d}_gap{GAP}.npz"
@@ -86,7 +83,7 @@ def _process_one(args: Tuple[Path, Path, Path, int, bool]) -> Tuple[str, str]:
     return ("ok", str(out_npz))
 
 
-def _list_frames(img_dir: Path) -> List[int]:
+def _list_frames(img_dir: Path) -> list[int]:
     return sorted(int(p.stem) for p in img_dir.glob("*.png"))
 
 

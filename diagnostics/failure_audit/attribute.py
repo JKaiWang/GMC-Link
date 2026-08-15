@@ -4,9 +4,10 @@ Adds FN_ikun_coverage as class 0 (pre-empted by absence of iKUN cache row
 at the GT-active frame). The remaining decision tree is per the design.
 """
 from __future__ import annotations
-import math
-import pandas as pd
 
+import math
+
+import pandas as pd
 
 # Pre-registered thresholds (design §4).
 ALIGNER_LOW_GMC = 0.3

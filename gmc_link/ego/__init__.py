@@ -5,6 +5,7 @@ Importing this package eagerly registers the built-in routers so that
 to know which submodule to pull in.
 """
 
+from gmc_link.ego import recoverpose_ego  # noqa: F401 — side-effect registration
 from gmc_link.ego.ego_router import (  # noqa: F401
     EgoRouter,
     OrbEgoRouter,
@@ -12,4 +13,3 @@ from gmc_link.ego.ego_router import (  # noqa: F401
     make_ego_router,
     register_ego_router,
 )
-from gmc_link.ego import recoverpose_ego  # noqa: F401 — side-effect registration

@@ -15,30 +15,26 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import json
 import glob
-import numpy as np
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.data import Dataset, DataLoader
-from collections import defaultdict
-from typing import Dict, List, Tuple
+import json
 
 import cv2
+import numpy as np
+import torch
+from torch import nn
+from torch.utils.data import DataLoader, Dataset
 
-from gmc_link.manager import GMCLinkManager
-from gmc_link.text_utils import TextEncoder
 from gmc_link.dataset import load_labels_with_ids
 from gmc_link.demo_inference import (
-    load_neuralsort_tracks,
-    load_ikun_scores,
     DummyTrack,
+    classify_expression,
+    load_ikun_scores,
+    load_neuralsort_tracks,
     match_tracks_to_gt,
     normalized_to_pixel,
-    classify_expression,
 )
-
+from gmc_link.manager import GMCLinkManager
+from gmc_link.text_utils import TextEncoder
 
 # ── Model ────────────────────────────────────────────────────────────
 
@@ -152,7 +148,7 @@ def collect_training_data(
 
                 detections = ns_tracks[frame_1idx]
                 active_tracks = []
-                track_boxes_xyxy: Dict[int, List[float]] = {}
+                track_boxes_xyxy: dict[int, list[float]] = {}
 
                 for obj_id, x, y, w, h in detections:
                     active_tracks.append(DummyTrack(obj_id, x, y, w, h))
@@ -379,7 +375,7 @@ def _evaluate_model(model: FusionHead, data: np.ndarray, threshold: float) -> No
 
 def load_fusion_head(
     weights_path: str = "gmc_link/fusion_head_weights.pth",
-) -> Tuple[FusionHead, float]:
+) -> tuple[FusionHead, float]:
     """Load trained fusion head and its threshold."""
     state = torch.load(weights_path, map_location="cpu", weights_only=False)
     model = FusionHead(input_dim=3)

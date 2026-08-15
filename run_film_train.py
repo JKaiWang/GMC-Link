@@ -13,7 +13,9 @@ Usage:
     python run_film_train.py --exp_name film_v1
     python run_film_train.py --exp_name film_smoke --max_epoch 1 --train_print_freq 5
 """
-import os, sys, subprocess
+import os
+import subprocess
+import sys
 
 IKUN = "/home/seanachan/iKUN"
 

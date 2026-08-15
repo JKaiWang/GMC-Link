@@ -9,8 +9,11 @@ Usage:
     python run_build_gmc_cache.py 0005
     python run_build_gmc_cache.py 0013
 """
-import os, sys, json
+import json
+import os
+import sys
 from collections import defaultdict
+
 import cv2
 import numpy as np
 import torch
@@ -18,10 +21,10 @@ from tqdm import tqdm
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
+from gmc_link.demo_inference import DummyTrack, load_neuralsort_tracks
+from gmc_link.depth_cache import DepthCache
 from gmc_link.manager import GMCLinkManager
 from gmc_link.text_utils import TextEncoder
-from gmc_link.demo_inference import load_neuralsort_tracks, DummyTrack
-from gmc_link.depth_cache import DepthCache
 
 DATA_ROOT   = os.environ.get("GMC_DATA_ROOT", "refer-kitti")
 TRACK_DIR   = "NeuralSORT"

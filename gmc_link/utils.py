@@ -1,8 +1,9 @@
 """
 Utility functions for GMC-Link covering geometric warping and kinematics buffer smoothing.
 """
-from typing import Dict, List, Tuple
+
 import numpy as np
+
 # Scale factor for normalized velocities so the MLP operates on ~1.0 magnitude values
 # Calibrated for frame_gap=5 (5-frame window produces clean, robust centroid diffs)
 VELOCITY_SCALE = 100
@@ -34,7 +35,7 @@ def warp_points(points: np.ndarray, homography: np.ndarray) -> np.ndarray:
     return warped_points
 
 
-def normalize_velocity(v_comp: np.ndarray, frame_shape: Tuple[int, int]) -> np.ndarray:
+def normalize_velocity(v_comp: np.ndarray, frame_shape: tuple[int, int]) -> np.ndarray:
     """
     Scales pixel velocity to a normalized range based on frame dimensions.
     This ensures GMC-Link is scale-invariant (works the same on 720p vs 4K).
@@ -67,7 +68,7 @@ class MotionBuffer:
 
     def __init__(self, alpha: float = 0.8) -> None:
         self.alpha: float = alpha
-        self.registry: Dict[int, np.ndarray] = {}  # {track_id: last_v}
+        self.registry: dict[int, np.ndarray] = {}  # {track_id: last_v}
 
     def smooth(self, track_id: int, v_new: np.ndarray) -> np.ndarray:
         """
@@ -88,7 +89,7 @@ class MotionBuffer:
             return v_new
         return (self.alpha * v_new) + ((1 - self.alpha) * self.registry[track_id])
 
-    def clear_dead_tracks(self, active_track_ids: List[int]) -> None:
+    def clear_dead_tracks(self, active_track_ids: list[int]) -> None:
         """
         Remove tracks from the registry that are no longer active to prevent memory bloat.
         """
@@ -111,7 +112,7 @@ class ScoreBuffer:
         self.alpha: float = alpha
         self.alpha_up: float = alpha  # fast response to new high scores
         self.alpha_down: float = 0.1  # slow decay when score drops
-        self.registry: Dict[int, float] = {}  # {track_id: smoothed_score}
+        self.registry: dict[int, float] = {}  # {track_id: smoothed_score}
 
     def smooth(self, track_id: int, raw_score: float) -> float:
         """Apply asymmetric EMA: fast rise, slow decay."""
@@ -134,7 +135,7 @@ class ScoreBuffer:
         a = self.alpha_up if raw_score >= old else self.alpha_down
         return a * raw_score + (1 - a) * old
 
-    def clear_dead_tracks(self, active_track_ids: List[int]) -> None:
+    def clear_dead_tracks(self, active_track_ids: list[int]) -> None:
         """
         Remove inactive track score registries to prevent memory bloat.
         """

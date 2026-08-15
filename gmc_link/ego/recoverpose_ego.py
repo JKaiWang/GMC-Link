@@ -8,8 +8,6 @@ GMCLinkManager centroid warping remains backwards-compatible.
 """
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
-
 import cv2
 import numpy as np
 
@@ -32,7 +30,7 @@ class RecoverPoseEgoRouter:
     def __init__(
         self,
         max_features: int = 1500,
-        K: Optional[np.ndarray] = None,
+        K: np.ndarray | None = None,
     ) -> None:
         self.orb = cv2.ORB_create(max_features)
         self.matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)
@@ -43,8 +41,8 @@ class RecoverPoseEgoRouter:
         self,
         prev_frame: np.ndarray,
         curr_frame: np.ndarray,
-        prev_bboxes: Optional[List[Tuple[float, float, float, float]]] = None,
-    ) -> Tuple[np.ndarray, np.ndarray]:
+        prev_bboxes: list[tuple[float, float, float, float]] | None = None,
+    ) -> tuple[np.ndarray, np.ndarray]:
         prev_gray = (
             cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
             if len(prev_frame.shape) == 3
@@ -117,7 +115,7 @@ class RecoverPoseEgoRouter:
         src: np.ndarray,
         dst: np.ndarray,
         H: np.ndarray,
-        pose_mask: Optional[np.ndarray],
+        pose_mask: np.ndarray | None,
     ) -> np.ndarray:
         if pose_mask is None or pose_mask.sum() == 0:
             return np.zeros(2, dtype=np.float32)

@@ -11,7 +11,10 @@ Usage:
     conda activate RMOT
     python run_film_identity_check.py
 """
-import os, sys, torch
+import sys
+
+import torch
+
 sys.path.insert(0, "/home/seanachan/iKUN")
 sys.path.insert(0, "/home/seanachan/GMC-Link")
 
@@ -34,9 +37,9 @@ def main():
     import utils as u
     u.VIDEOS["test"] = ["0011"]
 
+    from dataloader import get_dataloader
     from model import get_model
     from utils import load_from_ckpt, tokenize
-    from dataloader import get_dataloader
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model = get_model(opt, "Model")

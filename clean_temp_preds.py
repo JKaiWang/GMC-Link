@@ -1,5 +1,6 @@
 import glob
 
+
 def clean_file(p):
     with open(p, 'r', encoding='utf-8') as f:
         lines = f.readlines()

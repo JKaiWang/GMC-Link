@@ -9,21 +9,25 @@ Usage:
     python diagnostics/diag_training_convergence.py
     python diagnostics/diag_training_convergence.py --weights gmc_link_weights.pth  # test other weights
 """
-import sys, os
+import os
+import sys
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 import argparse
+
+import matplotlib
 import numpy as np
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
-import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from gmc_link.alignment import MotionLanguageAligner
-from gmc_link.dataset import MotionLanguageDataset, collate_fn, build_training_data
+from gmc_link.dataset import MotionLanguageDataset, build_training_data, collate_fn
 from gmc_link.text_utils import TextEncoder
 
 # ── V1 config ────────────────────────────────────────────────────────────

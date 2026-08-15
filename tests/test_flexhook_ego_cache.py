@@ -10,22 +10,21 @@ These tests assume the extractor has been run against the V1 held-out seqs:
 """
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import numpy as np
 import pytest
 
-import sys
 _ROOT = Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
+from gmc_link.utils import VELOCITY_SCALE
 from tools.flexhook_ego_extractor import (
     RESIDUAL_TO_NORMGRID,
     residual_to_normgrid,
 )
-from gmc_link.utils import VELOCITY_SCALE
-
 
 CACHE_ROOT = _ROOT / "diagnostics/results/exp38/cache/ego_speed"
 EXPECTED_SEQS = {

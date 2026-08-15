@@ -13,24 +13,26 @@ Usage:
     python diagnostics/diag_live_inference_scores.py
     python diagnostics/diag_live_inference_scores.py --seq 0005
 """
-import sys, os
+import os
+import sys
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 import argparse
-import json
 from collections import defaultdict
 
 import cv2
+import matplotlib
 import numpy as np
 import torch
-import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+from gmc_link.dataset import is_motion_expression, load_refer_kitti_expressions
 from gmc_link.manager import GMCLinkManager
 from gmc_link.text_utils import TextEncoder
-from gmc_link.dataset import load_refer_kitti_expressions, is_motion_expression
 
 # ── V1 config ────────────────────────────────────────────────────────────
 DATA_ROOT = "refer-kitti"

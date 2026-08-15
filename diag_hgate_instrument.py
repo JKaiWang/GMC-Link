@@ -6,8 +6,12 @@ transitions the gate WOULD reject. Pass criterion: rejects only the wild
 tail (~7/916 measured in the audit; legit ego p95 = 50-99px vs 150px bound),
 zero fallback firings.
 """
-import os, sys
-import numpy as np, cv2
+import os
+import sys
+
+import cv2
+import numpy as np
+
 sys.path.insert(0, "/home/seanachan/GMC-Link")
 from gmc_link.core import ORBHomographyEngine
 from gmc_link.utils import warp_points

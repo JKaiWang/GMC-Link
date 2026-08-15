@@ -6,7 +6,10 @@ Computes pool HOTA on per-class seqmaps (APPEARANCE / MOVING / STATIC) for:
 
 Then reports per-class Δ = ship − B with mean ± std and 1-sample t-test vs B.
 """
-import os, subprocess, sys
+import os
+import subprocess
+import sys
+
 import numpy as np
 from scipy import stats
 

@@ -5,7 +5,6 @@ already on disk and which require a hook re-run.
 """
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
 
 TARGET_CELLS = [
     ("turning-cars",       "0011"),
@@ -30,7 +29,7 @@ class CellStatus:
         return self.ikun_present and self.gmc_present and self.det_present and self.gt_present
 
 
-def inventory_cells(repo_root: Path) -> List[CellStatus]:
+def inventory_cells(repo_root: Path) -> list[CellStatus]:
     """Cache-presence check per (expr, seq) cell.
 
     Path corrections vs initial plan after recon on 2026-05-14:
@@ -43,7 +42,7 @@ def inventory_cells(repo_root: Path) -> List[CellStatus]:
       - GT lives under the `refer-kitti/` symlink (paper-canonical
         `gt_template_old/`); the repo root has no top-level `gt_template_old/`.
     """
-    out: List[CellStatus] = []
+    out: list[CellStatus] = []
     for expr, seq in TARGET_CELLS:
         out.append(CellStatus(
             expr=expr,

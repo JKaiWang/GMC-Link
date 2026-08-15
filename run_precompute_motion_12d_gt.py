@@ -13,19 +13,23 @@ Usage:
     python run_precompute_motion_12d_gt.py
     python run_precompute_motion_12d_gt.py --seqs 0001 0002
 """
-import argparse, json, os, sys
+import argparse
+import json
+import os
+import sys
 from collections import defaultdict
 from pathlib import Path
 
+import cv2
 import numpy as np
 import torch
-import cv2
 from tqdm import tqdm
 
 sys.path.insert(0, "/home/seanachan/GMC-Link")
 sys.path.insert(0, "/home/seanachan/iKUN")
-from gmc_link.manager import GMCLinkManager
 from utils import RESOLUTION
+
+from gmc_link.manager import GMCLinkManager
 
 LABELS_JSON = "/home/seanachan/GMC-Link/Refer-KITTI_labels.json"
 KITTI_IMG = "/home/seanachan/data/Dataset/refer-kitti/KITTI/training/image_02"
@@ -37,7 +41,7 @@ TRAIN_SEQS = ["0001","0002","0003","0004","0006","0007","0008","0009","0010","00
 
 
 class _Track:
-    __slots__ = ("id", "centroid", "bbox")
+    __slots__ = ("bbox", "centroid", "id")
     def __init__(self, tid, centroid, bbox):
         self.id = tid
         self.centroid = centroid

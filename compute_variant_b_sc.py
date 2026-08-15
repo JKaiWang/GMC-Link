@@ -4,10 +4,10 @@ Uses sw raw_cos caches (ship aligner) + existing iKUN/FH prediction sources.
 Reports derived sc values per arch + axis for downstream HOTA validation.
 """
 from __future__ import annotations
+
 import json
 import os
 from collections import defaultdict
-from glob import glob
 
 import numpy as np
 

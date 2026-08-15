@@ -11,7 +11,14 @@ Usage:
     conda activate RMOT
     python run_film_hota.py --ckpt /home/seanachan/GMC-Link/save/film_v1/epoch19.pth
 """
-import argparse, os, sys, json, shutil, subprocess, statistics, csv
+import argparse
+import csv
+import json
+import os
+import shutil
+import statistics
+import subprocess
+import sys
 from collections import defaultdict
 
 import numpy as np
@@ -21,8 +28,9 @@ from tqdm import tqdm
 sys.path.insert(0, "/home/seanachan/GMC-Link")
 sys.path.insert(0, "/home/seanachan/iKUN")
 
-from gmc_link.demo_inference import load_neuralsort_tracks, load_ikun_scores
 from utils import expression_conversion as ikun_expression_conversion
+
+from gmc_link.demo_inference import load_neuralsort_tracks
 
 DATA_ROOT = "/home/seanachan/GMC-Link/refer-kitti"
 TRACK_DIR = "/home/seanachan/GMC-Link/NeuralSORT"
@@ -80,9 +88,9 @@ def run_cascade_inference_with_film(ckpt_path, target_seqs):
     _orig = ikun_utils.VIDEOS.copy()
     ikun_utils.VIDEOS["test"] = target_seqs
 
+    from dataloader import get_dataloader
     from model import get_model
     from utils import load_from_ckpt, tokenize
-    from dataloader import get_dataloader
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model = get_model(opt, "Model")
@@ -219,7 +227,7 @@ def main():
         results_dir, sm = gen_predict(seq, bias, ns, exprs, rd, raw_logits)
         pooled, pc = run_te(sm, results_dir)
         results[seq] = (pooled, pc)
-        if pooled is None: print(f"  FAIL"); continue
+        if pooled is None: print("  FAIL"); continue
         print(f"  pooled={pooled:>7.3f}  STATIC={pc['STATIC']:>6.2f}  "
               f"MOVING={pc['MOVING']:>6.2f}  OTHER={pc['OTHER']:>6.2f}")
 
@@ -227,8 +235,8 @@ def main():
     pools = [r[0] for r in results.values() if r[0] is not None]
     if pools:
         print(f"  macro pooled = {statistics.mean(pools):.3f}")
-    print(f"\nReference baselines (cascade B, no FiLM):")
-    print(f"  YOLOv8-NS macro 39.414, 0011 47.085 (Phase 5C/5E B)")
+    print("\nReference baselines (cascade B, no FiLM):")
+    print("  YOLOv8-NS macro 39.414, 0011 47.085 (Phase 5C/5E B)")
 
 
 if __name__ == "__main__":

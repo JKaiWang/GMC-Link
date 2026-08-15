@@ -12,11 +12,15 @@ transforms) for the turning x ego-rotation stratification.
 
 Run:  GMC_MODEL=similarity python diagnostics/tprobe2.py [--probe-only]
 """
-import argparse, glob, json, os, sys
+import argparse
+import glob
+import json
+import os
+import sys
 from collections import defaultdict
 
-import numpy as np
 import cv2
+import numpy as np
 
 sys.path.insert(0, "/home/seanachan/GMC-Link")
 os.environ.setdefault("GMC_MODEL", "similarity")
@@ -179,8 +183,8 @@ def extract_seq(seq):
 
 def probe_all(samples):
     from sklearn.linear_model import LogisticRegression
-    from sklearn.preprocessing import StandardScaler
     from sklearn.metrics import f1_score
+    from sklearn.preprocessing import StandardScaler
 
     tr_idx = [i for i, s in enumerate(samples) if s["seq"] not in PROBE_TEST_SEQS]
     te_idx = [i for i, s in enumerate(samples) if s["seq"] in PROBE_TEST_SEQS]

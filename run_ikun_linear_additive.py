@@ -14,15 +14,22 @@ The motion-keyword classifier below is used ONLY for per-class HOTA grouping
 Usage:
     GMC_SUFFIX=_sw12d_seed0 python run_ikun_linear_additive.py --alpha 0.3
 """
-import argparse, json, os, shutil, subprocess, sys
+import argparse
+import json
+import os
+import shutil
+import subprocess
+import sys
 from collections import defaultdict
+
 import numpy as np
 
 sys.path.insert(0, "/home/seanachan/GMC-Link")
 sys.path.insert(0, "/home/seanachan/iKUN")
 
-from gmc_link.demo_inference import load_neuralsort_tracks, load_ikun_scores
 from utils import expression_conversion as ikun_expression_conversion
+
+from gmc_link.demo_inference import load_ikun_scores, load_neuralsort_tracks
 
 # V1 defaults; override via env for V2 (iKUN-V2 cross-split eval).
 DATA_ROOT      = os.environ.get("IKUN_DATA_ROOT", "/home/seanachan/GMC-Link/refer-kitti")

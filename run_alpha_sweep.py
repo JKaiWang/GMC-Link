@@ -15,7 +15,13 @@ Usage:
     python run_alpha_sweep.py --arch fh_v2 --alphas 0,1,2,3,5,7,10
     python run_alpha_sweep.py --arch ikun --alphas 0,0.3 --seeds 0 --dry-run
 """
-import argparse, csv, json, os, statistics, subprocess, sys
+import argparse
+import csv
+import json
+import os
+import statistics
+import subprocess
+import sys
 
 REPO = "/home/seanachan/GMC-Link"
 

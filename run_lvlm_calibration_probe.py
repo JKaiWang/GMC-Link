@@ -14,7 +14,6 @@ import time
 import torch
 from PIL import Image
 
-
 KITTI_ROOT = "/home/seanachan/GMC-Link/refer-kitti/KITTI/training/image_02"
 NS_ROOT = "/home/seanachan/GMC-Link/NeuralSORT"
 
@@ -144,7 +143,7 @@ def main():
     elapsed = time.time() - t0
     n = len(tracks)
     print()
-    print(f"=== Calibration result ===")
+    print("=== Calibration result ===")
     print(f"calls: {n}, parsed: {parsed_ok} ({100*parsed_ok/n:.1f}%)")
     print(f"latency: {elapsed/n:.2f} s/call, total {elapsed:.1f} s")
     if scores:

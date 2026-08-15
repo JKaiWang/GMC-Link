@@ -12,15 +12,17 @@ the feature is constant per sequence and measures per-seq base rate only).
 
 Run: python diagnostics/tprobe5_locbias.py
 """
-import json, os, sys
+import json
+import sys
 
 import numpy as np
 
 sys.path.insert(0, "/home/seanachan/GMC-Link")
-import diagnostics.tprobe3_oracle as t3
 from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import f1_score
+from sklearn.preprocessing import StandardScaler
+
+import diagnostics.tprobe3_oracle as t3
 
 OUT = "/home/seanachan/GMC-Link/results/tprobe/tprobe5_locbias.json"
 PROBE_TEST_SEQS = {"0001", "0006", "0010", "0016"}

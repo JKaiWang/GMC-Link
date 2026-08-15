@@ -19,13 +19,12 @@ Usage:
     python run_hota_eval_v1.py --skip-ikun     # skip iKUN inference if already done
 """
 
-import os
-import sys
-import json
-import math
-import shutil
 import argparse
+import json
+import os
+import shutil
 import subprocess
+import sys
 from collections import defaultdict
 
 import cv2
@@ -93,9 +92,9 @@ def run_ikun_inference():
     _orig_videos = ikun_utils.VIDEOS.copy()
     ikun_utils.VIDEOS["test"] = ALL_SEQS
 
-    from model import get_model
-    from utils import load_from_ckpt, tokenize, EXPRESSIONS
     from dataloader import get_dataloader
+    from model import get_model
+    from utils import load_from_ckpt, tokenize
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model = get_model(opt, "Model")

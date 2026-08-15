@@ -1,8 +1,8 @@
 import os
 import random
 
-import torch
 import numpy as np
+import torch
 
 CACHE_DIR = "/home/seanachan/GMC-Link/iKUN/motion_12d_cache_v1"
 

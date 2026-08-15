@@ -13,11 +13,14 @@ sequence by per-frame IoU matching (>0.5) + majority vote.
 
 Run: python diagnostics/tprobe3_oracle.py
 """
-import glob, json, os, sys
-from collections import defaultdict, Counter
+import glob
+import json
+import os
+import sys
+from collections import Counter, defaultdict
 
-import numpy as np
 import cv2
+import numpy as np
 
 sys.path.insert(0, "/home/seanachan/GMC-Link")
 
@@ -163,8 +166,8 @@ def extract():
 
 def probe(samples):
     from sklearn.linear_model import LogisticRegression
-    from sklearn.preprocessing import StandardScaler
     from sklearn.metrics import f1_score
+    from sklearn.preprocessing import StandardScaler
 
     tr_idx = [i for i, s in enumerate(samples) if s["seq"] not in PROBE_TEST_SEQS]
     te_idx = [i for i, s in enumerate(samples) if s["seq"] in PROBE_TEST_SEQS]

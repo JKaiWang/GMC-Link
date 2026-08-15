@@ -13,30 +13,35 @@ Usage:
     python diagnostics/diag_gt_cosine_distributions.py
     python diagnostics/diag_gt_cosine_distributions.py --seq 0005
 """
-import sys, os
+import os
+import sys
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 import argparse
-import json
 from collections import defaultdict
 
 import cv2
+import matplotlib
 import numpy as np
 import torch
 import torch.nn.functional as F
-import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from gmc_link.alignment import MotionLanguageAligner
-from gmc_link.dataset import (
-    load_refer_kitti_expressions, load_labels_with_ids,
-    is_motion_expression, FRAME_GAPS, ClipFeatCache,
-)
-from gmc_link.utils import VELOCITY_SCALE, warp_points
 from gmc_link.core import ORBHomographyEngine
+from gmc_link.dataset import (
+    FRAME_GAPS,
+    ClipFeatCache,
+    is_motion_expression,
+    load_labels_with_ids,
+    load_refer_kitti_expressions,
+)
 from gmc_link.text_utils import TextEncoder
+from gmc_link.utils import VELOCITY_SCALE, warp_points
 
 # ── V1 config ────────────────────────────────────────────────────────────
 DATA_ROOT = "refer-kitti"
@@ -82,7 +87,7 @@ def precompute_homographies(frame_dir, all_frame_ids, orb_engine):
         if (idx + 1) % 100 == 0:
             print(f"    {idx + 1}/{len(needed_pairs)} done")
 
-    print(f"  Homography precompute complete.")
+    print("  Homography precompute complete.")
     return cache
 
 
@@ -98,9 +103,13 @@ def compute_motion_vectors_for_all_tracks(
     dZ_10_ego/10] to each base 13D vector (cohort-ego-compensated).
     """
     from gmc_link.dataset import (
-        compute_per_track_extras, compute_relational_extras,
-        compute_zoned_flow_features, compute_zoned_flow_features_rect,
-        _load_omf_field, _load_orb_grid_field, _frame_cohort_dz_ego,
+        _frame_cohort_dz_ego,
+        _load_omf_field,
+        _load_orb_grid_field,
+        compute_per_track_extras,
+        compute_relational_extras,
+        compute_zoned_flow_features,
+        compute_zoned_flow_features_rect,
     )
 
     cohort_dz_ego_cache = {} if depth_cache is not None else None
@@ -406,7 +415,7 @@ def main():
               f"{'clip_proj_dim=' + str(clip_proj_dim) if fusion_site == 'input_concat' else 'app_proj_dim=' + str(app_proj_dim)}, "
               f"lang_passthrough={lang_passthrough})")
     if world_xy:
-        print(f"  world_xy=True (image dx/dy → metric world dX/dY via inverse pinhole)")
+        print("  world_xy=True (image dx/dy → metric world dX/dY via inverse pinhole)")
 
     model = MotionLanguageAligner(
         motion_dim=motion_dim, lang_dim=lang_dim, embed_dim=256,
@@ -425,7 +434,6 @@ def main():
 
     if extra_features:
         print(f"  Extra features: {extra_features} ({motion_dim}D)")
-        from gmc_link.dataset import compute_per_track_extras
 
     clip_cache = None
     if use_clip_feat:

@@ -3,11 +3,10 @@ Take stabilized velocity vector from utils.py, and align it
 with language features from the language model using a small MLP or transformer.
 """
 
-from typing import Tuple
 
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
 
 
 class TemporalMotionEncoder(nn.Module):
@@ -265,7 +264,7 @@ class MotionLanguageAligner(nn.Module):
         lang_feats: torch.Tensor,
         padding_mask: torch.Tensor = None,
         clip_feats: torch.Tensor = None,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """
         Project motion and language inputs into the shared latent space.
 

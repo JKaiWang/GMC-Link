@@ -5,30 +5,32 @@ Trains the MotionLanguageAligner using Supervised InfoNCE loss with
 motion-language pairs from refer-kitti sequences (test on 0011).
 """
 
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-from typing import Tuple, Optional
+
+import matplotlib
+import torch
+from torch import nn, optim
+from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-import torch
-from torch import optim
-from torch import nn
-from torch.utils.data import DataLoader
-import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from gmc_link.losses import AlignmentLoss, HardNegativeInfoNCE, StructuralConsensusLoss
 from gmc_link.alignment import MotionLanguageAligner
 from gmc_link.dataset import (
-    MotionLanguageDataset, SequenceMotionLanguageDataset,
-    collate_fn, sequence_collate_fn,
-    build_training_data, compute_extra_dims,
+    MotionLanguageDataset,
+    SequenceMotionLanguageDataset,
+    build_training_data,
+    collate_fn,
+    compute_extra_dims,
+    sequence_collate_fn,
 )
+from gmc_link.losses import AlignmentLoss, HardNegativeInfoNCE, StructuralConsensusLoss
 from gmc_link.text_utils import TextEncoder
 
 
@@ -39,10 +41,10 @@ def train_one_epoch(
     loss_func: nn.Module,
     device: torch.device,
     grad_clip: float = 0.0,
-    target_class_id: Optional[int] = None,
-    struct_loss: Optional[nn.Module] = None,
+    target_class_id: int | None = None,
+    struct_loss: nn.Module | None = None,
     lam_struct: float = 0.0,
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """
     Train the model for a single epoch using CLIP-style cross-modal InfoNCE.
 
@@ -150,7 +152,7 @@ def setup_data(
     use_depth: bool = False,
     depth_cache_dir: str = None,
     world_xy: bool = False,
-) -> Optional[DataLoader]:
+) -> DataLoader | None:
     """
     Initialize text encoder, build training dataset, and return a DataLoader.
 
@@ -264,7 +266,7 @@ def setup_model_and_optimizer(
     fusion_site: str = "input_concat", lang_passthrough: bool = False,
     app_proj_dim: int = 256,
     identity_init_depth: bool = False,
-) -> Tuple[
+) -> tuple[
     MotionLanguageAligner, nn.Module, optim.Optimizer, optim.lr_scheduler.LRScheduler
 ]:
     """Initialize model, loss, and AdamW optimizer."""
@@ -346,8 +348,8 @@ def train_loop(
     save_path: str = "gmc_link_weights.pth",
     warmup_epochs: int = 0,
     grad_clip: float = 0.0,
-    target_class_id: Optional[int] = None,
-    struct_loss: Optional[nn.Module] = None,
+    target_class_id: int | None = None,
+    struct_loss: nn.Module | None = None,
     lam_struct: float = 0.0,
 ) -> None:
     """
@@ -502,7 +504,7 @@ def _run_single_stage(
 
     # Resolve target_class_id for anchor-mask mode (per-class specialist).
     # class_filter=='all' → no mask (target_class_id=None).
-    target_class_id: Optional[int] = None
+    target_class_id: int | None = None
     if class_filter != "all":
         from gmc_link.expr_class import CLASS_LABELS
         target_class_id = CLASS_LABELS.index(class_filter)
@@ -658,7 +660,9 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.seed is not None:
-        import random, numpy as _np
+        import random
+
+        import numpy as _np
         torch.manual_seed(args.seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(args.seed)

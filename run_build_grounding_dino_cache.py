@@ -20,7 +20,6 @@ from PIL import Image
 from tqdm import tqdm
 from transformers import AutoModelForZeroShotObjectDetection, AutoProcessor
 
-
 KITTI_ROOT = "/home/seanachan/GMC-Link/refer-kitti/KITTI/training/image_02"
 PROMPT = "a car. a person."
 LABEL_TO_CLASS = {"a car": "car", "a person": "pedestrian"}

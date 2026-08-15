@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import Tuple
 
 import numpy as np
 
@@ -21,7 +20,7 @@ def load_kitti_poses(path: Path) -> np.ndarray:
     return poses.reshape(-1, 3, 4)
 
 
-def _umeyama(src: np.ndarray, tgt: np.ndarray) -> Tuple[float, np.ndarray, np.ndarray]:
+def _umeyama(src: np.ndarray, tgt: np.ndarray) -> tuple[float, np.ndarray, np.ndarray]:
     assert src.shape == tgt.shape and src.ndim == 2 and src.shape[1] == 3
     mu_s = src.mean(axis=0)
     mu_t = tgt.mean(axis=0)

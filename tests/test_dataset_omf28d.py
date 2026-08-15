@@ -5,7 +5,6 @@ lives in the Stage B runner (Task 11); this file only covers registry + cache
 key behaviour so the feature survives integration without silently becoming
 a no-op.
 """
-import os
 
 from gmc_link.dataset import (
     EXTRA_FEATURE_DIMS,

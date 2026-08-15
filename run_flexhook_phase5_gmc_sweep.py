@@ -13,8 +13,14 @@ classifier is used ONLY for per-class HOTA grouping, never in fusion.
 Usage:
     GMC_SUFFIX=_sw12d_seed0 python run_flexhook_phase5_gmc_sweep.py --alpha 3
 """
-import argparse, json, os, shutil, subprocess, sys
+import argparse
+import json
+import os
+import shutil
+import subprocess
+import sys
 from collections import defaultdict
+
 import numpy as np
 
 FLEXHOOK_RES = "/home/seanachan/FlexHook/retest-kitti-1/refer-kitti-best/results"

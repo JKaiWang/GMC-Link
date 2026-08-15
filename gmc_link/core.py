@@ -3,10 +3,13 @@
 Core utilities for extracting camera ego-motion via ORB features and homography.
 """
 import os
-from typing import Optional, List, Tuple
+
 import cv2
 import numpy as np
+
 from .utils import warp_points
+
+
 class ORBHomographyEngine:
     """
     Compute rigid background motion (ego-motion) between frames using ORB features
@@ -52,9 +55,9 @@ class ORBHomographyEngine:
         self,
         prev_frame: np.ndarray,
         curr_frame: np.ndarray,
-        prev_bboxes: Optional[List[Tuple[float, float, float, float]]] = None,
+        prev_bboxes: list[tuple[float, float, float, float]] | None = None,
         road_band: float = 0.5,
-    ) -> Optional[np.ndarray]:
+    ) -> np.ndarray | None:
         """Ground-plane homography from road-region features (GMC_GROUND=1).
 
         The road IS a plane, so a homography fit to road-region correspondences
@@ -102,8 +105,8 @@ class ORBHomographyEngine:
         self,
         prev_frame: np.ndarray,
         curr_frame: np.ndarray,
-        prev_bboxes: Optional[List[Tuple[float, float, float, float]]] = None,
-    ) -> Tuple[np.ndarray, np.ndarray]:
+        prev_bboxes: list[tuple[float, float, float, float]] | None = None,
+    ) -> tuple[np.ndarray, np.ndarray]:
         """
         Estimate the 3x3 homography matrix H_prev_to_curr that transforms points
         from prev_frame to curr_frame coordinates.

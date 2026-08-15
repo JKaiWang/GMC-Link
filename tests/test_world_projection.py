@@ -1,6 +1,4 @@
 """Unit tests for world-XY projection in GMCLinkManager."""
-import numpy as np
-import pytest
 
 from gmc_link.manager import GMCLinkManager
 

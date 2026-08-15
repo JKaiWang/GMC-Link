@@ -13,7 +13,12 @@ Usage:
     conda activate RMOT
     python run_precompute_motion_12d_rawvel.py
 """
-import argparse, json, os, sys, types
+import argparse
+import json
+import os
+import sys
+import types
+
 sys.path.insert(0, "/home/seanachan/GMC-Link")
 import numpy as np
 import torch

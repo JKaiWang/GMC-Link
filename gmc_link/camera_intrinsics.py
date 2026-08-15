@@ -8,7 +8,6 @@ on the KITTI same-rig setup, acceptable for pilot world-XY projection.
 Reference: KITTI raw devkit calib_cam_to_cam.txt, P_rect_02 row,
 [fx 0 cx 0; 0 fy cy 0; 0 0 1 0].
 """
-from typing import Tuple, Optional
 
 CANONICAL_KITTI_2011_09_26 = {
     "f_x": 721.5377,
@@ -19,10 +18,10 @@ CANONICAL_KITTI_2011_09_26 = {
 
 
 class CameraIntrinsics:
-    def __init__(self, calib_overrides: Optional[dict] = None):
+    def __init__(self, calib_overrides: dict | None = None):
         self.canonical = CANONICAL_KITTI_2011_09_26
         self.overrides = calib_overrides or {}
 
-    def get(self, seq: str) -> Tuple[float, float, float, float]:
+    def get(self, seq: str) -> tuple[float, float, float, float]:
         c = self.overrides.get(seq, self.canonical)
         return c["f_x"], c["f_y"], c["c_x"], c["c_y"]

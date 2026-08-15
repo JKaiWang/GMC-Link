@@ -12,8 +12,8 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 import numpy as np
 from scipy.stats import mannwhitneyu
@@ -99,8 +99,8 @@ def aggregate_expression(
 
     for s in seqs:
         gt, nongt = per_seq[s]
-        gt_count_per_seq[s] = int(len(gt))
-        nongt_count_per_seq[s] = int(len(nongt))
+        gt_count_per_seq[s] = len(gt)
+        nongt_count_per_seq[s] = len(nongt)
         auc_per_seq[s] = compute_per_seq_auc(gt, nongt)
         if len(gt) > 0:
             gt_pooled_parts.append(gt)

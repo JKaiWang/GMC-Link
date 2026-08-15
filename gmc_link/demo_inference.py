@@ -18,27 +18,25 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 import json
 import math
 from collections import defaultdict
-from typing import Dict, List, Set, Tuple
 
 import cv2
 import numpy as np
 import torch
 
+from gmc_link.dataset import load_labels_with_ids
 from gmc_link.manager import GMCLinkManager
 from gmc_link.text_utils import TextEncoder
-from gmc_link.dataset import load_labels_with_ids
-
 
 # ── Helpers ──────────────────────────────────────────────────────────
 
 
-def load_neuralsort_tracks(track_path: str) -> Dict[int, List]:
+def load_neuralsort_tracks(track_path: str) -> dict[int, list]:
     """
     Load NeuralSORT predict.txt → {frame_id: [(obj_id, x, y, w, h), ...]}.
 
     NeuralSORT format: frame,id,x,y,w,h,conf,-1,-1,-1  (1-indexed frames)
     """
-    tracks_by_frame: Dict[int, list] = defaultdict(list)
+    tracks_by_frame: dict[int, list] = defaultdict(list)
     data = np.loadtxt(track_path, delimiter=",")
     for row in data:
         frame_id = int(row[0])
@@ -50,7 +48,7 @@ def load_neuralsort_tracks(track_path: str) -> Dict[int, List]:
 
 def load_ikun_scores(
     results_path: str, video: str, expression: str
-) -> Dict[int, Dict[int, float]]:
+) -> dict[int, dict[int, float]]:
     """
     Load iKUN CLIP scores → {frame_id(int): {obj_id(int): mean_score}}.
 
@@ -61,7 +59,7 @@ def load_ikun_scores(
         all_results = json.load(f)
 
     video_dict = all_results.get(video, {})
-    scores: Dict[int, Dict[int, float]] = defaultdict(dict)
+    scores: dict[int, dict[int, float]] = defaultdict(dict)
 
     for obj_id_str, obj_dict in video_dict.items():
         obj_id = int(obj_id_str)
@@ -74,7 +72,7 @@ def load_ikun_scores(
     return scores
 
 
-def compute_iou(box_a: List[float], box_b: List[float]) -> float:
+def compute_iou(box_a: list[float], box_b: list[float]) -> float:
     """IoU between two [x1, y1, x2, y2] boxes."""
     xa = max(box_a[0], box_b[0])
     ya = max(box_a[1], box_b[1])
@@ -90,7 +88,7 @@ def compute_iou(box_a: List[float], box_b: List[float]) -> float:
 
 def normalized_to_pixel(
     n_x1: float, n_y1: float, n_w: float, n_h: float, img_w: int, img_h: int
-) -> List[float]:
+) -> list[float]:
     """Convert normalized [x1, y1, w, h] to pixel [x1, y1, x2, y2]."""
     x1 = n_x1 * img_w
     y1 = n_y1 * img_h
@@ -100,10 +98,10 @@ def normalized_to_pixel(
 
 
 def match_tracks_to_gt(
-    track_boxes: Dict[int, List[float]],
-    gt_boxes: List[List[float]],
+    track_boxes: dict[int, list[float]],
+    gt_boxes: list[list[float]],
     iou_threshold: float = 0.3,
-) -> Set[int]:
+) -> set[int]:
     """Greedy IoU matching: returns set of track IDs matched to a GT box."""
     matched_ids = set()
     used_gt = set()
@@ -137,8 +135,8 @@ class DummyTrack:
 
 
 def evaluate_predictions(
-    predictions: Dict[int, bool], gt_matched_ids: Set[int], num_gt: int
-) -> Tuple[int, int, int]:
+    predictions: dict[int, bool], gt_matched_ids: set[int], num_gt: int
+) -> tuple[int, int, int]:
     """
     Given per-track boolean predictions and GT-matched IDs, return (TP, FP, FN).
     """
@@ -328,7 +326,7 @@ def run_comparison(
         # Build track objects + xyxy dict for this frame
         detections = ns_tracks[frame_1idx]
         active_tracks = []
-        track_boxes_xyxy: Dict[int, List[float]] = {}
+        track_boxes_xyxy: dict[int, list[float]] = {}
 
         for obj_id, x, y, w, h in detections:
             active_tracks.append(DummyTrack(obj_id, x, y, w, h))
@@ -467,7 +465,7 @@ def run_comparison(
 
             cv2.putText(
                 vis,
-                '"{}" | Frame {}/{}'.format(sentence, frame_0idx, total_frames),
+                f'"{sentence}" | Frame {frame_0idx}/{total_frames}',
                 (10, 25),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.6,
@@ -494,10 +492,9 @@ def run_comparison(
     print("=" * 65)
     print("iKUN BASELINE vs iKUN + GMC-LINK  --  ABLATION RESULTS")
     print("=" * 65)
-    print('Expression:  "{}"'.format(sentence))
-    print("Sequence:    {}  |  Frames with GT: {}".format(sequence, frames_with_gt))
-    print("Fusion:      {}  |  weight: {}  |  expr_type: {}".format(
-        fusion_mode, gmc_weight, expr_type))
+    print(f'Expression:  "{sentence}"')
+    print(f"Sequence:    {sequence}  |  Frames with GT: {frames_with_gt}")
+    print(f"Fusion:      {fusion_mode}  |  weight: {gmc_weight}  |  expr_type: {expr_type}")
     print("-" * 65)
     print("{:<25} {:>18} {:>18}".format("Metric", "iKUN (baseline)", "iKUN + GMC"))
     print("-" * 65)
@@ -541,8 +538,8 @@ def run_comparison(
     delta_fp = fused_totals[1] - baseline_totals[1]
     print(
         "GMC-Link effect:  "
-        "Prec {:+.4f}  |  Rec {:+.4f}  |  "
-        "F1 {:+.4f}  |  FP {:+d}".format(delta_prec, delta_rec, delta_f1, delta_fp)
+        f"Prec {delta_prec:+.4f}  |  Rec {delta_rec:+.4f}  |  "
+        f"F1 {delta_f1:+.4f}  |  FP {delta_fp:+d}"
     )
     print("=" * 65)
 
@@ -626,7 +623,7 @@ def run_multi_expression(
     expr_dir = os.path.join(data_root, "expression", sequence)
     expr_files = sorted(glob.glob(os.path.join(expr_dir, "*.json")))
 
-    results_by_type: Dict[str, list] = defaultdict(list)
+    results_by_type: dict[str, list] = defaultdict(list)
     all_results = []
 
     for expr_file in expr_files:
@@ -708,8 +705,7 @@ def run_multi_expression(
 
         bp, br, bf = _m(b_tp, b_fp, b_fn)
         fp_, fr, ff = _m(f_tp, f_fp, f_fn)
-        print("{:<15} {:>5} {:>7.4f} {:>7.4f} {:>7.4f} {:>7.4f} {:>7.4f} {:>7.4f}".format(
-            etype, len(group), bp, br, bf, fp_, fr, ff))
+        print(f"{etype:<15} {len(group):>5} {bp:>7.4f} {br:>7.4f} {bf:>7.4f} {fp_:>7.4f} {fr:>7.4f} {ff:>7.4f}")
 
     # Overall
     def _m(tp, fp, fn):

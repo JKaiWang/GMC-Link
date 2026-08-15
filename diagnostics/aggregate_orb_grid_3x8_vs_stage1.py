@@ -19,7 +19,6 @@ from pathlib import Path
 import numpy as np
 from scipy.stats import mannwhitneyu
 
-
 RESULTS_DIR = Path("/home/seanachan/GMC-Link/diagnostics/results/exp37")
 OUTPUT_DIR = Path("/home/seanachan/GMC-Link/diagnostics/results/multiseq")
 SEQS = ["0005", "0011", "0013"]
@@ -305,7 +304,7 @@ def main():
     lines.append("## Per-expression GT vs non-GT means")
     lines.append("")
     lines.append(
-        f"| Expression | base GT μ | new GT μ | Δ GT μ | base ngt μ | new ngt μ | Δ ngt μ | n_gt | n_ngt |"
+        "| Expression | base GT μ | new GT μ | Δ GT μ | base ngt μ | new ngt μ | Δ ngt μ | n_gt | n_ngt |"
     )
     lines.append("|---|---|---|---|---|---|---|---|---|")
     for r in rows:

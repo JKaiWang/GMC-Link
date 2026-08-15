@@ -20,7 +20,12 @@ Usage:
     python run_loso_calibration.py --seeds 0 1 2
     python run_loso_calibration.py --seeds 0 --motion-only   # quick probe
 """
-import argparse, itertools, json, os, shutil, sys, time
+import argparse
+import json
+import os
+import shutil
+import sys
+import time
 
 os.environ["GMC_RAW_COS"] = "1"  # ship caches are raw-cosine; must precede import
 

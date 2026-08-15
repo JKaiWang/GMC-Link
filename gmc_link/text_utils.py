@@ -1,8 +1,8 @@
 """
 TextEncoder utility module for extracting language embeddings using sentence-transformers.
 """
-from sentence_transformers import SentenceTransformer
 import torch
+from sentence_transformers import SentenceTransformer
 
 
 class TextEncoder:

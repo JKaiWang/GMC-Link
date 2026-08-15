@@ -14,7 +14,9 @@ Saves: diagnostics/results/layer4_distribution_gap.npz
 Usage:
     python diagnostics/diag_train_vs_inference_gap.py
 """
-import sys, os
+import os
+import sys
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -22,15 +24,16 @@ import argparse
 from collections import defaultdict
 
 import cv2
+import matplotlib
 import numpy as np
 import torch
-import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+from gmc_link.dataset import build_training_data
 from gmc_link.manager import GMCLinkManager
 from gmc_link.text_utils import TextEncoder
-from gmc_link.dataset import build_training_data
 
 # ── V1 config ────────────────────────────────────────────────────────────
 DATA_ROOT = "refer-kitti"
@@ -157,9 +160,7 @@ def main():
         shifts.append(abs(delta_mean) / (t_std + 1e-8))  # standardized shift
 
         flag = ""
-        if abs(delta_mean) / (t_std + 1e-8) > 1.0:
-            flag = " ⚠"
-        elif sigma_ratio > 3.0 or sigma_ratio < 0.33:
+        if abs(delta_mean) / (t_std + 1e-8) > 1.0 or sigma_ratio > 3.0 or sigma_ratio < 0.33:
             flag = " ⚠"
 
         print(f"  {DIM_NAMES[dim]:<15} {t_mean:>9.4f} {t_std:>9.4f} {i_mean:>9.4f} "
@@ -168,7 +169,7 @@ def main():
     shifts = np.array(shifts)
 
     # ── Summary ───────────────────────────────────────────────────────
-    print(f"\n  Standardized shift (|Δμ|/σ_train):")
+    print("\n  Standardized shift (|Δμ|/σ_train):")
     print(f"    mean={shifts.mean():.3f}  max={shifts.max():.3f} "
           f"(dim: {DIM_NAMES[shifts.argmax()]})")
 

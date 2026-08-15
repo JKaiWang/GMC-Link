@@ -12,8 +12,9 @@ For appearance-only (is_motion == 0):
 Decision boundary: final_logit > 0  (same as iKUN baseline)
 """
 
-import numpy as np
 import argparse
+
+import numpy as np
 
 
 def prob_to_logit(p, eps=1e-6):

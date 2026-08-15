@@ -12,13 +12,15 @@ Usage:
     python run_precompute_motion_12d.py
     python run_precompute_motion_12d.py --seqs 0005 0011 0013
 """
-import argparse, os, sys
+import argparse
+import os
+import sys
 from collections import defaultdict
 from pathlib import Path
 
+import cv2
 import numpy as np
 import torch
-import cv2
 from tqdm import tqdm
 
 sys.path.insert(0, "/home/seanachan/GMC-Link")
@@ -34,7 +36,7 @@ TEST_SEQS = ["0005", "0011", "0013"]
 
 
 class _Track:
-    __slots__ = ("id", "centroid", "bbox")
+    __slots__ = ("bbox", "centroid", "id")
     def __init__(self, tid, centroid, bbox):
         self.id = tid
         self.centroid = centroid

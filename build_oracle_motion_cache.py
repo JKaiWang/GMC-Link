@@ -12,18 +12,20 @@ robustness is the remaining lever.
 Usage: GMC_MODEL=similarity python build_oracle_motion_cache.py [seed]
 Writes gmc_link/gmc_scores_v1_{seq}_sw12d_seed{S}_gtoracle_cache.json
 """
-import glob, json, os, sys
+import glob
+import json
+import os
+import sys
 from collections import defaultdict
 
-import numpy as np
 import cv2
+import numpy as np
 import torch
 
 sys.path.insert(0, "/home/seanachan/GMC-Link")
 os.environ.setdefault("GMC_MODEL", "similarity")
 from gmc_link.core import ORBHomographyEngine
 from gmc_link.utils import warp_points
-from gmc_link.demo_inference import load_neuralsort_tracks
 from run_ikun_linear_additive import merged_ns
 
 REPO = "/home/seanachan/GMC-Link"

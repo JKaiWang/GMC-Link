@@ -62,12 +62,12 @@ def main():
     sys.path.insert(0, "/home/seanachan/iKUN")
 
     import utils as ikun_utils
-    # Default VIDEOS['test'] = ['0005','0011','0013']; keep as-is.
+    from dataloader import get_dataloader
+    from model import get_model
 
+    # Default VIDEOS['test'] = ['0005','0011','0013']; keep as-is.
     from opts import opt
     from utils import load_from_ckpt
-    from model import get_model
-    from dataloader import get_dataloader
 
     # Load text override mapping
     text_map = json.load(open(args.mapping))

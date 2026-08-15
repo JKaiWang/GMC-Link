@@ -34,7 +34,7 @@ def main():
     print(f"  99th: {pcts[2]}")
     print()
     print(f"Mean 95th across 6 slots: {pcts[1].mean():.4f}")
-    print(f"Calibration target: 1.0 (acceptable [0.5, 5.0])")
+    print("Calibration target: 1.0 (acceptable [0.5, 5.0])")
 
     # Sanity: depth slots
     if arr.shape[1] >= 17:

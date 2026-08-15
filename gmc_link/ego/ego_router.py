@@ -8,7 +8,7 @@ historic backend is its own adapter.
 """
 from __future__ import annotations
 
-from typing import Dict, Protocol, Tuple, Type
+from typing import Protocol
 
 import numpy as np
 
@@ -28,17 +28,17 @@ class EgoRouter(Protocol):
         prev_frame: np.ndarray,
         curr_frame: np.ndarray,
         prev_bboxes=None,
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         ...
 
 
 OrbEgoRouter = ORBHomographyEngine
 
 
-_REGISTRY: Dict[str, Type] = {}
+_REGISTRY: dict[str, type] = {}
 
 
-def register_ego_router(name: str, cls: Type) -> None:
+def register_ego_router(name: str, cls: type) -> None:
     _REGISTRY[name] = cls
 
 
@@ -50,7 +50,7 @@ def make_ego_router(name: str, **kwargs) -> EgoRouter:
     return _REGISTRY[name](**kwargs)
 
 
-def available_ego_routers() -> Tuple[str, ...]:
+def available_ego_routers() -> tuple[str, ...]:
     return tuple(sorted(_REGISTRY))
 
 

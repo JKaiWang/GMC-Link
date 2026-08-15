@@ -4,7 +4,6 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 
 def save_depth_cache(data: dict, path: Path | str) -> None:
@@ -22,10 +21,10 @@ class DepthCache:
     table: dict[str, dict[str, float]]
 
     @classmethod
-    def load(cls, path: Path | str) -> "DepthCache":
+    def load(cls, path: Path | str) -> DepthCache:
         return cls(json.loads(Path(path).read_text()))
 
-    def lookup(self, track_id, frame_id) -> Optional[float]:
+    def lookup(self, track_id, frame_id) -> float | None:
         per_track = self.table.get(str(track_id))
         if per_track is None:
             return None

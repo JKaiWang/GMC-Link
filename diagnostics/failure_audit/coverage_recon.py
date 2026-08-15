@@ -18,16 +18,20 @@ This recon counts, per target cell:
 Emits diagnostics/results/failure_audit/coverage_recon.md.
 """
 from __future__ import annotations
-from pathlib import Path
+
 import json
-import collections
 import sys
+from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO))
 
 from diagnostics.failure_audit.loaders import (
-    load_gt, load_ikun_logits, load_gmc_scores, load_tracker_assoc, _expr_class,
+    _expr_class,
+    load_gmc_scores,
+    load_gt,
+    load_ikun_logits,
+    load_tracker_assoc,
 )
 
 # Per project_phase5b memory the genuinely-unrecoverable cells are 0011 only.

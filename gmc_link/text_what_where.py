@@ -13,13 +13,11 @@ import argparse
 import json
 import os
 import sys
-from collections import defaultdict
 
 import spacy
 
 sys.path.insert(0, "/home/seanachan/iKUN")
 from utils import expression_conversion as ikun_expression_conversion
-
 
 DATA_ROOT = "/home/seanachan/GMC-Link/refer-kitti"
 TEXT_FEAT_JSON = "/home/seanachan/GMC-Link/iKUN/text_feat_bboxNum_v1.json"

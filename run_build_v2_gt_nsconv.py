@@ -8,8 +8,8 @@ against the unshifted FH GT loses ~6.4 HOTA to off-by-one misalignment.
 This decrements every gt.txt frame by 1 (dropping frame 0) so the V2 GT aligns
 with NeuralSORT tracks. Output → v2_gt_template_nsconv/{seq}/{expr}/gt.txt.
 """
-import os
 import glob
+import os
 
 SRC = "/home/seanachan/FlexHook/datasets/refer-kitti-v2/gt_template_gen"
 DST = "/home/seanachan/GMC-Link/v2_gt_template_nsconv"

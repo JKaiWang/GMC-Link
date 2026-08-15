@@ -7,7 +7,10 @@ mechanism), and WHICH physical quantity carries the world-frame turning info.
 
 Run: python diagnostics/tprobe4_strat_components.py
 """
-import json, os, sys
+import json
+import os
+import sys
+
 import numpy as np
 
 sys.path.insert(0, "/home/seanachan/GMC-Link")
@@ -18,8 +21,8 @@ PROBE_TEST_SEQS = {"0001", "0006", "0010", "0016"}
 TMAX = 16
 
 from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import f1_score
+from sklearn.preprocessing import StandardScaler
 
 
 def run(X, y, tr, te):

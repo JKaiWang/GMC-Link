@@ -16,14 +16,19 @@ We also emit "negative" rows for non-GT tracker predictions to score FP
 and TN, but those are not needed for the FN-stage attribution headline.
 """
 from __future__ import annotations
+
 from pathlib import Path
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 
 from .loaders import (
-    load_gt, load_ikun_logits, load_gmc_scores,
-    load_tracker_assoc, load_detector_hits,
     compute_fusion_gate,
+    load_detector_hits,
+    load_gmc_scores,
+    load_gt,
+    load_ikun_logits,
+    load_tracker_assoc,
 )
 
 

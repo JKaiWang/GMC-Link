@@ -2,9 +2,10 @@
 Loss functions for the GMC-Link alignment network.
 """
 import os
+
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
 
 
 class AlignmentLoss(nn.Module):

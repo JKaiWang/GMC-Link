@@ -18,8 +18,6 @@ from __future__ import annotations
 import argparse
 import os
 import sys
-from collections import defaultdict
-from typing import Dict, List
 
 import numpy as np
 import torch
@@ -28,13 +26,12 @@ import torch.nn.functional as F
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-from gmc_link.learned_state_gate import LearnedStateGate, EXPR_CLASSES, expr_class_to_onehot
-from gmc_link.text_utils import TextEncoder
 from run_posthoc_state_gate_mvp import (
     collect_raw_cosines_for_seq,
-    classify_expr,
 )
 
+from gmc_link.learned_state_gate import LearnedStateGate, expr_class_to_onehot
+from gmc_link.text_utils import TextEncoder
 
 V1_TRAIN_SEQS = [
     "0001", "0002", "0003", "0004", "0006", "0007", "0008", "0009",
@@ -50,7 +47,7 @@ GATE_OUT = "learned_gate_v1train.pt"
 
 def collect_features(
     weights: str,
-    seqs: List[str],
+    seqs: list[str],
     device: torch.device,
     cache_path: str,
     overwrite: bool = False,
@@ -69,14 +66,14 @@ def collect_features(
 
     encoder = TextEncoder(model_name="all-MiniLM-L6-v2", device=str(device))
 
-    raw_cos_all: List[float] = []
-    d_track_all: List[float] = []
-    expr_idx_all: List[int] = []   # index into expr_table
-    label_all: List[float] = []
-    seq_id_all: List[str] = []
-    tid_all: List[int] = []
-    expr_table: List[dict] = []    # [{sentence, expr_class, embedding}]
-    sent_to_idx: Dict[str, int] = {}
+    raw_cos_all: list[float] = []
+    d_track_all: list[float] = []
+    expr_idx_all: list[int] = []   # index into expr_table
+    label_all: list[float] = []
+    seq_id_all: list[str] = []
+    tid_all: list[int] = []
+    expr_table: list[dict] = []    # [{sentence, expr_class, embedding}]
+    sent_to_idx: dict[str, int] = {}
 
     for seq in seqs:
         print(f"\n=== Collecting seq {seq} ===")
@@ -163,8 +160,8 @@ def margin_loss_train(
     n_expr = len(expr_table)
 
     # Precompute per-expr positive / negative indices
-    pos_idx_by_expr: Dict[int, np.ndarray] = {}
-    neg_idx_by_expr: Dict[int, np.ndarray] = {}
+    pos_idx_by_expr: dict[int, np.ndarray] = {}
+    neg_idx_by_expr: dict[int, np.ndarray] = {}
     expr_idx_np = expr_idx.numpy()
     label_np = label.numpy()
     for e in range(n_expr):

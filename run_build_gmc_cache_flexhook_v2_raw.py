@@ -6,8 +6,11 @@ preserves V1-canonical form. Encoding it tests OOD hypothesis.
 
 Cache name: gmc_scores_flexhook_v2_raw_{seq}_cache.json
 """
-import os, sys, json
+import json
+import os
+import sys
 from collections import defaultdict
+
 import cv2
 import numpy as np
 import torch
@@ -15,11 +18,10 @@ from tqdm import tqdm
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-from gmc_link.manager import GMCLinkManager
-from gmc_link.utils import ScoreBuffer
-from gmc_link.text_utils import TextEncoder
-from gmc_link.demo_inference import load_neuralsort_tracks, DummyTrack
+from gmc_link.demo_inference import DummyTrack, load_neuralsort_tracks
 from gmc_link.depth_cache import DepthCache
+from gmc_link.manager import GMCLinkManager
+from gmc_link.text_utils import TextEncoder
 
 V2_DATA_ROOT = "/home/seanachan/data/Dataset/refer-kitti-v2"
 TRACK_DIR    = "/home/seanachan/FlexHook/FlexHook/tracker_outputs/Temp-NeuralSORT-kitti2"

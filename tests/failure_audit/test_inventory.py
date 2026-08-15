@@ -1,6 +1,8 @@
-from pathlib import Path
-import pytest
-from diagnostics.failure_audit.inventory import inventory_cells, CellStatus, TARGET_CELLS
+from diagnostics.failure_audit.inventory import (
+    TARGET_CELLS,
+    CellStatus,
+    inventory_cells,
+)
 
 
 def test_inventory_returns_one_status_per_cell(tmp_path):

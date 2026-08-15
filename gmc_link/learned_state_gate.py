@@ -16,11 +16,8 @@ frozen; this is purely a posthoc learned rescore on top of cosines.
 """
 from __future__ import annotations
 
-from typing import Optional
-
 import torch
 from torch import nn
-
 
 # Order must match analytical gate's `classify_expr` output set.
 EXPR_CLASSES = ("static", "motion", "appearance")

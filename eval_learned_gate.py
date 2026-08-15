@@ -16,7 +16,6 @@ import json
 import os
 import sys
 from collections import defaultdict
-from typing import Dict, List
 
 import numpy as np
 import torch
@@ -24,10 +23,10 @@ import torch
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
+from run_posthoc_state_gate_mvp import collect_raw_cosines_for_seq
+
 from gmc_link.learned_state_gate import LearnedStateGate, expr_class_to_onehot
 from gmc_link.text_utils import TextEncoder
-from run_posthoc_state_gate_mvp import collect_raw_cosines_for_seq, classify_expr
-
 
 HOLDOUT_SEQS = ["0005", "0011", "0013"]
 DEFAULT_WEIGHTS = "gmc_link_weights_v1train_stage1.pth"
@@ -48,7 +47,7 @@ def load_gate(gate_path: str, device: torch.device) -> LearnedStateGate:
     return gate
 
 
-def evaluate_all(weights: str, gate_path: str, seqs: List[str], device: torch.device):
+def evaluate_all(weights: str, gate_path: str, seqs: list[str], device: torch.device):
     """Compute pooled per-expression sep for raw / analytical / learned.
 
     Returns: dict with per_expr list and pooled summary.
@@ -65,8 +64,8 @@ def evaluate_all(weights: str, gate_path: str, seqs: List[str], device: torch.de
     })
 
     # Cache embeddings + onehots per sentence to avoid recomputation
-    sent_emb: Dict[str, torch.Tensor] = {}
-    sent_oh: Dict[str, torch.Tensor] = {}
+    sent_emb: dict[str, torch.Tensor] = {}
+    sent_oh: dict[str, torch.Tensor] = {}
 
     for seq in seqs:
         print(f"\n=== Eval seq {seq} ===")
@@ -133,8 +132,8 @@ def evaluate_all(weights: str, gate_path: str, seqs: List[str], device: torch.de
         per_expr.append({
             "sentence": sentence,
             "expr_class": p["expr_class"],
-            "n_gt": int(len(raw_gt)),
-            "n_ngt": int(len(raw_ngt)),
+            "n_gt": len(raw_gt),
+            "n_ngt": len(raw_ngt),
             "raw_sep": float(raw_gt.mean() - raw_ngt.mean()),
             "ana_sep": float(ana_gt.mean() - ana_ngt.mean()),
             "lrn_sep": float(lrn_gt.mean() - lrn_ngt.mean()),

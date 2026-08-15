@@ -1,6 +1,5 @@
 """Unit + integration tests for HardNegativeInfoNCE."""
 import torch
-import pytest
 
 from gmc_link.losses import AlignmentLoss, HardNegativeInfoNCE
 
@@ -162,6 +161,7 @@ def test_sentence_ids_passed_through_training_contract():
     for either loss with no branching at the call site.
     """
     import inspect
+
     from gmc_link.losses import AlignmentLoss, HardNegativeInfoNCE
 
     align_params = inspect.signature(AlignmentLoss.forward).parameters

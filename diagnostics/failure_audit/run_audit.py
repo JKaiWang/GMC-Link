@@ -4,13 +4,14 @@ Usage:
   python -m diagnostics.failure_audit.run_audit
 """
 from __future__ import annotations
-from pathlib import Path
+
 import json
+from pathlib import Path
+
 import pandas as pd
 
+from .attribute import attribute_table
 from .build_table import build_cell_table
-from .attribute  import attribute_table
-
 
 REPO = Path(__file__).resolve().parents[2]
 
@@ -23,7 +24,7 @@ CELLS = [
 
 def summarize(df: pd.DataFrame) -> dict:
     counts = df["failure_class"].value_counts().to_dict()
-    n = int(len(df))
+    n = len(df)
     return {
         "n_rows": n,
         "class_counts": counts,
