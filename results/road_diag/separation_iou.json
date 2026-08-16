@@ -1,0 +1,168 @@
+{
+ "per_frame_conditional_separation_MOVING": [
+  {
+   "seq": "0005",
+   "sim": 0.5208673268599319,
+   "road": 0.521440155541378,
+   "delta": 0.000572828681446147
+  },
+  {
+   "seq": "0011",
+   "sim": 0.021910381104651194,
+   "road": 0.13455870209421603,
+   "delta": 0.11264832098956483
+  },
+  {
+   "seq": "0013",
+   "sim": 0.2076952577085566,
+   "road": 0.1780227999702019,
+   "delta": -0.029672457738354696
+  }
+ ],
+ "match_stats": [
+  {
+   "arm": "sim",
+   "seed": 0,
+   "seq": "0005",
+   "gt": 1334,
+   "matched": 1066,
+   "rate": 0.799
+  },
+  {
+   "arm": "sim",
+   "seed": 0,
+   "seq": "0011",
+   "gt": 2152,
+   "matched": 1576,
+   "rate": 0.732
+  },
+  {
+   "arm": "sim",
+   "seed": 0,
+   "seq": "0013",
+   "gt": 2932,
+   "matched": 2042,
+   "rate": 0.696
+  },
+  {
+   "arm": "sim",
+   "seed": 1,
+   "seq": "0005",
+   "gt": 1334,
+   "matched": 1066,
+   "rate": 0.799
+  },
+  {
+   "arm": "sim",
+   "seed": 1,
+   "seq": "0011",
+   "gt": 2152,
+   "matched": 1576,
+   "rate": 0.732
+  },
+  {
+   "arm": "sim",
+   "seed": 1,
+   "seq": "0013",
+   "gt": 2932,
+   "matched": 2042,
+   "rate": 0.696
+  },
+  {
+   "arm": "sim",
+   "seed": 2,
+   "seq": "0005",
+   "gt": 1334,
+   "matched": 1066,
+   "rate": 0.799
+  },
+  {
+   "arm": "sim",
+   "seed": 2,
+   "seq": "0011",
+   "gt": 2152,
+   "matched": 1576,
+   "rate": 0.732
+  },
+  {
+   "arm": "sim",
+   "seed": 2,
+   "seq": "0013",
+   "gt": 2932,
+   "matched": 2042,
+   "rate": 0.696
+  },
+  {
+   "arm": "groad",
+   "seed": 0,
+   "seq": "0005",
+   "gt": 1334,
+   "matched": 1066,
+   "rate": 0.799
+  },
+  {
+   "arm": "groad",
+   "seed": 0,
+   "seq": "0011",
+   "gt": 2152,
+   "matched": 1576,
+   "rate": 0.732
+  },
+  {
+   "arm": "groad",
+   "seed": 0,
+   "seq": "0013",
+   "gt": 2932,
+   "matched": 2042,
+   "rate": 0.696
+  },
+  {
+   "arm": "groad",
+   "seed": 1,
+   "seq": "0005",
+   "gt": 1334,
+   "matched": 1066,
+   "rate": 0.799
+  },
+  {
+   "arm": "groad",
+   "seed": 1,
+   "seq": "0011",
+   "gt": 2152,
+   "matched": 1576,
+   "rate": 0.732
+  },
+  {
+   "arm": "groad",
+   "seed": 1,
+   "seq": "0013",
+   "gt": 2932,
+   "matched": 2042,
+   "rate": 0.696
+  },
+  {
+   "arm": "groad",
+   "seed": 2,
+   "seq": "0005",
+   "gt": 1334,
+   "matched": 1066,
+   "rate": 0.799
+  },
+  {
+   "arm": "groad",
+   "seed": 2,
+   "seq": "0011",
+   "gt": 2152,
+   "matched": 1576,
+   "rate": 0.732
+  },
+  {
+   "arm": "groad",
+   "seed": 2,
+   "seq": "0013",
+   "gt": 2932,
+   "matched": 2042,
+   "rate": 0.696
+  }
+ ]
+}

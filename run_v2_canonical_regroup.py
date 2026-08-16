@@ -104,7 +104,14 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--alphas", default="0,5")
     p.add_argument("--seeds", default="0,1,2")
+    p.add_argument("--suffix", default="",
+                   help="run-dir suffix after seed, e.g. _nomema_warm11 (candidate ship)")
+    p.add_argument("--out", default=os.path.join(REPO, "results", "v2_canonical_regroup.json"))
     args = p.parse_args()
+    global OUT_TPL
+    OUT_TPL = os.path.join(
+        REPO, "hota_eval_flexhook_v2_raw_gmc_sw12d_seed{seed}" + args.suffix,
+        "alpha{alpha}")
     alphas = [float(a) for a in args.alphas.split(",")]
     seeds = [int(s) for s in args.seeds.split(",")]
 
@@ -139,7 +146,7 @@ def main():
             print(f"  {name:<11} n_expr={base[name + '_n']:<4} "
                   f"a{alpha}={mu:.3f}±{sd:.3f}  a0={base[name]:.3f}  Δ={mu - base[name]:+.3f}")
 
-    out_path = os.path.join(REPO, "results", "v2_canonical_regroup.json")
+    out_path = args.out
     json.dump(out, open(out_path, "w"), indent=2)
     print(f"\nJSON → {out_path}")
 
