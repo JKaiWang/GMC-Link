@@ -48,6 +48,8 @@ file itself.
 | Keypoint detector / estimator family (2026-08-14, CPU screen, 8 configs) | no Pareto win vs ship ORB1500+RANSAC (bg_res 0.896-0.898px, 15-18ms): AKAZE/BRISK/SIFT, ORB 3000/5000 kps, MAGSAC (1500/3000) ALL trade median accuracy for tail robustness (best tail = 3-4 wild vs 8-9, worst residual +10%); MAGSAC even admits a 15280px monster RANSAC rejects; tail already handled free by GMC_HGATE; frame-skip monsters unfixable at detector level | diag_feature_ab.py + MAGSAC/nfeatures screen, RESEARCH_NOTES §10 A12 |
 | sw-arch search (18 runs), temporal transformer | exhausted / dead | project_autoresearch_aligner_arch_exhausted_2026_06_13, project_seq_encoder_hota_rescreen_flat_2026_06_11 |
 
+| C²RMOT-style TTC (confidence-gated memory + positive-residual score calibration, 2026-08-16) | NEG: LOSO folds select "calibration off" (θ=0.8 ≡ ship bit-exact); active cells hurt ≥1 fold (−0.6..−2.9); two-stage fused scores already temporally stable — the query-based-host regime doesn't transfer. Scoped: embedding-gate variant untested | RESEARCH_NOTES §10 A33, results/ttc_sim/ |
+
 ## Hosts / trackers / detectors
 
 | Lever | Verdict | Memory file |
