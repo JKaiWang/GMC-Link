@@ -232,3 +232,7 @@ not tested on shared-weight (its symmetric shared-trunk supports input-concat on
   column is the honest signal).
 
 _Sources: `RESULTS_SUMMARY.md`, `RESEARCH_NOTES.md`, per-host ship/baseline memos; published numbers verified via the TempRMOT and FlexHook papers (links above)._
+
+> **SUPERSEDED 2026-08-16 (A31):** the FlexHook V1 "structural gap" below was an eval-list
+> mismatch (our 158-expr seqmap vs official 150). On the official protocol our α=0 ≡ 53.824
+> exactly and candidate ship = 54.011±0.025 @α*=7. See RESEARCH_NOTES §10 A31.
