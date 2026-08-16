@@ -92,7 +92,10 @@ def merged_ns(seq):
     return ns
 
 
-def gen_predicts(text_feat, gmc_caches, alpha, run_dir):
+def gen_predicts(text_feat, gmc_caches, alpha, run_dir, alpha_app=None):
+    # alpha_app None → single-α (ship). Else two-α keyword routing (Track C1
+    # pre-reg): α_mot(=alpha) for MOVING/STATIC-classified exprs, α_app for
+    # APPEARANCE. Router = classify(); am==aa reproduces single-α exactly.
     res_dir = os.path.join(run_dir, "results")
     if os.path.exists(res_dir): shutil.rmtree(res_dir)
     os.makedirs(res_dir, exist_ok=True)
@@ -118,6 +121,8 @@ def gen_predicts(text_feat, gmc_caches, alpha, run_dir):
             ikun_scores = load_ikun_scores(CASCADE_FULL, seq, expr)
             b = bias.get(expr, 0.0)
             per_expr_gmc = gmc_seq.get(expr, {})
+            a_expr = alpha if alpha_app is None else (
+                alpha if classify(expr) != "APPEARANCE" else alpha_app)
 
             rows = []
             for fid, dets in ns.items():
@@ -126,7 +131,7 @@ def gen_predicts(text_feat, gmc_caches, alpha, run_dir):
                     cs = ikun_scores.get(fid, {}).get(oid)
                     if cs is None: continue
                     gmc = float(per_expr_gmc.get(str(fid), {}).get(str(oid), 0.0))
-                    fused = cs + b + alpha * gmc
+                    fused = cs + b + a_expr * gmc
                     if fused > 0.0:
                         rows.append((fid, oid, x, y, w, h))
 
@@ -168,24 +173,37 @@ def run_te(seqmap_path, results_dir, class_filter=None):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--alpha", type=float, required=True)
+    p.add_argument("--alpha", type=float)
+    p.add_argument("--alpha-mot", type=float, help="two-α: MOVING/STATIC exprs")
+    p.add_argument("--alpha-app", type=float, help="two-α: APPEARANCE exprs")
     args = p.parse_args()
+    two_a = args.alpha_mot is not None or args.alpha_app is not None
+    if two_a and (args.alpha_mot is None or args.alpha_app is None or args.alpha is not None):
+        p.error("use either --alpha alone, or --alpha-mot AND --alpha-app")
+    if not two_a and args.alpha is None:
+        p.error("--alpha required")
 
     print("Loading text_feat + GMC caches...", flush=True)
     text_feat = json.load(open(TEXT_FEAT_JSON))
     gmc_caches = {s: json.load(open(GMC_CACHE_TPL.format(seq=s))) for s in TEST_SEQS}
 
-    tag = f"alpha{args.alpha}"
+    tag = (f"am{args.alpha_mot}_aa{args.alpha_app}" if two_a
+           else f"alpha{args.alpha}")
     if os.environ.get("GMC_EVAL_SEQS"):
         # fold-scoped output dir: LOSO runs must never clobber full-test result.json
         tag += "_seqs" + "-".join(TEST_SEQS)
     run_dir = os.path.join(OUT_ROOT, tag)
     os.makedirs(run_dir, exist_ok=True)
-    print(f"\n=== {tag}: fused = cs + b + {args.alpha} * gmc, gate 0.0 ===", flush=True)
-    res_dir, sm = gen_predicts(text_feat, gmc_caches, args.alpha, run_dir)
+    print(f"\n=== {tag}: fused = cs + b + alpha(expr) * gmc, gate 0.0 ===", flush=True)
+    res_dir, sm = gen_predicts(
+        text_feat, gmc_caches,
+        args.alpha_mot if two_a else args.alpha, run_dir,
+        alpha_app=args.alpha_app if two_a else None)
     result = {
         "arch": "ikun",
         "alpha": args.alpha,
+        "alpha_mot": args.alpha_mot,
+        "alpha_app": args.alpha_app,
         "gmc_suffix": _GMC_SUFFIX,
         "eval_seqs": TEST_SEQS,
         "pooled": run_te(sm, res_dir),
