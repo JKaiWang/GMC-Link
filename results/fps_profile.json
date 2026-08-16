@@ -1,0 +1,20 @@
+[
+ {
+  "mode": "sim",
+  "seq": "0011",
+  "frames": 200,
+  "ms_per_frame_process": 20.83,
+  "fps_process_only": 48.0,
+  "ms_per_frame_incl_io": 29.45,
+  "fps_incl_io": 34.0
+ },
+ {
+  "mode": "road",
+  "seq": "0011",
+  "frames": 200,
+  "ms_per_frame_process": 28.36,
+  "fps_process_only": 35.3,
+  "ms_per_frame_incl_io": 37.16,
+  "fps_incl_io": 26.9
+ }
+]
