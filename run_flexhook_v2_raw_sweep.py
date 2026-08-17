@@ -55,6 +55,19 @@ def classify(e):
     return "APPEARANCE"
 
 
+# Two-α router classifies the canonical raw_sentence with the V1 lists in iKUN
+# order (= run_v2_canonical_regroup.py, A30) — slug classification is void for
+# the method; slug-tuned classify() above stays for legacy per-class rows only.
+CANON_MOTION_KW = ["moving","walking","running","turning","faster","slower","braking",
+                   "parking","parked","stopped","stop","stand","static","stationary","accelerat"]
+CANON_STATIC_KW = ["parking","parked","stopped","stop","stand","static","stationary"]
+def route_class(text):
+    t = text.lower()
+    if not any(k in t for k in CANON_MOTION_KW): return "APPEARANCE"
+    if any(k in t for k in CANON_STATIC_KW): return "STATIC"
+    return "MOVING"
+
+
 def load_tracks(seq):
     car_path = os.path.join(TRACK_DIR, seq, "car", "predict.txt")
     ped_path = os.path.join(TRACK_DIR, seq, "pedestrian", "predict.txt")
@@ -73,7 +86,7 @@ def load_tracks(seq):
     return tracks
 
 
-def gen_predicts(cls_dict, tracks_by_seq, gmc_caches, alpha, run_dir):
+def gen_predicts(cls_dict, tracks_by_seq, gmc_caches, alpha, run_dir, alpha_app=None):
     res_dir = os.path.join(run_dir, "results")
     if os.path.exists(res_dir): shutil.rmtree(res_dir)
     os.makedirs(res_dir, exist_ok=True)
@@ -86,10 +99,13 @@ def gen_predicts(cls_dict, tracks_by_seq, gmc_caches, alpha, run_dir):
         expr_dir = os.path.join(DATA_ROOT, "expression", seq)
         exp_files = sorted(f for f in os.listdir(expr_dir) if f.endswith(".json"))
         expr_text_by_id = {}
+        route_text_by_id = {}
         for ef in exp_files:
             expr_id = ef.replace(".json", "")
             with open(os.path.join(expr_dir, ef)) as fh:
-                expr_text_by_id[expr_id] = json.load(fh)["sentence"]
+                d = json.load(fh)
+            expr_text_by_id[expr_id] = d["sentence"]
+            route_text_by_id[expr_id] = d.get("raw_sentence") or d["sentence"]
             outd = os.path.join(seq_out, expr_id)
             os.makedirs(outd, exist_ok=True)
             gt_src = os.path.join(GT_TEMPLATE, seq, expr_id, "gt.txt")
@@ -100,6 +116,12 @@ def gen_predicts(cls_dict, tracks_by_seq, gmc_caches, alpha, run_dir):
             else:
                 open(gt_dst, "w").close()
             seqmap.append(f"{seq}+{expr_id}")
+
+        # two-α routing on canonical raw_sentence (A30); am==aa ≡ single-α
+        a_by_expr = {eid: (alpha if alpha_app is None else
+                           (alpha if route_class(route_text_by_id[eid]) != "APPEARANCE"
+                            else alpha_app))
+                     for eid in expr_text_by_id}
 
         tracks = tracks_by_seq[seq]
         tracks_idx = {}
@@ -128,7 +150,7 @@ def gen_predicts(cls_dict, tracks_by_seq, gmc_caches, alpha, run_dir):
                     if score is None: continue
                     margin = float(score[1] - score[0])
                     gmc = float(gmc_seq.get(expr_id, {}).get(str(fid_pred), {}).get(str(oid_int), 0.0))
-                    if margin + alpha * gmc > 0.0:
+                    if margin + a_by_expr[expr_id] * gmc > 0.0:
                         pred_buf[expr_id].append(bbox_str)
 
         for expr_id in expr_text_by_id:
@@ -174,8 +196,16 @@ def run_te(seqmap, results_dir, class_filter=None):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--alpha", type=float, required=True)
+    p.add_argument("--alpha", type=float)
+    p.add_argument("--alpha-mot", type=float, help="two-α: MOVING/STATIC exprs")
+    p.add_argument("--alpha-app", type=float, help="two-α: APPEARANCE exprs")
     args = p.parse_args()
+    two_a = args.alpha_mot is not None or args.alpha_app is not None
+    if two_a and (args.alpha_mot is None or args.alpha_app is None or args.alpha is not None):
+        p.error("use either --alpha alone, or --alpha-mot AND --alpha-app")
+    if not two_a and args.alpha is None:
+        p.error("--alpha required")
+    a_mot = args.alpha_mot if two_a else args.alpha
 
     print(f"Loading FlexHook V2 result_0.json ({RESULT_JSON})...", flush=True)
     with open(RESULT_JSON) as fh:
@@ -188,7 +218,7 @@ def main():
         if os.path.exists(cp):
             with open(cp) as fh:
                 gmc_caches[s] = json.load(fh)
-        elif args.alpha != 0:
+        elif a_mot != 0:
             # missing cache at alpha>0 would silently evaluate as native (flat
             # sweep labeled as fused) — fail loudly instead, matching iKUN.
             raise FileNotFoundError(
@@ -199,23 +229,29 @@ def main():
     print("Loading tracks...", flush=True)
     tracks_by_seq = {seq: load_tracks(seq) for seq in TEST_SEQS}
 
-    tag = f"alpha{args.alpha}"
-    if os.environ.get("GMC_EVAL_SEQS"):
+    tag = (f"am{args.alpha_mot}_aa{args.alpha_app}" if two_a
+           else f"alpha{args.alpha}")
+    fold_scoped = bool(os.environ.get("GMC_EVAL_SEQS"))
+    if fold_scoped:
         # fold-scoped output dir: LOSO runs must never clobber full-test result.json
         tag += "_seqs" + "-".join(TEST_SEQS)
     run_dir = os.path.join(OUT_ROOT, tag)
     os.makedirs(run_dir, exist_ok=True)
-    print(f"\n=== {tag}: fused = margin + {args.alpha} * gmc, gate 0.0 ===", flush=True)
-    res_dir, sm = gen_predicts(cls_dict, tracks_by_seq, gmc_caches, args.alpha, run_dir)
+    print(f"\n=== {tag}: fused = margin + alpha(expr) * gmc, gate 0.0 ===", flush=True)
+    res_dir, sm = gen_predicts(cls_dict, tracks_by_seq, gmc_caches, a_mot, run_dir,
+                               alpha_app=args.alpha_app if two_a else None)
+    # fold runs feed LOSO pooled-argmax only (pre-reg) — skip class rows for cost
     result = {
         "arch": "fh_v2",
         "alpha": args.alpha,
+        "alpha_mot": args.alpha_mot,
+        "alpha_app": args.alpha_app,
         "gmc_suffix": _GMC_SUFFIX,
         "eval_seqs": TEST_SEQS,
         "pooled": run_te(sm, res_dir),
-        "moving": run_te(sm, res_dir, class_filter="MOVING"),
-        "static": run_te(sm, res_dir, class_filter="STATIC"),
-        "appearance": run_te(sm, res_dir, class_filter="APPEARANCE"),
+        "moving": None if fold_scoped else run_te(sm, res_dir, class_filter="MOVING"),
+        "static": None if fold_scoped else run_te(sm, res_dir, class_filter="STATIC"),
+        "appearance": None if fold_scoped else run_te(sm, res_dir, class_filter="APPEARANCE"),
     }
     with open(os.path.join(run_dir, "result.json"), "w") as f:
         json.dump(result, f, indent=2)

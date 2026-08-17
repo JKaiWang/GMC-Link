@@ -33,6 +33,11 @@ GMC_CACHE_TPL= "/home/seanachan/GMC-Link/gmc_link/gmc_scores_flexhook_v1_{seq}" 
 TRACKEVAL    = "/home/seanachan/TempRMOT/TrackEval/scripts/run_mot_challenge.py"
 _OUT_SUFFIX  = os.environ.get("OUT_SUFFIX", "")
 OUT_ROOT     = "/home/seanachan/GMC-Link/hota_eval_flexhook_phase5_gmc" + _OUT_SUFFIX
+# A31: host's official 150-expression protocol — filter at generation time.
+# Correctness gated by alpha=0 == published 53.824 (prereg TWO_ALPHA_FH).
+_OFFICIAL_SM = os.environ.get("FH_OFFICIAL_SEQMAP")
+_OFFICIAL = (set(l.strip() for l in open(_OFFICIAL_SM) if l.strip())
+             if _OFFICIAL_SM else None)
 
 TEST_SEQS = os.environ.get("GMC_EVAL_SEQS", "0005,0011,0013").split(",")  # LOSO folds override
 FRAMES = {"0005": (0, 296), "0011": (0, 372), "0013": (0, 339)}
@@ -70,7 +75,7 @@ def load_tracks(seq):
     return tracks
 
 
-def gen_predicts(cls_dict, tracks_by_seq, gmc_caches, alpha, run_dir):
+def gen_predicts(cls_dict, tracks_by_seq, gmc_caches, alpha, run_dir, alpha_app=None):
     res_dir = os.path.join(run_dir, "results")
     if os.path.exists(res_dir): shutil.rmtree(res_dir)
     os.makedirs(res_dir, exist_ok=True)
@@ -85,6 +90,8 @@ def gen_predicts(cls_dict, tracks_by_seq, gmc_caches, alpha, run_dir):
         expr_text_by_id = {}
         for ef in exp_files:
             expr_id = ef.replace(".json", "")
+            if _OFFICIAL is not None and f"{seq}+{expr_id}" not in _OFFICIAL:
+                continue  # off-protocol expression (A31): excluded at generation
             with open(os.path.join(expr_dir, ef)) as fh:
                 expr_text_by_id[expr_id] = json.load(fh)["sentence"]
             outd = os.path.join(seq_out, expr_id)
@@ -97,6 +104,11 @@ def gen_predicts(cls_dict, tracks_by_seq, gmc_caches, alpha, run_dir):
             else:
                 open(gt_dst, "w").close()
             seqmap.append(f"{seq}+{expr_id}")
+
+        # two-α routing on the sentence text (canonical, A30); am==aa ≡ single-α
+        a_by_expr = {eid: (alpha if alpha_app is None else
+                           (alpha if classify(txt) != "APPEARANCE" else alpha_app))
+                     for eid, txt in expr_text_by_id.items()}
 
         tracks = tracks_by_seq[seq]
         tracks_idx = {}
@@ -125,7 +137,7 @@ def gen_predicts(cls_dict, tracks_by_seq, gmc_caches, alpha, run_dir):
                     if score is None: continue
                     margin = float(score[1] - score[0])
                     gmc = float(gmc_seq.get(expr_id, {}).get(str(fid_pred), {}).get(str(oid_int), 0.0))
-                    if margin + alpha * gmc > 0.0:
+                    if margin + a_by_expr[expr_id] * gmc > 0.0:
                         pred_buf[expr_id].append(bbox_str)
 
         for expr_id in expr_text_by_id:
@@ -171,8 +183,16 @@ def run_te(seqmap, results_dir, class_filter=None):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--alpha", type=float, required=True)
+    p.add_argument("--alpha", type=float)
+    p.add_argument("--alpha-mot", type=float, help="two-α: MOVING/STATIC exprs")
+    p.add_argument("--alpha-app", type=float, help="two-α: APPEARANCE exprs")
     args = p.parse_args()
+    two_a = args.alpha_mot is not None or args.alpha_app is not None
+    if two_a and (args.alpha_mot is None or args.alpha_app is None or args.alpha is not None):
+        p.error("use either --alpha alone, or --alpha-mot AND --alpha-app")
+    if not two_a and args.alpha is None:
+        p.error("--alpha required")
+    a_mot = args.alpha_mot if two_a else args.alpha
 
     print("Loading FlexHook result_0.json (~80MB)...", flush=True)
     with open(RESULT_JSON) as fh:
@@ -185,7 +205,7 @@ def main():
         if os.path.exists(cp):
             with open(cp) as fh:
                 gmc_caches[s] = json.load(fh)
-        elif args.alpha != 0:
+        elif a_mot != 0:
             # missing cache at alpha>0 would silently evaluate as native (flat
             # sweep labeled as fused) — fail loudly instead, matching iKUN.
             raise FileNotFoundError(
@@ -196,23 +216,30 @@ def main():
     print("Loading tracks...", flush=True)
     tracks_by_seq = {seq: load_tracks(seq) for seq in TEST_SEQS}
 
-    tag = f"alpha{args.alpha}"
-    if os.environ.get("GMC_EVAL_SEQS"):
+    tag = (f"am{args.alpha_mot}_aa{args.alpha_app}" if two_a
+           else f"alpha{args.alpha}")
+    fold_scoped = bool(os.environ.get("GMC_EVAL_SEQS"))
+    if fold_scoped:
         # fold-scoped output dir: LOSO runs must never clobber full-test result.json
         tag += "_seqs" + "-".join(TEST_SEQS)
     run_dir = os.path.join(OUT_ROOT, tag)
     os.makedirs(run_dir, exist_ok=True)
-    print(f"\n=== {tag}: fused = margin + {args.alpha} * gmc, gate 0.0 ===", flush=True)
-    res_dir, sm = gen_predicts(cls_dict, tracks_by_seq, gmc_caches, args.alpha, run_dir)
+    print(f"\n=== {tag}: fused = margin + alpha(expr) * gmc, gate 0.0 ===", flush=True)
+    res_dir, sm = gen_predicts(cls_dict, tracks_by_seq, gmc_caches, a_mot, run_dir,
+                               alpha_app=args.alpha_app if two_a else None)
+    # fold runs feed LOSO pooled-argmax only (pre-reg) — skip class rows for cost
     result = {
         "arch": "fh_v1",
         "alpha": args.alpha,
+        "alpha_mot": args.alpha_mot,
+        "alpha_app": args.alpha_app,
+        "official_seqmap": _OFFICIAL_SM,
         "gmc_suffix": _GMC_SUFFIX,
         "eval_seqs": TEST_SEQS,
         "pooled": run_te(sm, res_dir),
-        "moving": run_te(sm, res_dir, class_filter="MOVING"),
-        "static": run_te(sm, res_dir, class_filter="STATIC"),
-        "appearance": run_te(sm, res_dir, class_filter="APPEARANCE"),
+        "moving": None if fold_scoped else run_te(sm, res_dir, class_filter="MOVING"),
+        "static": None if fold_scoped else run_te(sm, res_dir, class_filter="STATIC"),
+        "appearance": None if fold_scoped else run_te(sm, res_dir, class_filter="APPEARANCE"),
     }
     with open(os.path.join(run_dir, "result.json"), "w") as f:
         json.dump(result, f, indent=2)
