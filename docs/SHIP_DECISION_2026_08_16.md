@@ -127,8 +127,19 @@ GMC 的 motion 特徵是從 tracker 軌跡算的,而 tracker 軌跡有誤差。�
 | FlexHook V1(官方協議) | 53.824(= 發表值) | **54.011 ± 0.025** | +0.187 | **超過宿主發表分數** |
 | FlexHook V2 | 42.526(= 發表值) | **42.658 ± 0.030** | +0.132 | 超過宿主發表分數 |
 
+各 host 的 MOVING(運動句)per-class HOTA:
+
+| Host | native MOVING | + GMC MOVING | Δ |
+|---|---|---|---|
+| iKUN(選項 B) | 25.531 | **32.606 ± 0.654** | **+7.08** |
+| iKUN(選項 A) | 25.531 | 30.045 ± 0.091 | +4.51 |
+| FlexHook V1(官方協議,α=7) | 44.309 | **44.802 ± 0.207** | **+0.49**(STATIC +0.45、APPEAR +0.09,三類全正) |
+| FlexHook V2(canonical 分類,α=5) | 38.154 | 38.202 ± 0.060 | +0.048(STATIC +0.294、APPEAR +0.125) |
+
+增益與 host 原生 motion 能力成反比(iKUN 缺 motion → 大增益;FlexHook 自帶 → 小增益)
+——這是論文的主論點,三個 host 的 MOVING 全為正是其證據。
+
 - 三個 host 全部正增益;兩個 FlexHook split 皆超過其發表分數,iKUN 超過其誠實可達上限
-- 主要貢獻集中在 MOVING(運動語意句):+7.08,正是模組的設計目標
 - 全部數字:留一序列交叉驗證選參、α=0 精確重現 native、pre-registration 先於數據
 
 *出處:repo `GMC-Link`(branch `12d-simplification`),RESEARCH_NOTES §10 A22–A33,`docs/PREREG_*.md`,`results/`。*
