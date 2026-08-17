@@ -1,20 +1,205 @@
-[
- {
-  "mode": "sim",
-  "seq": "0011",
-  "frames": 200,
-  "ms_per_frame_process": 20.83,
-  "fps_process_only": 48.0,
-  "ms_per_frame_incl_io": 29.45,
-  "fps_incl_io": 34.0
+{
+ "protocol": "seq 0011, n=500 frames, GMC_MODEL=similarity, GMC_MOTION_EMA=0; 8 reps 2026-08-17, reps 1-3 cold-cache excluded, median of warm reps 4-8; residual load: gnome-shell ~0.6 core (desktop session), dispersion ~6%",
+ "modes": {
+  "sim": {
+   "fps_process_only_median": 42.8,
+   "fps_incl_io_median": 31.1,
+   "ms_per_frame_process_median": 23.35,
+   "fps_process_only_reps": [
+    43.2,
+    42.8,
+    41.8,
+    42.5,
+    44.3
+   ],
+   "fps_incl_io_reps": [
+    31.3,
+    31.1,
+    30.3,
+    30.9,
+    32.1
+   ]
+  },
+  "road": {
+   "fps_process_only_median": 31.8,
+   "fps_incl_io_median": 24.5,
+   "ms_per_frame_process_median": 31.44,
+   "fps_process_only_reps": [
+    33.2,
+    31.8,
+    31.4,
+    31.6,
+    33.6
+   ],
+   "fps_incl_io_reps": [
+    25.5,
+    24.5,
+    24.2,
+    24.3,
+    25.7
+   ]
+  }
  },
- {
-  "mode": "road",
-  "seq": "0011",
-  "frames": 200,
-  "ms_per_frame_process": 28.36,
-  "fps_process_only": 35.3,
-  "ms_per_frame_incl_io": 37.16,
-  "fps_incl_io": 26.9
+ "all_reps": {
+  "rep1": [
+   {
+    "mode": "sim",
+    "seq": "0011",
+    "frames": 373,
+    "ms_per_frame_process": 25.8,
+    "fps_process_only": 38.8,
+    "ms_per_frame_incl_io": 34.75,
+    "fps_incl_io": 28.8
+   },
+   {
+    "mode": "road",
+    "seq": "0011",
+    "frames": 373,
+    "ms_per_frame_process": 30.11,
+    "fps_process_only": 33.2,
+    "ms_per_frame_incl_io": 39.33,
+    "fps_incl_io": 25.4
+   }
+  ],
+  "rep2": [
+   {
+    "mode": "sim",
+    "seq": "0011",
+    "frames": 373,
+    "ms_per_frame_process": 24.56,
+    "fps_process_only": 40.7,
+    "ms_per_frame_incl_io": 33.38,
+    "fps_incl_io": 30.0
+   },
+   {
+    "mode": "road",
+    "seq": "0011",
+    "frames": 373,
+    "ms_per_frame_process": 30.71,
+    "fps_process_only": 32.6,
+    "ms_per_frame_incl_io": 39.84,
+    "fps_incl_io": 25.1
+   }
+  ],
+  "rep3": [
+   {
+    "mode": "sim",
+    "seq": "0011",
+    "frames": 373,
+    "ms_per_frame_process": 21.69,
+    "fps_process_only": 46.1,
+    "ms_per_frame_incl_io": 30.6,
+    "fps_incl_io": 32.7
+   },
+   {
+    "mode": "road",
+    "seq": "0011",
+    "frames": 373,
+    "ms_per_frame_process": 30.54,
+    "fps_process_only": 32.7,
+    "ms_per_frame_incl_io": 39.86,
+    "fps_incl_io": 25.1
+   }
+  ],
+  "rep4": [
+   {
+    "mode": "sim",
+    "seq": "0011",
+    "frames": 373,
+    "ms_per_frame_process": 23.17,
+    "fps_process_only": 43.2,
+    "ms_per_frame_incl_io": 31.93,
+    "fps_incl_io": 31.3
+   },
+   {
+    "mode": "road",
+    "seq": "0011",
+    "frames": 373,
+    "ms_per_frame_process": 30.11,
+    "fps_process_only": 33.2,
+    "ms_per_frame_incl_io": 39.14,
+    "fps_incl_io": 25.5
+   }
+  ],
+  "rep5": [
+   {
+    "mode": "sim",
+    "seq": "0011",
+    "frames": 373,
+    "ms_per_frame_process": 23.35,
+    "fps_process_only": 42.8,
+    "ms_per_frame_incl_io": 32.2,
+    "fps_incl_io": 31.1
+   },
+   {
+    "mode": "road",
+    "seq": "0011",
+    "frames": 373,
+    "ms_per_frame_process": 31.44,
+    "fps_process_only": 31.8,
+    "ms_per_frame_incl_io": 40.79,
+    "fps_incl_io": 24.5
+   }
+  ],
+  "rep6": [
+   {
+    "mode": "sim",
+    "seq": "0011",
+    "frames": 373,
+    "ms_per_frame_process": 23.92,
+    "fps_process_only": 41.8,
+    "ms_per_frame_incl_io": 33.0,
+    "fps_incl_io": 30.3
+   },
+   {
+    "mode": "road",
+    "seq": "0011",
+    "frames": 373,
+    "ms_per_frame_process": 31.85,
+    "fps_process_only": 31.4,
+    "ms_per_frame_incl_io": 41.4,
+    "fps_incl_io": 24.2
+   }
+  ],
+  "rep7": [
+   {
+    "mode": "sim",
+    "seq": "0011",
+    "frames": 373,
+    "ms_per_frame_process": 23.53,
+    "fps_process_only": 42.5,
+    "ms_per_frame_incl_io": 32.31,
+    "fps_incl_io": 30.9
+   },
+   {
+    "mode": "road",
+    "seq": "0011",
+    "frames": 373,
+    "ms_per_frame_process": 31.68,
+    "fps_process_only": 31.6,
+    "ms_per_frame_incl_io": 41.09,
+    "fps_incl_io": 24.3
+   }
+  ],
+  "rep8": [
+   {
+    "mode": "sim",
+    "seq": "0011",
+    "frames": 373,
+    "ms_per_frame_process": 22.58,
+    "fps_process_only": 44.3,
+    "ms_per_frame_incl_io": 31.17,
+    "fps_incl_io": 32.1
+   },
+   {
+    "mode": "road",
+    "seq": "0011",
+    "frames": 373,
+    "ms_per_frame_process": 29.8,
+    "fps_process_only": 33.6,
+    "ms_per_frame_incl_io": 38.84,
+    "fps_incl_io": 25.7
+   }
+  ]
  }
-]
+}
