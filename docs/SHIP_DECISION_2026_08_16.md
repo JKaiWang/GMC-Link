@@ -37,6 +37,10 @@ n=3~5 seeds;實驗前登記協議;α=0 精確重現 baseline。
 
 **6. 雙權重融合**:運動句 α_mot=0.7、外觀句 α_app=0.1(關鍵字分流,無學習)。對照組(雙權重×原鏈)+0.016 無效 → 增益來自機制組合。
 
+**7. FlexHook 雙權重檢驗**:同一套 LOSO 在 FH V1/V2 均退化為單權重
+(分流增益 fold 內 ≤0.10 / V2 ≈ 0;格點外探測 aa=7,10 全下跌)。
+分流只在 host 無原生運動建模時有效(反比律)→ B 的 FH 行維持單-α,不受影響。
+
 ## 決定
 
 | | A(現行) | B(路面鏈+雙權重) |
@@ -68,6 +72,7 @@ n=3~5 seeds;實驗前登記協議;α=0 精確重現 baseline。
 | −ego | 28.213(t=15.9) | 44.251(t=5.8) | 28.489(t=11.8) | 44.166(t=11.7) |
 | −multiscale | 29.330(t=2.9) | 44.442(t=3.6) | 30.449(t=6.2) | 44.485(t=6.7) |
 
-STATIC/APPEAR 全欄位:`results/ablation_n5_hedge.json`。FPS:sim 48 / road 35(CPU)。
+STATIC/APPEAR 全欄位:`results/ablation_n5_hedge.json`。
+FPS(乾淨重量):sim 42.8 / road 31.8(CPU process-only;取代舊 48/35 與論文 68)。
 
 *出處:RESEARCH_NOTES §10 A22–A34,`docs/PREREG_*.md`,`results/`。*
