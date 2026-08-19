@@ -106,12 +106,13 @@ def main():
     p.add_argument("--seeds", default="0,1,2")
     p.add_argument("--suffix", default="",
                    help="run-dir suffix after seed, e.g. _nomema_warm11 (candidate ship)")
+    p.add_argument("--tree", default="hota_eval_flexhook_v2_raw_gmc_sw12d_seed{seed}",
+                   help="run-dir template before --suffix; the road-chain ship needs "
+                        "hota_eval_flexhook_v2_raw_gmc_sw12d_groad_seed{seed} (A37)")
     p.add_argument("--out", default=os.path.join(REPO, "results", "v2_canonical_regroup.json"))
     args = p.parse_args()
     global OUT_TPL
-    OUT_TPL = os.path.join(
-        REPO, "hota_eval_flexhook_v2_raw_gmc_sw12d_seed{seed}" + args.suffix,
-        "alpha{alpha}")
+    OUT_TPL = os.path.join(REPO, args.tree + args.suffix, "alpha{alpha}")
     alphas = [float(a) for a in args.alphas.split(",")]
     seeds = [int(s) for s in args.seeds.split(",")]
 
