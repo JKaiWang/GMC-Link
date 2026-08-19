@@ -1,0 +1,117 @@
+{
+  "canonical_lists": "V1 (iKUN order)",
+  "runs": [
+    {
+      "MOVING": 38.154,
+      "MOVING_n": 136,
+      "STATIC": 44.576,
+      "STATIC_n": 93,
+      "APPEARANCE": 42.613,
+      "APPEARANCE_n": 633,
+      "DIRECTION": 55.354,
+      "DIRECTION_n": 66,
+      "alpha": 0.0,
+      "seed": 0,
+      "slug_result": {
+        "arch": "fh_v2",
+        "alpha": 0.0,
+        "gmc_suffix": "_sw12d_groad_seed0_warm11",
+        "eval_seqs": [
+          "0005",
+          "0011",
+          "0013",
+          "0019"
+        ],
+        "pooled": 42.526,
+        "moving": 48.018,
+        "static": 44.868,
+        "appearance": 41.713
+      },
+      "full_test": true
+    },
+    {
+      "MOVING": 38.306,
+      "MOVING_n": 136,
+      "STATIC": 44.826,
+      "STATIC_n": 93,
+      "APPEARANCE": 42.709,
+      "APPEARANCE_n": 633,
+      "DIRECTION": 55.488,
+      "DIRECTION_n": 66,
+      "alpha": 5.0,
+      "seed": 0,
+      "slug_result": {
+        "arch": "fh_v2",
+        "alpha": 5.0,
+        "gmc_suffix": "_sw12d_groad_seed0_warm11",
+        "eval_seqs": [
+          "0005",
+          "0011",
+          "0013",
+          "0019"
+        ],
+        "pooled": 42.633,
+        "moving": 48.104,
+        "static": 45.117,
+        "appearance": 41.801
+      },
+      "full_test": true
+    },
+    {
+      "MOVING": 38.404,
+      "MOVING_n": 136,
+      "STATIC": 44.825,
+      "STATIC_n": 93,
+      "APPEARANCE": 42.653,
+      "APPEARANCE_n": 633,
+      "DIRECTION": 55.142,
+      "DIRECTION_n": 66,
+      "alpha": 5.0,
+      "seed": 1,
+      "slug_result": {
+        "arch": "fh_v2",
+        "alpha": 5.0,
+        "gmc_suffix": "_sw12d_groad_seed1_warm11",
+        "eval_seqs": [
+          "0005",
+          "0011",
+          "0013",
+          "0019"
+        ],
+        "pooled": 42.59,
+        "moving": 47.967,
+        "static": 45.095,
+        "appearance": 41.764
+      },
+      "full_test": true
+    },
+    {
+      "MOVING": 38.305,
+      "MOVING_n": 136,
+      "STATIC": 44.844,
+      "STATIC_n": 93,
+      "APPEARANCE": 42.726,
+      "APPEARANCE_n": 633,
+      "DIRECTION": 55.499,
+      "DIRECTION_n": 66,
+      "alpha": 5.0,
+      "seed": 2,
+      "slug_result": {
+        "arch": "fh_v2",
+        "alpha": 5.0,
+        "gmc_suffix": "_sw12d_groad_seed2_warm11",
+        "eval_seqs": [
+          "0005",
+          "0011",
+          "0013",
+          "0019"
+        ],
+        "pooled": 42.652,
+        "moving": 48.129,
+        "static": 45.124,
+        "appearance": 41.821
+      },
+      "full_test": true
+    }
+  ]
+}

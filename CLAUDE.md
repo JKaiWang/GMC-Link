@@ -16,8 +16,8 @@ Aligner weights `gmc_link_weights_v1train_sw12d_groad_seed{N}.pth`, caches
 | Host | Fusion | pooled HOTA | native |
 |---|---|---|---|
 | iKUN | two-α, α_mot=0.7 / α_app=0.1 (LOSO, A32) | **44.847 ± 0.107** (MOVING 32.606 ± 0.654) | 44.224 |
-| FlexHook V1 (official 150-expr protocol, A31) | single α (α\* pending road LOSO) | 53.98 level | 53.824 |
-| FlexHook V2 | single α (α\* pending road LOSO) | 42.625 ± 0.032 @α=5 | 42.526 |
+| FlexHook V1 (official 150-expr protocol, A31) | single α\*=7 (LOSO, A37) | **53.980 ± 0.059** (MOVING 44.979 ± 0.126) | 53.824 |
+| FlexHook V2 | single α\*=5 (LOSO, A37) | **42.625 ± 0.032** (canonical MOVING +0.184, t=5.6) | 42.526 |
 
 Two-α routes on the canonical expression text (α_mot for MOVING/STATIC, α_app for
 APPEARANCE); per-host LOSO selects α_mot=α_app on both FlexHook settings, so they
@@ -171,8 +171,9 @@ HOTA-eval (TrackEval per-arch consumer: iKUN / FH V1 official-150 / FH V2)
 - EMA alphas: `MotionBuffer(α=0.3)`, `ScoreBuffer(α=0.4)` — score-side EMA/sigmoid removed from ship path 2026-08-10
 - Embedding dims (ship `shared_weight`): motion/lang 12D/384D → 256D (Linear adapter) → shared trunk 256→512→512→256. Legacy `mlp`: motion 12D → 256D → 512D → 256D, language 384D → 256D → 512D → 256D.
 - Ship fusion (Option B, locked 2026-08-19): road chain + `s_host + α(expr)·s_gmc`, gate 0.0.
-  α from LOSO: iKUN (α_mot 0.7, α_app 0.1); FlexHook V1/V2 single α (road-chain α\* pending).
-  Road homography RANSAC threshold is **3.0px** (global path is 5.0px). Old recipes superseded.
+  α from LOSO: iKUN (α_mot 0.7, α_app 0.1); FlexHook V1 α=7, FlexHook V2 α=5 (A37).
+  Road homography RANSAC threshold is **3.0px** (global path is 5.0px); the road fit succeeds
+  on 2065/2065 eval frame pairs, so the ORB fallback never fires. Old recipes superseded.
 - Legacy Fusion Head arch (NOT ship): 3→32→16→1 sigmoid output
 
 ### Project Layout Notes

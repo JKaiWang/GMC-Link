@@ -1,0 +1,476 @@
+{
+ "arch": "fh_v1",
+ "mode": "single_alpha_loso",
+ "suffix_template": "_sw12d_groad_seed{seed}_warm11",
+ "grid": [
+  0.0,
+  1.0,
+  2.0,
+  3.0,
+  5.0,
+  7.0,
+  10.0
+ ],
+ "native_ref": 53.824,
+ "official_seqmap": "/home/seanachan/FlexHook/seqmaps/kitti-1.txt",
+ "fold_argmaxes": {
+  "hold0005": {
+   "alpha": 7.0,
+   "pooled": 51.995
+  },
+  "hold0011": {
+   "alpha": 1.0,
+   "pooled": 53.834
+  },
+  "hold0013": {
+   "alpha": 7.0,
+   "pooled": 56.017
+  }
+ },
+ "alpha_star": 7.0,
+ "fold_rows": [
+  {
+   "fold": "hold0005",
+   "alpha": 0.0,
+   "seed": 0,
+   "pooled": 51.713
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 0.0,
+   "seed": 1,
+   "pooled": 51.713
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 0.0,
+   "seed": 2,
+   "pooled": 51.713
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 1.0,
+   "seed": 0,
+   "pooled": 51.791
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 1.0,
+   "seed": 1,
+   "pooled": 51.794
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 1.0,
+   "seed": 2,
+   "pooled": 51.768
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 2.0,
+   "seed": 0,
+   "pooled": 51.869
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 2.0,
+   "seed": 1,
+   "pooled": 51.855
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 2.0,
+   "seed": 2,
+   "pooled": 51.837
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 3.0,
+   "seed": 0,
+   "pooled": 51.926
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 3.0,
+   "seed": 1,
+   "pooled": 51.91
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 3.0,
+   "seed": 2,
+   "pooled": 51.868
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 5.0,
+   "seed": 0,
+   "pooled": 52.0
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 5.0,
+   "seed": 1,
+   "pooled": 51.996
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 5.0,
+   "seed": 2,
+   "pooled": 51.929
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 7.0,
+   "seed": 0,
+   "pooled": 52.014
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 7.0,
+   "seed": 1,
+   "pooled": 52.042
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 7.0,
+   "seed": 2,
+   "pooled": 51.929
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 10.0,
+   "seed": 0,
+   "pooled": 51.934
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 10.0,
+   "seed": 1,
+   "pooled": 51.979
+  },
+  {
+   "fold": "hold0005",
+   "alpha": 10.0,
+   "seed": 2,
+   "pooled": 51.854
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 0.0,
+   "seed": 0,
+   "pooled": 53.826
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 0.0,
+   "seed": 1,
+   "pooled": 53.826
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 0.0,
+   "seed": 2,
+   "pooled": 53.826
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 1.0,
+   "seed": 0,
+   "pooled": 53.831
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 1.0,
+   "seed": 1,
+   "pooled": 53.856
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 1.0,
+   "seed": 2,
+   "pooled": 53.814
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 2.0,
+   "seed": 0,
+   "pooled": 53.817
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 2.0,
+   "seed": 1,
+   "pooled": 53.857
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 2.0,
+   "seed": 2,
+   "pooled": 53.773
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 3.0,
+   "seed": 0,
+   "pooled": 53.82
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 3.0,
+   "seed": 1,
+   "pooled": 53.869
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 3.0,
+   "seed": 2,
+   "pooled": 53.743
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 5.0,
+   "seed": 0,
+   "pooled": 53.806
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 5.0,
+   "seed": 1,
+   "pooled": 53.838
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 5.0,
+   "seed": 2,
+   "pooled": 53.693
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 7.0,
+   "seed": 0,
+   "pooled": 53.789
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 7.0,
+   "seed": 1,
+   "pooled": 53.779
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 7.0,
+   "seed": 2,
+   "pooled": 53.602
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 10.0,
+   "seed": 0,
+   "pooled": 53.681
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 10.0,
+   "seed": 1,
+   "pooled": 53.543
+  },
+  {
+   "fold": "hold0011",
+   "alpha": 10.0,
+   "seed": 2,
+   "pooled": 53.52
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 0.0,
+   "seed": 0,
+   "pooled": 55.849
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 0.0,
+   "seed": 1,
+   "pooled": 55.849
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 0.0,
+   "seed": 2,
+   "pooled": 55.849
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 1.0,
+   "seed": 0,
+   "pooled": 55.891
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 1.0,
+   "seed": 1,
+   "pooled": 55.891
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 1.0,
+   "seed": 2,
+   "pooled": 55.88
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 2.0,
+   "seed": 0,
+   "pooled": 55.921
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 2.0,
+   "seed": 1,
+   "pooled": 55.924
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 2.0,
+   "seed": 2,
+   "pooled": 55.905
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 3.0,
+   "seed": 0,
+   "pooled": 55.935
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 3.0,
+   "seed": 1,
+   "pooled": 55.957
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 3.0,
+   "seed": 2,
+   "pooled": 55.914
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 5.0,
+   "seed": 0,
+   "pooled": 55.995
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 5.0,
+   "seed": 1,
+   "pooled": 56.051
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 5.0,
+   "seed": 2,
+   "pooled": 55.984
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 7.0,
+   "seed": 0,
+   "pooled": 55.997
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 7.0,
+   "seed": 1,
+   "pooled": 56.069
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 7.0,
+   "seed": 2,
+   "pooled": 55.986
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 10.0,
+   "seed": 0,
+   "pooled": 55.895
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 10.0,
+   "seed": 1,
+   "pooled": 55.959
+  },
+  {
+   "fold": "hold0013",
+   "alpha": 10.0,
+   "seed": 2,
+   "pooled": 55.932
+  }
+ ],
+ "full_test_at_star": {
+  "per_seed": [
+   {
+    "arch": "fh_v1",
+    "alpha": 7.0,
+    "alpha_mot": null,
+    "alpha_app": null,
+    "official_seqmap": "/home/seanachan/FlexHook/seqmaps/kitti-1.txt",
+    "gmc_suffix": "_sw12d_groad_seed0_warm11",
+    "eval_seqs": [
+     "0005",
+     "0011",
+     "0013"
+    ],
+    "pooled": 53.994,
+    "moving": 45.124,
+    "static": 49.358,
+    "appearance": 56.52
+   },
+   {
+    "arch": "fh_v1",
+    "alpha": 7.0,
+    "alpha_mot": null,
+    "alpha_app": null,
+    "official_seqmap": "/home/seanachan/FlexHook/seqmaps/kitti-1.txt",
+    "gmc_suffix": "_sw12d_groad_seed1_warm11",
+    "eval_seqs": [
+     "0005",
+     "0011",
+     "0013"
+    ],
+    "pooled": 54.031,
+    "moving": 44.921,
+    "static": 49.372,
+    "appearance": 56.581
+   },
+   {
+    "arch": "fh_v1",
+    "alpha": 7.0,
+    "alpha_mot": null,
+    "alpha_app": null,
+    "official_seqmap": "/home/seanachan/FlexHook/seqmaps/kitti-1.txt",
+    "gmc_suffix": "_sw12d_groad_seed2_warm11",
+    "eval_seqs": [
+     "0005",
+     "0011",
+     "0013"
+    ],
+    "pooled": 53.915,
+    "moving": 44.892,
+    "static": 49.149,
+    "appearance": 56.487
+   }
+  ],
+  "aggregate": {
+   "pooled_mean": 53.98,
+   "pooled_std": 0.059,
+   "moving_mean": 44.979,
+   "moving_std": 0.126,
+   "static_mean": 49.293,
+   "static_std": 0.125,
+   "appearance_mean": 56.529,
+   "appearance_std": 0.048
+  }
+ }
+}
