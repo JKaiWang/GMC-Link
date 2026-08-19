@@ -61,30 +61,107 @@ def run_two(cfg, seed, am, aa, st, eval_seqs=None):
                     f"am{am}_aa{aa}", st, eval_seqs)
 
 
-def run_single(cfg, seed, a, st):
-    return run_cell(cfg, seed, ["--alpha", str(a)], f"alpha{a}", st)
+def run_single(cfg, seed, a, st, eval_seqs=None):
+    return run_cell(cfg, seed, ["--alpha", str(a)], f"alpha{a}", st, eval_seqs)
+
+
+def single_alpha_loso(cfg, args, ALPHAS, seeds, st):
+    """A37: single-α LOSO for a host that has a full-test sweep but no folds.
+    Same selection rule as the two-α campaign, one axis. Pre-reg:
+    docs/PREREG_FH_ROAD_SINGLE_ALPHA_2026_08_19.md
+    """
+    if not args.skip_integrity:
+        a0 = run_single(cfg, seeds[0], 0.0, st)
+        if a0 is None or abs(a0["pooled"] - cfg["native"]) > 5e-4:
+            print(f"NATIVE GATE FAIL: alpha=0 pooled={a0 and a0['pooled']} "
+                  f"expected {cfg['native']}")
+            sys.exit(1)
+        print(f"native gate OK: alpha=0 pooled == {a0['pooled']}", flush=True)
+
+    cells = [(f, infold, a, s) for f, infold in cfg["folds"].items()
+             for a in ALPHAS for s in seeds]
+
+    def worker(c):
+        fname, infold, a, s = c
+        r = run_single(cfg, s, a, st, eval_seqs=infold)
+        print(f"{fname} alpha={a} seed={s} {'done' if r else 'FAIL'}", flush=True)
+        return (fname, a, s, r)
+
+    rows = []
+    with ThreadPoolExecutor(max_workers=args.jobs) as ex:
+        for fname, a, s, r in ex.map(worker, cells):
+            if r:
+                rows.append(dict(fold=fname, alpha=a, seed=s, pooled=r["pooled"]))
+
+    argmaxes = {}
+    for fname in cfg["folds"]:
+        best, best_a = -1, None
+        for a in ALPHAS:
+            vals = [r["pooled"] for r in rows if r["fold"] == fname and r["alpha"] == a]
+            if vals and statistics.mean(vals) > best:
+                best, best_a = statistics.mean(vals), a
+        argmaxes[fname] = dict(alpha=best_a, pooled=round(best, 3))
+
+    unc = [argmaxes[f]["alpha"] for f in cfg["folds"]
+           if argmaxes[f]["alpha"] != max(ALPHAS)]
+    if len(unc) < 2:
+        alpha_star = None  # axis unresolved per pre-reg -> host keeps the sim chain
+    else:
+        m = statistics.median(sorted(unc))
+        alpha_star = m if m in ALPHAS else max(v for v in ALPHAS if v < m)
+
+    out = {"arch": args.arch, "mode": "single_alpha_loso", "suffix_template": st,
+           "grid": ALPHAS, "native_ref": cfg["native"],
+           "official_seqmap": os.environ.get("FH_OFFICIAL_SEQMAP"),
+           "fold_argmaxes": argmaxes, "alpha_star": alpha_star, "fold_rows": rows}
+
+    if alpha_star is not None:
+        full = [r for r in (run_single(cfg, s, alpha_star, st) for s in seeds) if r]
+        agg = {}
+        for m_ in ("pooled", "moving", "static", "appearance"):
+            vals = [r[m_] for r in full if r.get(m_) is not None]
+            agg[f"{m_}_mean"] = round(statistics.mean(vals), 3) if vals else None
+            agg[f"{m_}_std"] = round(statistics.stdev(vals), 3) if len(vals) > 1 else 0.0
+        out["full_test_at_star"] = {"per_seed": full, "aggregate": agg}
+        print("FULL-TEST @", alpha_star, agg, flush=True)
+    else:
+        print("AXIS UNRESOLVED -> host keeps the similarity chain (pre-reg)", flush=True)
+
+    json.dump(out, open(os.path.join(args.out_dir, "single_alpha_campaign.json"), "w"),
+              indent=1)
+    print("SINGLE_ALPHA_DONE", flush=True)
 
 
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--arch", required=True, choices=sorted(ARCH))
     p.add_argument("--suffix-template", required=True)
-    p.add_argument("--am", required=True)
-    p.add_argument("--aa", required=True)
+    p.add_argument("--alphas", help="single-alpha LOSO mode (A37): comma list; "
+                                    "mutually exclusive with --am/--aa")
+    p.add_argument("--am")
+    p.add_argument("--aa")
     p.add_argument("--seeds", default="0,1,2")
     p.add_argument("--jobs", type=int, default=1)
     p.add_argument("--out-dir", required=True)
     p.add_argument("--skip-integrity", action="store_true")
     args = p.parse_args()
     cfg = ARCH[args.arch]
-    AM = [float(x) for x in args.am.split(",")]
-    AA = [float(x) for x in args.aa.split(",")]
+    single = args.alphas is not None
+    if single == bool(args.am or args.aa):
+        p.error("use either --alphas (single-α) or --am AND --aa (two-α)")
+    if not single and not (args.am and args.aa):
+        p.error("--am and --aa must both be given")
+    AM = [float(x) for x in (args.alphas if single else args.am).split(",")]
+    AA = [float(x) for x in args.aa.split(",")] if not single else []
     seeds = [int(s) for s in args.seeds.split(",")]
     st = args.suffix_template
     os.makedirs(args.out_dir, exist_ok=True)
 
     if cfg.get("needs_official") and not os.environ.get("FH_OFFICIAL_SEQMAP"):
         sys.exit("fh_v1 requires FH_OFFICIAL_SEQMAP (official 150-expr protocol, A31)")
+
+    if single:
+        return single_alpha_loso(cfg, args, AM, seeds, st)
 
     # (1) integrity gates — halt condition: no alpha>0 data may be read on fail
     if not args.skip_integrity:
