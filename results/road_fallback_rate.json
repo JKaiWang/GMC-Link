@@ -1,0 +1,34 @@
+{
+ "protocol": "estimate_road_homography() per adjacent frame pair, detection boxes masked; None => global-ORB fallback fires",
+ "per_seq": {
+  "0005": {
+   "ok": 296,
+   "fallback": 0,
+   "pairs": 296,
+   "ok_pct": 100.0
+  },
+  "0011": {
+   "ok": 372,
+   "fallback": 0,
+   "pairs": 372,
+   "ok_pct": 100.0
+  },
+  "0013": {
+   "ok": 339,
+   "fallback": 0,
+   "pairs": 339,
+   "ok_pct": 100.0
+  },
+  "0019": {
+   "ok": 1058,
+   "fallback": 0,
+   "pairs": 1058,
+   "ok_pct": 100.0
+  }
+ },
+ "total": {
+  "ok": 2065,
+  "pairs": 2065,
+  "ok_pct": 100.0
+ }
+}
