@@ -200,6 +200,11 @@ Progressive feature addition evaluated on seq 0011, expr "moving-cars" (score se
 
 ## Current Ship (2026-05-21) — 3-Architecture Cross-Arch Validation
 
+> **SUPERSEDED 2026-08-19.** The shipped configuration is now **Option B**: road-plane ego
+> chain on all three host settings, iKUN two-α (0.7 / 0.1) → pooled 44.847 ± 0.107,
+> FlexHook single α. See `CLAUDE.md` → Current ship and `docs/SHIP_DECISION_2026_08_16.md`.
+> The 18-hyperparameter recipe below is provenance only.
+
 GMC-Link plugs into 3 downstream RMOT consumers via decision-level linear additive fusion. Evaluated on Refer-KITTI V1 (3-sequence pooled HOTA: 0005, 0011, 0013) and V2 (4-sequence pooled: 0005, 0011, 0013, 0019), n=3 multi-seed.
 
 ### Ship Pipeline

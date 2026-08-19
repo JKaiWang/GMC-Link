@@ -6,26 +6,41 @@ File guide Claude Code (claude.ai/code) working repo.
 
 GMC-Link = plug-and-play module **Referring Multi-Object Tracking (RMOT)**. Bridge object motion (geometry) + natural language (semantics). Input video + description like "moving cars", score which tracked objects match by physical motion reasoning, not visual appearance.
 
-**Current ship (2026-08-10 simplification, numbers pending rerun)**: ρ/snr removed
-(13D→12D), fusion collapsed to `s_final = s_host + α·s_gmc` (single α per arch, all
-expressions, gate frozen at native 0.0 so α=0 ≡ reproduced native). α* selected via
-LOSO from the α sweep. Full protocol: `EXPERIMENT_COMMANDS.md`. Results land in
-`results/alpha_sweep_*.{csv,json}`.
+**CURRENT SHIP — Option B, locked 2026-08-19** (user decision, no professor sign-off
+required; decision record `docs/SHIP_DECISION_2026_08_16.md`). All three host settings
+share one ego chain: **road-plane homography** (`GMC_GROUND_MODE=road`) + warm11 validity
+mask + no motion EMA + raw cosine + additive fusion at gate 0.0 (α=0 ≡ native exact).
+Aligner weights `gmc_link_weights_v1train_sw12d_groad_seed{N}.pth`, caches
+`_sw12d_groad_seed{N}_warm11`.
 
-**Historical (2026-05-21 recipe ship, 13D + per-class recipes — superseded)**:
-iKUN 44.634 ± 0.066 / FH V1 53.526 ± 0.087 / FH V2 42.807 ± 0.038 (n=3, paper-beat 2/3).
-Reproduced natives: iKUN 44.224, FH V1 53.110, FH V2 42.526.
+| Host | Fusion | pooled HOTA | native |
+|---|---|---|---|
+| iKUN | two-α, α_mot=0.7 / α_app=0.1 (LOSO, A32) | **44.847 ± 0.107** (MOVING 32.606 ± 0.654) | 44.224 |
+| FlexHook V1 (official 150-expr protocol, A31) | single α (α\* pending road LOSO) | 53.98 level | 53.824 |
+| FlexHook V2 | single α (α\* pending road LOSO) | 42.625 ± 0.032 @α=5 | 42.526 |
+
+Two-α routes on the canonical expression text (α_mot for MOVING/STATIC, α_app for
+APPEARANCE); per-host LOSO selects α_mot=α_app on both FlexHook settings, so they
+degenerate to a single α (A35, measured on the road chain). FPS (CPU, process-only,
+A36): road 31.8 / global 42.8.
+
+**Historical ships (superseded, kept for provenance)**: 2026-08-10 12D single-α on the
+global similarity chain (iKUN 44.656 @0.5 / FH V1 54.011 @7 / FH V2 42.658 @5 — this was
+"Option A"); 2026-05-21 13D per-class recipe ship (iKUN 44.634 / FH V1 53.526 / FH V2
+42.807, 18 hyperparams). Reproduced natives are unchanged: iKUN 44.224, FH V1 53.824
+(official list) / 53.110 (old 158-expr list), FH V2 42.526.
 
 ## Common Commands
 
 ### Training (Ship Aligner)
 
 ```bash
-# Train shared_weight 12D aligner (ship arch, seeds 0/1/2; +3/4 for n=5 ablation)
+# Train ship aligner: shared_weight 12D on the ROAD chain (seeds 0/1/2; +3/4 for n=5)
+# Train-time ground mode must match inference — road caches need road-trained weights.
 for s in 0 1 2; do
-  python -m gmc_link.train --split v1 --stage 1 \
+  GMC_GROUND_MODE=road python -m gmc_link.train --split v1 --stage 1 \
       --architecture shared_weight --seed $s \
-      --save-path gmc_link_weights_v1train_sw12d_seed${s}.pth
+      --save-path gmc_link_weights_v1train_sw12d_groad_seed${s}.pth
 done
 
 # Legacy mlp arch (default; was prior ship arch until 2026-05-21)
@@ -35,22 +50,29 @@ python -m gmc_link.train --split v1 --stage 1 --architecture mlp
 python gmc_link/fusion_head.py --collect / --train / --eval
 ```
 
-### Ship Evaluation (Single-α Additive Fusion)
+### Ship Evaluation (Option B: road chain + additive fusion)
 
 ```bash
-# Build GMC caches per-arch per-seed (raw cosine is the only output mode)
-GMC_WEIGHTS=gmc_link_weights_v1train_sw12d_seed0.pth GMC_SUFFIX=_sw12d_seed0 \
+# Build GMC caches per-arch per-seed on the road chain (raw cosine is the only mode)
+GMC_GROUND_MODE=road GMC_MOTION_EMA=0 \
+    GMC_WEIGHTS=gmc_link_weights_v1train_sw12d_groad_seed0.pth \
+    GMC_SUFFIX=_sw12d_groad_seed0_warm11 \
     python run_build_gmc_cache.py                    # iKUN
-GMC_WEIGHTS=... GMC_SUFFIX=... python run_build_gmc_cache_flexhook.py         # FH V1
-GMC_WEIGHTS=... GMC_SUFFIX=... python run_build_gmc_cache_flexhook_v2_raw.py  # FH V2
+GMC_GROUND_MODE=road ... python run_build_gmc_cache_flexhook.py         # FH V1
+GMC_GROUND_MODE=road ... python run_build_gmc_cache_flexhook_v2_raw.py  # FH V2
 
-# Single eval at one α (gate frozen at 0.0; α=0 ≡ reproduced native)
-GMC_SUFFIX=_sw12d_seed0 python run_ikun_linear_additive.py --alpha 0.3
+# iKUN ship eval: two-α keyword routing (α=0 ≡ reproduced native 44.224)
+GMC_SUFFIX=_sw12d_groad_seed0_warm11 OUT_SUFFIX=_sw12d_groad_seed0_warm11 \
+    python run_ikun_linear_additive.py --alpha-mot 0.7 --alpha-app 0.1
 
-# α sweep across seeds → results/alpha_sweep_{arch}.{csv,json}
-python run_alpha_sweep.py --arch ikun  --alphas 0,0.1,0.2,0.3,0.5,0.7,1.0
-python run_alpha_sweep.py --arch fh_v1 --alphas 0,1,2,3,5,7,10
-python run_alpha_sweep.py --arch fh_v2 --alphas 0,1,2,3,5,7,10
+# FlexHook ship eval: single α. V1 needs the host's official 150-expr seqmap (A31);
+# OUT_SUFFIX must carry _off150 so official-list runs never mix with 158-list trees.
+FH_OFFICIAL_SEQMAP=$HOME/FlexHook/seqmaps/kitti-1.txt \
+    GMC_SUFFIX=_sw12d_groad_seed0_warm11 OUT_SUFFIX=_sw12d_groad_seed0_warm11_off150 \
+    python run_flexhook_phase5_gmc_sweep.py --alpha 7
+
+# LOSO α selection (fold runs; never read a fold result.json as a full-test number)
+python run_two_alpha_sweep.py --arch ikun --am ... --aa ...   # two-α, 2D grid
 ```
 
 ### Ablation Studies
@@ -71,10 +93,17 @@ pip install -e .
 
 ### Pipeline Stages
 
-**Stage 1 — Ego-Motion Compensation** (`gmc_link/core.py`):
-- `ORBHomographyEngine` extracts ORB features, matches BFMatcher (Hamming, Lowe's ratio=0.7), RANSAC homography estimate
-- Foreground mask prevent tracking object features instead static background
-- Output: 3×3 homography matrix map prev frame → current frame
+**Stage 1 — Ego-Motion Compensation** (`gmc_link/core.py`) — TWO parallel chains:
+- **Road-plane chain (SHIP, `GMC_GROUND_MODE=road`)**, `estimate_road_homography` (core.py:54-94):
+  Shi-Tomasi corners (`goodFeaturesToTrack`, maxCorners=600, qualityLevel=0.01) + pyramidal
+  Lucas-Kanade flow (winSize 21, maxLevel 3) on the lower half of the frame (road_band=0.5)
+  minus detection boxes; `findHomography(..., RANSAC, 3.0)`. NOT ORB — asphalt is too
+  low-texture for ORB. Returns None below 12 tracked points.
+- **Global chain (fallback + legacy ship)**: `ORBHomographyEngine` — ORB 1500 features,
+  BFMatcher (Hamming, Lowe 0.7), RANSAC 5.0px. Always computed; its step homography
+  substitutes when the road fit returns None (manager.py:291-303), so the chain never breaks.
+- Foreground mask prevents fitting to tracked objects instead of static background
+- Output: 3×3 homography mapping prev frame → current frame (one per chain)
 
 **Stage 2 — Cumulative Homography & Velocity** (`gmc_link/manager.py`):
 - `GMCLinkManager` store *original* (never-warped) centroid coords in history deques
@@ -92,10 +121,15 @@ pip install -e .
 - Train symmetric InfoNCE loss (`gmc_link/losses.py`). NOTE (audit 2026-08-13): ship stage-1 path has NO False-Negative Masking — default `AlignmentLoss` ignores `sentence_ids`; FNM-capable `HardNegativeInfoNCE` is blocked for stage 1 (see RESEARCH_NOTES §10 A1)
 - Language embeddings: SentenceTransformer (all-MiniLM-L6-v2, 384D) via `gmc_link/text_utils.py`
 
-**Stage 4 — Single-α Additive Fusion** (`run_ikun_linear_additive.py`, `run_flexhook_phase5_gmc_sweep.py`, `run_flexhook_v2_raw_sweep.py`):
-- Ship formula: `s_final = s_host + α · s_gmc` for ALL expressions (no class branching); detection gate frozen at native 0.0, so α=0 ≡ reproduced native baseline
-- One free hyperparam per arch (α), selected by LOSO from the α sweep (`run_alpha_sweep.py`)
-- Motion-keyword classifier retained ONLY for per-class HOTA grouping (MOVING/STATIC/APPEARANCE)
+**Stage 4 — Additive Fusion with class-conditional α** (`run_ikun_linear_additive.py`, `run_flexhook_phase5_gmc_sweep.py`, `run_flexhook_v2_raw_sweep.py`):
+- Ship formula: `s_final = s_host + α(expr) · s_gmc`; detection gate frozen at native 0.0, so α=0 ≡ reproduced native baseline
+- `α(expr) = α_mot` when the keyword classifier labels the canonical expression text MOVING or
+  STATIC, `α_app` when APPEARANCE. α_mot = α_app is bit-exact single-α.
+- iKUN: two-α (0.7 / 0.1) selected by LOSO (A32). **FlexHook V1/V2: per-host LOSO selects
+  α_mot = α_app, so both degenerate to a single α** (A35 — the α_app axis is unresolved on
+  both, and out-of-grid probes confirm the optimum is interior, not truncated).
+- Motion-keyword classifier ALSO used for per-class HOTA grouping (MOVING/STATIC/APPEARANCE);
+  for V2 grouping use canonical `raw_sentence`, never the paraphrased slug (A30)
 - Historical per-class recipe fusion (18 hyperparams) superseded 2026-08-10; recipes in git history
 - Legacy `gmc_link/fusion_head.py`: F1-optimized MLP — NOT ship, crashes HOTA (−3.79)
 
@@ -104,7 +138,8 @@ pip install -e .
 ```
 Video Frames
     ↓
-ORBHomographyEngine → frame-to-frame H matrices
+Road-plane chain (Shi-Tomasi + LK on road band)  →  H_road   [SHIP]
+ORBHomographyEngine (global)                     →  H_global [fallback when road fit fails]
     ↓
 GMCLinkManager → compose cumulative H, warp original coords, compute multi-scale residual velocity
     ↓
@@ -114,9 +149,10 @@ MotionLanguageAligner (shared_weight) ←── TextEncoder("moving cars") → 3
     ↓
 raw cosine ∈ [−1, +1]   (no sigmoid, no EMA)
     ↓
-Single-α additive fusion: s_final = s_host + α · raw_cos   (gate 0.0)
+Additive fusion: s_final = s_host + α(expr) · raw_cos   (gate 0.0)
+    iKUN: α_mot 0.7 / α_app 0.1  |  FlexHook: single α (routing degenerates, A35)
     ↓
-HOTA-eval (TrackEval per-arch consumer: iKUN / FH V1 / FH V2)
+HOTA-eval (TrackEval per-arch consumer: iKUN / FH V1 official-150 / FH V2)
 ```
 
 ### Training Data Pipeline (`gmc_link/dataset.py`)
@@ -134,12 +170,18 @@ HOTA-eval (TrackEval per-arch consumer: iKUN / FH V1 / FH V2)
 - InfoNCE temperature: `0.07` (`losses.py`)
 - EMA alphas: `MotionBuffer(α=0.3)`, `ScoreBuffer(α=0.4)` — score-side EMA/sigmoid removed from ship path 2026-08-10
 - Embedding dims (ship `shared_weight`): motion/lang 12D/384D → 256D (Linear adapter) → shared trunk 256→512→512→256. Legacy `mlp`: motion 12D → 256D → 512D → 256D, language 384D → 256D → 512D → 256D.
-- Ship fusion (2026-08-10): one α per arch, α* from LOSO sweep (pending); gate 0.0. Old locked recipes superseded (git history).
+- Ship fusion (Option B, locked 2026-08-19): road chain + `s_host + α(expr)·s_gmc`, gate 0.0.
+  α from LOSO: iKUN (α_mot 0.7, α_app 0.1); FlexHook V1/V2 single α (road-chain α\* pending).
+  Road homography RANSAC threshold is **3.0px** (global path is 5.0px). Old recipes superseded.
 - Legacy Fusion Head arch (NOT ship): 3→32→16→1 sigmoid output
 
 ### Project Layout Notes
 
-- Paper: `2027_ICASSP/gmc.tex` is the LIVE working file (v2, 12D/single-α — edit this one). The frozen Aug-5 v1 submission is archived at `paper/latex/mainv3.tex` (13D + ρ) — never edit, comparison only.
+- Paper: **`2027_ICASSP/gmc_v1.tex` is the LIVE working file** (since 2026-08-19, PR #22 —
+  edit this one). Pending corrections tracked in issues #23 (numeric/factual) and #24
+  (narrative). Paper prose is USER-LED: never edit the .tex autonomously; wait for the user to
+  say "開始寫" and write collaboratively. Superseded: `2027_ICASSP/gmc.tex` (previous live file)
+  and `paper/latex/mainv3.tex` (frozen Aug-5 submission) — comparison only, never edit.
 - `gmc_link/` — installable package (core library)
 - `run_*.py` — top-level experiment/eval scripts (not in package)
 - `build/` — stale `setuptools` build artifacts; do not edit

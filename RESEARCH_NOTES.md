@@ -509,7 +509,11 @@ ship except the depth-aug iKUN candidate (AUC-NEG → HOTA-POS, iKUN-only).
 
 ---
 
-## 9. Current Ship (2026-05-21)
+## 9. Current Ship (2026-05-21) — SUPERSEDED
+
+> **SUPERSEDED 2026-08-19 by Option B** (§10 A22–A36): road-plane ego chain on all three host
+> settings; iKUN two-α (0.7 / 0.1) 44.847 ± 0.107; FlexHook single α. This section documents the
+> 13D / 18-hyperparameter recipe ship and is kept for provenance.
 
 **Aligner:** `shared_weight` arch — per-modality Linear adapter (motion 13→256, lang
 384→256) → shared 2-hidden MLP (256→512→512→256) → LN → L2-norm. 628k params. Trained

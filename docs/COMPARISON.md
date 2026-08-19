@@ -16,6 +16,9 @@ right objects for a text query? Scored with HOTA (higher = better).
 
 ## 1. Main results — HOTA
 
+> **SUPERSEDED 2026-08-19** — this table predates Option B and the FlexHook V1 official-protocol
+> correction (A31). Current numbers: `CLAUDE.md` → Current ship.
+
 | host · dataset | host alone | + GMC-Link (no tuning) | gain | + GMC-Link (tuned) | published | vs published |
 |---|---|---|---|---|---|---|
 | iKUN · V1 | 44.224 | 44.272 ± 0.018 | **+0.048** | 44.634 ± 0.066 | 44.564 | **+0.070** ✓ |

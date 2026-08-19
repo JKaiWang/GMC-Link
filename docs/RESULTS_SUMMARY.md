@@ -1,5 +1,7 @@
 # GMC-Link — Canonical Results Summary
 
+> **SUPERSEDED 2026-08-19.** The current shipped configuration is **Option B** (road-plane ego chain on all three host settings; iKUN two-α 0.7/0.1, FlexHook single α). See `CLAUDE.md` → Current ship, `docs/SHIP_DECISION_2026_08_16.md`, and RESEARCH_NOTES §10 A22–A36. Everything below is kept for provenance and is NOT the current recipe.
+
 Single-source-of-truth reference for all ship numbers, baselines, paper anchors, and
 multi-seed statistics. Cite this file when writing the paper/thesis.
 

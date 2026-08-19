@@ -1,5 +1,7 @@
 # ARCHITECTURE.md — pipeline, data flow, constants, layout
 
+> **SUPERSEDED 2026-08-19.** The current shipped configuration is **Option B** (road-plane ego chain on all three host settings; iKUN two-α 0.7/0.1, FlexHook single α). See `CLAUDE.md` → Current ship, `docs/SHIP_DECISION_2026_08_16.md`, and RESEARCH_NOTES §10 A22–A36. Everything below is kept for provenance and is NOT the current recipe.
+
 Extracted from CLAUDE.md 2026-07-05.
 
 ## Pipeline stages

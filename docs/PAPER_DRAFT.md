@@ -1,5 +1,7 @@
 # GMC-Link: Ego-Motion-Compensated Geometric Reasoning as a Plug-and-Play Module for Referring Multi-Object Tracking
 
+> **SUPERSEDED 2026-08-19.** The current shipped configuration is **Option B** (road-plane ego chain on all three host settings; iKUN two-α 0.7/0.1, FlexHook single α). See `CLAUDE.md` → Current ship, `docs/SHIP_DECISION_2026_08_16.md`, and RESEARCH_NOTES §10 A22–A36. Everything below is kept for provenance and is NOT the current recipe.
+
 > **Status:** Working draft (scaffold). Numbers are sourced from the project ship/ablation records as of 2026-05-21. Items marked `[VERIFY]` need a citation, a re-run, or an author decision before submission.
 
 ---

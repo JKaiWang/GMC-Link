@@ -1,45 +1,60 @@
-# 論文數字包(2026-08-17)— gmc.tex 不在此修改;寫作由用戶發起
+# 論文數字包 — Option B(2026-08-19 更新)
 
-兩個 ship 選項的完整替換值。老師勾選後,取對應欄位。
-出處:RESEARCH_NOTES §10 A22–A34;pre-reg `docs/PREREG_*.md`;數據 `results/`。
+活稿 = `2027_ICASSP/gmc_v1.tex`。**論文文字由用戶主導,這裡只給數字與清單。**
+修改項目已開 issue:#23(數字/事實錯誤)、#24(論述修復)。
+出處:RESEARCH_NOTES §10 A22–A36;登記書 `docs/PREREG_*.md`;數據 `results/`。
+
+## 配置(2026-08-19 鎖定)
+
+三個 host 共用路面鏈(Shi-Tomasi + 金字塔 LK,下半幅畫面扣偵測框,RANSAC 3px;
+失敗回退全域 ORB)+ warm11 遮罩 + 無 EMA + raw cosine + 加性融合(門檻 0.0)。
 
 ## Table 1(主結果,pooled HOTA,n=3)
 
-| Host | native | 選項 A | 選項 B | 發表值對照 |
-|---|---|---|---|---|
-| iKUN | 44.224 | 44.656 ± 0.078 (α=0.5) | **44.847 ± 0.107** (α_mot=0.7, α_app=0.1) | paper-pure 44.564 |
-| FlexHook V1(官方 150 句協議) | **53.824(≡發表值)** | 54.011 ± 0.025 (α=7) | 同 A | 發表值 53.824 |
-| FlexHook V2 | 42.526(≡發表值) | 42.658 ± 0.030 (α=5) | 同 A | 發表值 42.526 |
+| Host | native(≡ α=0) | 發表值 | Option B |
+|---|---|---|---|
+| iKUN | 44.224 | 44.564 | **44.847 ± 0.107**(α_mot=0.7, α_app=0.1) |
+| FlexHook V1(官方 150 句) | 53.824 | 53.824 | 53.98 級 — **α\* 待路面鏈 LOSO** |
+| FlexHook V2 | 42.526 | 42.526 | 42.625 ± 0.032 @α=5 — **α\* 待路面鏈 LOSO** |
 
-iKUN per-class(native → A → B):MOVING 25.531 → 30.045 → **32.606**;
-STATIC 43.914 → 44.448 → 44.584;APPEAR 46.346 → 46.572 → 46.468。
+註:iKUN 的比較基準是發表值 44.564(我們的 α=0 = 44.224);FlexHook 兩行的發表值
+恰等於我們的 α=0。三行基準性質不同,Setup 要揭露一句。
 
-V2 per-class(canonical 分類,A30):MOVING +0.048 / STATIC +0.294 /
-APPEAR +0.125 / DIRECTION +0.021(全非負)。
+iKUN per-class(native → B):MOVING 25.531 → **32.606 ± 0.654**;
+STATIC 43.914 → 44.584 ± 0.122;APPEARANCE 46.346 → 46.468 ± 0.048。
 
-## Table 2(消融,iKUN,n=5,固定各選項 LOSO 選點)
+## Table 2(運動類增益,對應 tab:deficit)
 
-| 配置 | 選項 A pooled | A MOVING | 選項 B pooled | B MOVING |
-|---|---|---|---|---|
-| full | 44.649 ± 0.087 | 30.102 ± 0.132 | 44.803 ± 0.103 | 32.295 ± 0.632 |
-| −ego | 44.251 ± 0.128 **(−0.398, t=5.8)** | 28.213 **(−1.89, t=15.9)** | 44.166 ± 0.065 **(−0.637, t=11.7)** | 28.489 **(−3.81, t=11.8)** |
-| −multiscale | 44.442 ± 0.097 (−0.207, t=3.6) | 29.330 (−0.77, t=2.9) | 44.485 ± 0.024 (−0.318, t=6.7) | 30.449 (−1.85, t=6.2) |
+| Host | Baseline | 增益 | 分母 |
+|---|---|---|---|
+| iKUN | 25.531 | **+7.08 ± 0.65** | 27/158 |
+| FlexHook V1(官方名單) | 44.309 | +0.49 ± 0.21(sim 鏈值,路面鏈待更新) | 25/150 |
+| FlexHook V2(canonical 分類) | 38.154 | +0.05 ± 0.06(sim 鏈值,路面鏈待重算) | 136/862 |
 
-## FPS(CPU;負載中量測,論文前重量乾淨版)
+V2 的 slug 分類作廢(A30);canonical 四類全非負:MOVING +0.048 / STATIC +0.294 /
+APPEARANCE +0.125 / DIRECTION +0.021。
 
-sim 鏈 48.0 FPS / road 鏈 35.3 FPS(process-only,seq 0011,200 幀)。
+## Table 3(消融,iKUN,n=5,Option B 操作點)
 
-## 措辭修改清單(寫作期執行)
+| 配置 | MOVING | pooled |
+|---|---|---|
+| native | 25.531 | 44.224 |
+| full | **32.295 ± 0.632** | **44.803 ± 0.103** |
+| −ego | 28.489 ± 0.347(−3.81, t=11.8) | 44.166 ± 0.065(−0.64, t=11.7) |
+| −multiscale | 30.449 ± 0.198(−1.85, t=6.2) | 44.485 ± 0.024(−0.32, t=6.7) |
 
-1. **刪除** FH V1 reproduction-gap 段落 → 改「evaluated on the host's official
-   150-expression protocol」(A31);FH V1 α\* 2→7
-2. V2 表格改用 canonical 分類行(A30);slug 分類作廢
-3. A25 機制措辭:歸因已證(road chain),「繞過深度視差」降為假說
-   + 引 A29 訊號證據(0011 判別力 6×,seq-scoped)
-4. Oracle 結論 scope:「decision-level plug-in 體制內」的實用上限(A22/A26)
-5. 若選 B:方法節加 road 鏈定義 + 句型路由公式一行;robustness note
-   (fold 異質性 {0.2,1.5,0.5} 同型存在於兩鏈,median 規則吸收)
-6. Related work 增補:JustHook(= FlexHook 定稿名,CVPR 2026)、STORM(CVPR 2026,
-   MLLM 端到端)、LTTrack(PatCog 2026);VMRMOT 已引
-7. 不寫「突破天花板」——iKUN vs paper-pure 44.564 寫 parity(A)或 +0.28(B,~2σ)
-8. 部署段:per-class 全正 + FPS 數字 + MOVING = 安全攸關子集論述
+STATIC 欄:full 44.545 ± 0.107、−ego 43.702 ± 0.219、−multiscale 44.428 ± 0.061
+(native 43.914)。全欄位:`results/ablation_n5_hedge.json`。
+
+## FPS(A36,乾淨重量,CPU,seq 0011,n=500,8 次取暖機中位數)
+
+**路面鏈 31.8**(process-only)/ 全域鏈 42.8;含 I/O 24.5 / 31.1。
+ship 是路面鏈 ⇒ 論文用 **31.8**。舊值 48.0/35.3(有負載)與現稿 68 FPS 皆作廢。
+
+## 措辭清單(寫作期執行,行號對 `gmc_v1.tex`)
+
+見 issue #23 與 #24 的逐條清單。另外三項全域性的:
+
+1. Setup 補:三 host 共用路面鏈;α 由 per-host LOSO 選;FlexHook 退化為單 α(A35)。
+2. Related work 補 JustHook(= FlexHook 定稿名,CVPR 2026)、STORM、LTTrack;VMRMOT 已引。
+3. 不寫「突破天花板」——iKUN vs paper-pure 44.564 寫 +0.28(~2σ)。
