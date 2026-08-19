@@ -18,7 +18,9 @@ It bridges the gap between **object motion** (geometry) and **language** (semant
    - snr measures motion reliability and suppresses noisy tracks
 3. **Aligning motion with language** using a learned `shared_weight` aligner (two-tower, shared nonlinear core) to produce a raw-cosine match score.
 
-The score is then combined with a downstream tracker's own logits via **decision-level linear additive fusion** (`final = model_logit + α·(sc·raw_cos + thr)`). Current ship validates across 3 architectures (n=3 multi-seed): iKUN 44.634 ± 0.066 (+0.070 vs paper 44.564), FlexHook V1 53.526 ± 0.087, FlexHook V2 42.807 ± 0.038 (+0.281 vs paper) — **2/3 beat their paper anchors**. See [Current Ship](#current-ship-2026-05-21--3-architecture-cross-arch-validation) below for the locked recipes.
+The score is then combined with a downstream tracker's own logits via **decision-level additive fusion** (`s_final = s_host + α(expr)·s_gmc`, gate 0.0). Current ship (Option B, locked 2026-08-19, n=3 multi-seed, all α selected by leave-one-sequence-out): **iKUN 44.847 ± 0.107** (MOVING 32.606, +7.08 over native), **FlexHook V1 53.980 ± 0.059** on the host's official 150-expression protocol, **FlexHook V2 42.625 ± 0.032** — every host setting improves, and all three motion-class gains are significant. Ego motion is estimated from road-region correspondences on all three; see `CLAUDE.md` → Current ship for the exact recipe.
+
+> The 2026-05-21 numbers previously quoted here (iKUN 44.634 / FH V1 53.526 / FH V2 42.807, an 18-hyperparameter per-class recipe on 13D features) are superseded. They are kept below for provenance.
 
 > **Note (historical):** An earlier learned-fusion-head era reported a +8.4% F1 gain (0.5730 → 0.6569) fused with iKUN. That F1-optimized MLP head was later falsified — it crashes pooled HOTA (−3.79) — and is superseded by the linear additive fusion above. The fusion head is retained only as legacy code.
 
