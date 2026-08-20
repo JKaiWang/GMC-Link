@@ -6,8 +6,6 @@
 \usepackage{spconf,amsmath,graphicx}
 \usepackage{multirow}              % per-host recipe table
 \usepackage{microtype}             % kills sub-3pt overfull, polishes justification
-\usepackage{tikz}                  % Fig 1 pipeline + Fig 2 ego-motion schematic (self-contained, no asset)
-\usetikzlibrary{arrows.meta,positioning,fit,backgrounds}
 \usepackage{csquotes}
 \usepackage{comment}
 \usepackage{xcolor}
@@ -46,7 +44,7 @@
 %	Address C-D}
 %
 \begin{document}
-%\ninept
+\ninept
 %
 \maketitle
 %
@@ -114,38 +112,8 @@ These methods demonstrate that compensating for camera motion can improve tracki
 
 \section{Method}
 \label{sec:method}
-Figure~\ref{fig:architecture} shows the proposed RMOT framework with the global motion compensation (GMC) module. The GMC module is attached to a two-stage RMOT method, iKUN~\cite{ikun} in this case. iKUN performs object detection and tracking and then outputs appearance-language matching scores. The inputs to the GMC module are the sequence of object bounding boxes across frames, the video frames, and the language expression. Based on these inputs, the GMC module estimates camera motion, extracts residual object motion, aligns it with the language expression, and produces a matching score. The score is then combined with the host model's predicted score, as an embodiment of the late fusion scheme. The complete pipeline of the GMC module is illustrated in Figure~\ref{fig:pipeline}, which consists of four stages: ego-motion compensation, multi-scale residual velocity extraction, motion-language alignment, and late fusion. 
+Figure~\ref{fig:architecture} shows the proposed RMOT framework with the global motion compensation (GMC) module. The GMC module is attached to a two-stage RMOT method, iKUN~\cite{ikun} in this case. iKUN performs object detection and tracking and then outputs appearance-language matching scores. The inputs to the GMC module are the sequence of object bounding boxes across frames, the video frames, and the language expression. Based on these inputs, the GMC module estimates camera motion, extracts residual object motion, aligns it with the language expression, and produces a matching score. The score is then combined with the host model's predicted score, as an embodiment of the late fusion scheme. The module consists of four stages: ego-motion compensation, multi-scale residual velocity extraction, motion-language alignment, and late fusion.
 
-\begin{figure}
-\centering
-\begin{tikzpicture}[
-  font=\scriptsize,
-  node distance=2.6mm,
-  box/.style={draw, rounded corners, align=center, inner sep=2.5pt,
-              text width=0.55\linewidth, minimum height=5.5mm},
-  sbox/.style={draw, rounded corners, align=center, inner sep=2.5pt, fill=black!4,
-               text width=0.28\linewidth, minimum height=5.5mm},
-  ar/.style={-{Latex[length=1.6mm]}, semithick}
-]
-\node[box] (frames) {\textcolor{red}{Driver-view frames $I_{t-1},\,I_t$}};
-\node[box, below=of frames] (orb) {\textcolor{red}{Road-region ORB correspondences\\ BFMatcher + RANSAC $\Rightarrow H_{t-1\to t}$}};
-\node[box, below=of orb] (cum) {Compose cumulative $H_{t-k\to t}$;\\ warp original centroids};
-\node[box, below=of cum] (desc) {\textcolor{red}{12D residual velocity}\\ gaps $\{2,5,10\}$ + box state};
-\node[box, below=of desc] (align) {Motion-language alignment\\ $\Rightarrow$ cosine score};
-\node[box, below=of align] (fuse) {\textcolor{red}{Expression-aware fusion\\ $s_{\text{host}}+\alpha s_{\text{gmc}}$}};
-\node[box, below=of fuse] (hota) {Final prediction};
-\node[sbox, right=4mm of align] (text) {Expression\\ $\to$ text encoder 384D};
-\draw[ar] (frames)--(orb);
-\draw[ar] (orb)--(cum);
-\draw[ar] (cum)--(desc);
-\draw[ar] (desc)--(align);
-\draw[ar] (align)--(fuse);
-\draw[ar] (fuse)--(hota);
-\draw[ar] (text)--(align);
-\end{tikzpicture}
-\caption{\textbf{GMC-Link pipeline.} \textcolor{red}{ORB homographies estimated from road-region features} compose into a cumulative transform, produce a 12D residual-motion feature, align with the expression, and correct the host score through expression-aware late fusion.}
-\label{fig:pipeline}
-\end{figure}
 
 \subsection{Ego-motion compensation}
 \label{sec:ego}
@@ -224,14 +192,14 @@ Table~\ref{tab:main} summarizes the pooled HOTA results on the Refer-KITTI datas
 Host & \textcolor{red}{Published} & \textcolor{red}{GMC-Link} & Gain \\
 \hline
 iKUN~\cite{ikun}        & \textcolor{red}{44.564} & \textcolor{red}{44.847 $\pm$ 0.107} & \textcolor{red}{$+0.283$} \\
-FlexHook V1~\cite{flexhook}  & \textcolor{red}{53.824} & \textcolor{red}{54.011 $\pm$ 0.025} & \textcolor{red}{$+0.187$} \\
-FlexHook V2~\cite{flexhook}  & \textcolor{red}{42.526} & \textcolor{red}{42.658 $\pm$ 0.030} & \textcolor{red}{$+0.132$} \\
+FlexHook V1~\cite{flexhook}  & \textcolor{red}{53.824} & \textcolor{red}{53.980 $\pm$ 0.059} & \textcolor{red}{$+0.156$} \\
+FlexHook V2~\cite{flexhook}  & \textcolor{red}{42.526} & \textcolor{red}{42.625 $\pm$ 0.032} & \textcolor{red}{$+0.099$} \\
 \hline
 \end{tabular}
 \end{table}
 
 
-Table~\ref{tab:deficit} reports HOTA variations for movement-related expressions. \textcolor{red}{The largest improvement is observed for iKUN ($+7.08\pm0.65$), while FlexHook V1 improves by $+0.49\pm0.21$ and FlexHook V2 remains nearly unchanged ($+0.01\pm0.03$).}
+Table~\ref{tab:deficit} reports HOTA variations for movement-related expressions. \textcolor{red}{All three host settings improve, and the size of the improvement differs by an order of magnitude: iKUN gains $+7.08\pm0.65$, FlexHook V1 $+0.67\pm0.13$, and FlexHook V2 $+0.18\pm0.06$.}
 
 %In our evaluated settings, this trend suggests that GMC-Link is most beneficial for host models with weaker motion understanding. When the host model already distinguishes camera motion from object motion reasonably well, the proposed module provides only a small improvement. Conversely, when the host struggles with motion grounding, GMC-Link can effectively compensate for this limitation and achieve a larger performance gain.
 
@@ -239,7 +207,7 @@ Table~\ref{tab:deficit} reports HOTA variations for movement-related expressions
 
 \begin{table}
 \centering
-\caption{Performance variations specific to movement-related expressions.}
+\caption{\textcolor{red}{Moving-class HOTA on movement-related expressions ($27/158$ for iKUN, $25/150$ for FlexHook V1, $136/862$ for FlexHook V2), $n{=}3$ seeds.}}
 \label{tab:deficit}
 \small
 \setlength{\tabcolsep}{2pt}
@@ -248,15 +216,15 @@ Table~\ref{tab:deficit} reports HOTA variations for movement-related expressions
 \textcolor{red}{Host} & \textcolor{red}{Baseline} & \textcolor{red}{Performance gain} \\
 \hline
 \textcolor{red}{iKUN} & \textcolor{red}{25.53} & \textcolor{red}{$+7.08\pm0.65$} \\
-\textcolor{red}{FlexHook V1} & \textcolor{red}{44.31} & \textcolor{red}{$+0.49\pm0.21$} \\
-\textcolor{red}{FlexHook V2} & \textcolor{red}{48.01} & \textcolor{red}{$+0.01\pm0.03$} \\
+\textcolor{red}{FlexHook V1} & \textcolor{red}{44.31} & \textcolor{red}{$+0.67\pm0.13$} \\
+\textcolor{red}{FlexHook V2} & \textcolor{red}{38.15} & \textcolor{red}{$+0.18\pm0.06$} \\
 \hline
 \end{tabular}
 \end{table}
 
 \subsection{\textcolor{red}{Ablation Studies}}
 \label{sec:ablation}
-\textcolor{red}{Table~\ref{tab:ablation} reports the five-seed ablation measurements on iKUN. The full module improves MOVING HOTA from $25.53$ to $32.30\pm0.63$ and STATIC HOTA from $44.22$ to $44.80\pm0.10$. Removing ego-motion compensation reduces MOVING and STATIC HOTA to $28.49$ and $44.17$, respectively, while removing the multi-scale gaps gives $30.45$ and $44.49$. These results support the contribution of both components.}
+\textcolor{red}{Table~\ref{tab:ablation} reports the five-seed ablation measurements on iKUN. The full module improves moving-class HOTA from $25.53$ to $32.30\pm0.63$ and pooled HOTA from $44.22$ to $44.80\pm0.10$. Removing ego-motion compensation costs $-3.81$ moving-class and $-0.64$ pooled HOTA; removing the multi-scale gaps costs $-1.85$ and $-0.32$. Both drops are significant under Welch's $t$-test, and ego-motion compensation accounts for the larger share.}
 
 \begin{table}
 \centering
@@ -270,8 +238,8 @@ Table~\ref{tab:deficit} reports HOTA variations for movement-related expressions
 \hline
 \textcolor{red}{Native host (no module)} & \textcolor{red}{25.53} & \textcolor{red}{44.22} \\
 \textcolor{red}{Full module} & \textcolor{red}{\textbf{32.30 $\pm$ 0.63}} & \textcolor{red}{\textbf{44.80 $\pm$ 0.10}} \\
-\textcolor{red}{$-$ego (raw velocity)} & \textcolor{red}{28.49 $\pm$ 0.65} & \textcolor{red}{44.17 $\pm$ 0.12} \\
-\textcolor{red}{$-$multiscale (single gap)} & \textcolor{red}{30.45 $\pm$ 0.67} & \textcolor{red}{44.49 $\pm$ 0.11} \\
+\textcolor{red}{$-$ego (raw velocity)} & \textcolor{red}{28.49 $\pm$ 0.35} & \textcolor{red}{44.17 $\pm$ 0.07} \\
+\textcolor{red}{$-$multiscale (single gap)} & \textcolor{red}{30.45 $\pm$ 0.20} & \textcolor{red}{44.49 $\pm$ 0.02} \\
 \hline
 \end{tabular}
 \end{table}
