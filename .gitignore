@@ -275,7 +275,10 @@ gmc_link/depth_cache_lidar/
 
 # LaTeX build artifacts (2027 ICASSP paper v2)
 2027_ICASSP/*.aux
+2027_ICASSP/*.bbl
 2027_ICASSP/*.blg
+2027_ICASSP/*.fdb_latexmk
+2027_ICASSP/*.fls
 2027_ICASSP/*.log
 2027_ICASSP/*.out
 2027_ICASSP/*.synctex.gz
