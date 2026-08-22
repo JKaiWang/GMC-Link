@@ -155,7 +155,7 @@ The matching score is combined with the prediction score of the host RMOT model 
   \textcolor{red}{s_{\mathrm{final}} = s_{\mathrm{host}} + \alpha_{c}\,s_{\mathrm{gmc}}},
   \label{eq:fusion}
 \end{equation}
-where $s_{\mathrm{host}}$ is the prediction score produced by the host model \textcolor{red}{and $c\in\{\mathrm{mot},\mathrm{app}\}$ is the category of the referring expression, assigned by a keyword classifier: motion-related expressions receive the weight $\alpha_{\mathrm{mot}}$ and appearance-related ones $\alpha_{\mathrm{app}}$. Because host models produce scores over different ranges, both weights are selected per host by leave-one-sequence-out cross-validation: for each fold the weight with the highest pooled HOTA is chosen on all but one sequence, and the final value is the median over folds. This yields $(\alpha_{\mathrm{mot}},\alpha_{\mathrm{app}})=(0.7,0.1)$ on iKUN, whereas on both FlexHook settings the procedure selects $\alpha_{\mathrm{mot}}=\alpha_{\mathrm{app}}$ ($7$ on V1 and $5$ on V2), so the routing degenerates to a single weight. Setting $\alpha(e)=0$ recovers the native host exactly.}
+where $s_{\mathrm{host}}$ is the prediction score produced by the host model \textcolor{red}{and $c\in\{\mathrm{MOVING},\mathrm{STATIC},\mathrm{APPEARANCE}\}$ is the category of the referring expression, assigned by a keyword classifier. MOVING and STATIC expressions use the motion-oriented weight $\alpha_{\mathrm{mot}}$, while APPEARANCE expressions use the appearance-oriented weight $\alpha_{\mathrm{app}}$. Because host models produce scores over different ranges, both weights are selected per host by leave-one-sequence-out cross-validation: for each fold the weight with the highest pooled HOTA is chosen on all but one sequence, and the final value is the median over folds. This yields $(\alpha_{\mathrm{mot}},\alpha_{\mathrm{app}})=(0.7,0.1)$ on iKUN, whereas on both FlexHook settings the procedure selects $\alpha_{\mathrm{mot}}=\alpha_{\mathrm{app}}$ ($7$ on V1 and $5$ on V2), so the routing degenerates to a single weight. Setting $\alpha_c=0$ recovers the native host exactly.}
 
 
 Since the GMC module only adds extra influence on the final prediction score, it can be integrated into existing two-stage RMOT frameworks without changing or retraining their detector, tracker, visual encoder, or language encoder.
@@ -224,11 +224,11 @@ Table~\ref{tab:deficit} reports HOTA variations for movement-related expressions
 
 \subsection{\textcolor{red}{Ablation Studies}}
 \label{sec:ablation}
-\textcolor{red}{Table~\ref{tab:ablation} reports the five-seed ablation measurements on iKUN. The full module improves moving-class HOTA from $25.53$ to $32.30\pm0.63$ and pooled HOTA from $44.22$ to $44.80\pm0.10$. Removing ego-motion compensation costs $-3.81$ moving-class and $-0.64$ pooled HOTA; removing the multi-scale gaps costs $-1.85$ and $-0.32$. Both drops are significant under Welch's $t$-test, and ego-motion compensation accounts for the larger share.}
+\textcolor{red}{Table~\ref{tab:ablation} reports the five-seed ablation measurements on iKUN. The full module improves moving-class HOTA from $25.53$ to $32.30\pm0.63$ and pooled HOTA from $44.22$ to $44.80\pm0.10$. The full module also improves STATIC HOTA from $43.91$ to $44.55$; without ego compensation it falls to $43.70$, below the native host, while removing the multi-scale gaps gives $44.43$. Removing ego-motion compensation costs $-3.81$ moving-class and $-0.64$ pooled HOTA; removing the multi-scale gaps costs $-1.85$ and $-0.32$. Both drops are significant under Welch's $t$-test, and ego-motion compensation accounts for the larger share.}
 
 \begin{table}
   \centering
-  \caption{\textcolor{red}{Per-class HOTA ablation on iKUN.}}
+  \caption{\textcolor{red}{Per-class HOTA ablation on iKUN ($n{=}5$ seeds).}}
   \label{tab:ablation}
   \small
   \setlength{\tabcolsep}{2pt}
