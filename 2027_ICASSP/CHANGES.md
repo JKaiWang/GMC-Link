@@ -1,67 +1,67 @@
-# Paper change log
+# 論文變更記錄
 
-One section per paper snapshot (= release tag). Newest first. Every line is tagged:
+每個論文快照(= release tag)一段,新的在上。每一條都掛標籤:
 
-- **[method]** — the module itself changed; all affected numbers were re-measured
-- **[protocol]** — the evaluation was wrong or dirty; fixed, then re-measured
-- **[writing]** — the text mis-described what the code always did
-- **[editorial]** — presentation only; no number changed
+- **[方法]** — 模組本身改了;受影響的數字全部重測
+- **[協議]** — 評測方式有錯或不乾淨;修正後重測
+- **[筆誤]** — 稿子寫錯,程式一直是對的
+- **[編輯]** — 只動呈現方式,數字不變
 
-Evidence pointers: `A<n>` = RESEARCH_NOTES.md §10 ledger row; files under `results/` and `docs/PREREG_*.md`.
-
----
-
-## paper-2026-08-22 — `gmc_v1.tex` (vs `gmc.tex`)
-
-Configuration: **Option B, locked 2026-08-19** (`docs/SHIP_DECISION_2026_08_16.md`) — road-plane ego chain on all three host settings, warm11 mask, no motion EMA, raw cosine, category-weighted additive fusion.
-
-### [method] — configuration changed, experiments re-run
-
-Each entry: what changed → **why it helps** → measured effect.
-
-- **Warmup validity mask (warm11).** 25.1% of test track-frames lack the long-gap history the velocity dims need; their slots were zero-filled, and zero velocity reads as "stationary", so early-track moving objects were fused with a confidently wrong motion score at full α (A3). Masking makes the module abstain there — the host score passes through untouched instead of being corrupted. iKUN pooled +0.122.
-- **Inference-only MotionBuffer EMA removed.** The EMA (α = 0.3) smoothed the velocity features at inference, but training always saw raw features — a train/inference feature-distribution mismatch the aligner was never fitted for (A2). Removing it puts inference back on the distribution the model was trained on. +0.022 together with the similarity-ego cleanup.
-- **Ego estimator: global-ORB homography → road-plane chain** (Shi-Tomasi corners + pyramidal Lucas-Kanade on the lower half-frame, RANSAC 3 px; global ORB kept only as fallback). Why: a homography is exact only for a plane, and the global chain fits one over background points at many depths (buildings, poles, parked cars), so parallax biases the ego estimate; the road band is close to a single plane, making the fit geometrically valid. The attribution 2×2 (A25) shows the mechanism is the road-plane *chain*, not the ground-contact point: road-only recovers MOVING +1.458 (t = 3.9), point-only +0.180 (t ≈ 0). Probe A29 locates *where* it helps: the road chain restores moving-expression score separation precisely on the sequence where the global-chain signal is near-zero (seq 0011: per-frame separation 0.022 → 0.135, 6×; matching 0011's largest per-seq MOVING gain, +2.23, A28). Road fit succeeds on 2,065/2,065 eval frame pairs; the fallback never fires (`results/road_fallback_rate.json`).
-- **Fusion: single α → category weight α_c** (keyword classes MOVING/STATIC → α_mot, APPEARANCE → α_app). Why: the module emits a *motion* signal; on appearance expressions ("black cars") that signal is noise for a host that never looks at motion, so one shared α must trade motion gain against appearance damage. Splitting the weight lets α_app suppress the noise while α_mot keeps the gain — which is why it only helps the motion-blind host: LOSO selects (0.7, 0.1) on iKUN (A32), while FlexHook's backbone already models motion, its appearance expressions are not hurt by the signal, and LOSO selects α_mot = α_app (7 / 5) — the routing degenerates (A35). Control: two-α on the *old* chain gains only +0.016 — the improvement comes from the road-chain × routing combination, not from routing alone.
-- **All three hosts unified on the road chain** (A37): pooled −0.03 on each FlexHook setting, in exchange the moving-class gain nearly doubles on V1 (+0.49 → +0.67) and quadruples on V2 (+0.048 → +0.184, now t = 5.6) — consistent with the A29 mechanism: the road chain sharpens moving/static score separation, which the moving class collects and the pooled metric barely sees.
-- Resulting headline numbers: iKUN 44.847 ± 0.107, FH V1 53.980 ± 0.059, FH V2 42.625 ± 0.032 — all three above the hosts' published pooled HOTA.
-
-### [protocol] — evaluation fixed, then re-measured
-
-- FH V1 expression list: 158 (8 malformed entries included) → official 150. Reproduced native moves 53.110 → **53.824 = published**; the "reproduction gap" footnote in the old Table 1 is gone because the gap was an eval-list artifact (A31).
-- V2 per-class grouping: paraphrase-slug classification (108/862 misassigned) → canonical `raw_sentence`. MOVING baseline 48.02 → 38.15 and the gain flips from −0.07 to +0.18 (A30, A4).
-- FPS: old 68 was a dirty measurement; clean process-only CPU re-measure gives road 31.8 / global 42.8 (A36). Paper reports 31.8.
-- LOSO: from a post-hoc robustness check to the selection procedure itself, on a dense un-censored grid (A24, A37). No weight is chosen on the sequence it is evaluated on.
-- Ablation re-based at the Option-B operating point, n = 5 (A34): −ego −3.81 MOVING / −0.64 pooled (both t ≈ 11.8), −multiscale −1.85 / −0.32.
-
-### [writing] — text was wrong, code was always right
-
-- §3.2 ego velocity: the old text defined it as the distance between the warped and the *current* centroid — that quantity is the residual, making eq. (residual = raw − residual) self-contradictory. Corrected to the ego displacement $\hat{o}_t - o_{t-g}$ (`gmc_link/manager.py:385`).
-
-### [editorial]
-
-- Layout: `\ninept` enabled; the tikz pipeline figure deleted (duplicated the architecture figure). 6 pages → 5, page 5 references-only.
-- Method renamed GMC-Link → **GMC Module** throughout.
-- Architecture figure redrawn in Excalidraw (`figures/Architecture.excalidraw`), replacing the PowerPoint source; fixes two mislabeled language-branch vectors, adds the fusion weight to the feedback arrow, draws the host score as a scalar (arrow label) instead of a vector slab.
-- Related work: `mlstrack`/`cdrmot`/`tellmewhat` out, STORM in (verified against CVPR 2026 Findings); LTTrack not cited — no verifiable source found.
-- Setup: baseline disclosure (reproduced iKUN 44.224 vs published 44.564), both estimators' parameters, seeds/protocol sentence.
-- Limitations rewritten to three documented items: road-plane assumption + fallback, keyword misrouting (14/126 V1 direction expressions), FlexHook single-weight degeneration.
-- Abstract now carries the headline numbers; 67 red change-markers stripped (PDF text verified identical).
-- Kept cut by author decision: trend-explanation paragraph, n=3 hedge, TempRMOT scope paragraph, ablation contribution bullet.
+證據指標:`A<n>` = RESEARCH_NOTES.md §10 帳本行;`results/` 下的 JSON 與 `docs/PREREG_*.md`。
 
 ---
 
-## paper-2026-08-19 — `gmc.tex` (vs `paper/latex/mainv3.tex`, the 2026-08-05 MMAsia submission)
+## paper-2026-08-22 — `gmc_v1.tex`(對 `gmc.tex`)
 
-ICASSP port of the paper onto the 2026-08-10 simplified configuration ("Option A precursor": 12D, single α, global-ORB similarity chain).
+配置:**Option B,2026-08-19 拍板**(`docs/SHIP_DECISION_2026_08_16.md`)— 三個 host 設定統一路面 ego 鏈、warm11 遮罩、無 motion EMA、raw cosine、類別權重加法融合。
 
-### [method]
+### [方法] — 配置改了,實驗重跑
 
-- Motion feature 13D → **12D**: the ρ (residual-to-background SNR) slot removed after ablation showed no HOTA cost (professor-directed simplification, 2026-08-10).
-- Fusion: per-class recipe $s_{host} + \alpha(sc\cdot\cos + thr)$ with per-host motion/appearance axes (~18 hand-tuned hyperparameters) → **single additive weight** $s_{host} + \alpha\,s_{gmc}$, LOSO-selected (0.5 / 2 / 5). Score-side sigmoid + EMA removed; raw cosine.
-- Resulting numbers: iKUN 44.512 ± 0.104, FH V1 53.157 ± 0.022 (against reproduced 53.110), FH V2 42.684 ± 0.058.
+每條格式:改了什麼 → **為什麼會變好** → 量到多少。
 
-### [editorial]
+- **Warmup 有效性遮罩(warm11)。** 測試軌跡有 25.1% 的 track-frame 缺長 gap 歷史,速度槽位被補零 —— 零速度會被讀成「靜止」,於是剛出現的移動物件被一個很有信心的錯誤運動分數用全額 α 融合進去(A3)。遮罩讓模組在這些幀棄權,host 分數原封通過而不是被污染。iKUN pooled +0.122。
+- **移除推論期 MotionBuffer EMA。** EMA(α=0.3)在推論時平滑速度特徵,但訓練看的一直是原始特徵 —— 訓練/推論特徵分布不一致,對齊器從沒學過平滑後的分布(A2)。移除後推論回到模型受訓的分布上。與 similarity-ego 清理合計 +0.022。
+- **Ego 估計器:全域 ORB 單應性 → 路面鏈**(下半幅畫面 Shi-Tomasi 角點 + 金字塔 Lucas-Kanade 光流,RANSAC 3px;全域 ORB 只留作回退)。為什麼:單應性只對平面精確,全域鏈把它擬合在多種深度的背景點上(建築、桿子、停放車輛),視差會偏移 ego 估計;路面帶接近單一平面,擬合在幾何上才成立。歸因 2×2(A25)證明機制是路面「鏈」本身而非地面接觸點:只換路面鏈回收 MOVING +1.458(t=3.9),只換接觸點 +0.180(t≈0)。探針 A29 定位它在哪裡起作用:路面鏈恰好在全域鏈訊號近乎歸零的序列上修復了運動句的分數判別力(seq 0011:逐幀分離度 0.022 → 0.135,6 倍;對應 0011 最大的單序列 MOVING 增益 +2.23,A28)。路面擬合在 2,065/2,065 對評測幀全部成功,回退從未觸發(`results/road_fallback_rate.json`)。
+- **融合:單一 α → 類別權重 α_c**(關鍵字類別 MOVING/STATIC → α_mot,APPEARANCE → α_app)。為什麼:模組發出的是「運動」訊號;對一個完全不看運動的 host 來說,這個訊號在外觀句(「black cars」)上是噪聲,單一 α 只能在運動增益和外觀損傷之間折衷。拆成兩個權重後,α_app 壓噪聲、α_mot 保增益 —— 這也解釋為什麼只有運動盲的 host 受益:LOSO 在 iKUN 選出 (0.7, 0.1)(A32);FlexHook 底層本來就建模運動,外觀句不會被這個訊號傷到,LOSO 選出 α_mot = α_app(7 / 5),分流退化(A35)。對照組:雙權重放在「舊」鏈上只 +0.016 —— 改善來自路面鏈 × 分流的組合,不是分流單獨的功勞。
+- **三個 host 統一路面鏈**(A37):FlexHook 兩設定 pooled 各付 −0.03,換到運動類增益 V1 近乎翻倍(+0.49 → +0.67)、V2 翻四倍(+0.048 → +0.184,t=5.6 顯著)—— 與 A29 的機制一致:路面鏈銳化運動/靜止的分數分離,運動類收割這個效果,pooled 幾乎看不見。
+- **定案數字**:iKUN 44.847 ± 0.107、FH V1 53.980 ± 0.059、FH V2 42.625 ± 0.032 —— 三行全部超過 host 的發表 pooled HOTA。
 
-- New ICASSP workspace (`2027_ICASSP/`), spconf template; MMAsia draft frozen as `paper/latex/mainv3.tex`.
-- Several analysis paragraphs commented out during the port (LOSO, TempRMOT scope, trend explanation, GPS/IMU); their disposition was settled in the 2026-08-22 pass (issues #23/#24).
+### [協議] — 評測修正後重測
+
+- **FH V1 句子名單**:158(含 8 條格式異常句)→ 官方 150。重現 native 從 53.110 變 **53.824 = 發表值**;舊 Table 1 的「重現落差」註腳消失,因為落差是名單錯誤的產物(A31)。
+- **V2 逐類分組**:改寫 slug 分類(108/862 句分錯)→ canonical `raw_sentence`。MOVING baseline 48.02 → 38.15,增益從 −0.07 翻正為 +0.18(A30、A4)。
+- **FPS**:舊值 68 是髒量測;乾淨重測(process-only、CPU)路面鏈 31.8 / 全域鏈 42.8(A36)。論文報 31.8。
+- **LOSO**:從事後穩健性檢查變成選點程序本身,搜索格加密且無截斷(A24、A37)。任何權重都不在自己被評測的序列上選。
+- **消融重定基**在 Option B 工作點,n=5(A34):−ego 為 MOVING −3.81 / pooled −0.64(t≈11.8),−multiscale −1.85 / −0.32。
+
+### [筆誤] — 稿子錯,程式一直對
+
+- **§3.2 ego 速度定義**:舊稿寫成 warp 後質心與「當前」質心的距離 —— 那個量是殘差本身,使公式變成「殘差 = 原始 − 殘差」的自我矛盾。改為 ego 位移 $\hat{o}_t - o_{t-g}$(`gmc_link/manager.py:385`)。
+
+### [編輯]
+
+- 版面:開 `\ninept`;刪 tikz 流程圖(與架構圖重複)。6 頁 → 5 頁,第 5 頁純參考文獻。
+- 方法名全篇 GMC-Link → **GMC Module**。
+- 架構圖改用 Excalidraw 重繪(`figures/Architecture.excalidraw`),取代 PowerPoint 源;修正語言分支兩處誤標成 Motion 的向量、回饋箭頭補上融合權重、host 分數從向量條改為純量(箭頭標籤)。
+- 文獻:刪 `mlstrack`/`cdrmot`/`tellmewhat`,加 STORM(對 CVPR 2026 Findings 核對過);LTTrack **不引用** —— 查無可信來源。
+- Setup:基準揭露(重現 iKUN 44.224 vs 發表 44.564)、兩條估計鏈的參數、seeds 與協議句。
+- 限制段改寫成三條可查證項目:路面平面假設 + 回退、關鍵字誤路由(V1 方向句 14/126)、FlexHook 雙權重退化。
+- 摘要補上代表數字;67 個紅字標記全部拆除(PDF 文字逐字元驗證未變)。
+- 作者拍板維持刪除:趨勢解釋段、n=3 但書、TempRMOT 範圍段、消融支撐的貢獻條目。
+
+---
+
+## paper-2026-08-19 — `gmc.tex`(對 `paper/latex/mainv3.tex`,2026-08-05 MMAsia 投稿版)
+
+論文移植到 2026-08-10 簡化配置(「Option A 前身」:12D、單一 α、全域 ORB similarity 鏈)的 ICASSP 版。
+
+### [方法]
+
+- **運動特徵 13D → 12D**:ρ(殘差對背景 SNR)槽位移除,消融顯示無 HOTA 代價(教授指示的簡化,2026-08-10)。
+- **融合:逐類配方 $s_{host} + \alpha(sc\cdot\cos + thr)$**(每 host 運動/外觀兩軸,約 18 個手調超參數)→ **單一加法權重** $s_{host} + \alpha\,s_{gmc}$,LOSO 選點(0.5 / 2 / 5)。分數側 sigmoid + EMA 移除;raw cosine。
+- 當時數字:iKUN 44.512 ± 0.104、FH V1 53.157 ± 0.022(對重現值 53.110)、FH V2 42.684 ± 0.058。
+
+### [編輯]
+
+- 新開 ICASSP 工作區(`2027_ICASSP/`),spconf 模板;MMAsia 稿凍結為 `paper/latex/mainv3.tex`。
+- 移植時多段分析被註解(LOSO、TempRMOT 範圍、趨勢解釋、GPS/IMU);去留在 2026-08-22 那輪定案(issue #23/#24)。
