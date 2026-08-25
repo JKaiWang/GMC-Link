@@ -178,11 +178,12 @@ HOTA-eval (TrackEval per-arch consumer: iKUN / FH V1 official-150 / FH V2)
 
 ### Project Layout Notes
 
-- Paper: **`2027_ICASSP/gmc_v1.tex` is the LIVE working file** (since 2026-08-19, PR #22 —
+- Paper: **`2027_ICASSP/gmc_v2.tex` is the LIVE working file** (since 2026-08-25 —
   edit this one). Pending corrections tracked in issues #23 (numeric/factual) and #24
   (narrative). Paper prose is USER-LED: never edit the .tex autonomously; wait for the user to
-  say "開始寫" and write collaboratively. Superseded: `2027_ICASSP/gmc.tex` (previous live file)
-  and `paper/latex/mainv3.tex` (frozen Aug-5 submission) — comparison only, never edit.
+  say "開始寫" and write collaboratively. Superseded: `2027_ICASSP/gmc_v1.tex`
+  (paper-2026-08-22 release), `2027_ICASSP/gmc.tex`, and `paper/latex/mainv3.tex` (frozen
+  Aug-5 submission) — comparison only, never edit.
 - `gmc_link/` — installable package (core library)
 - `run_*.py` — top-level experiment/eval scripts (not in package)
 - `build/` — stale `setuptools` build artifacts; do not edit
