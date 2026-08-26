@@ -270,37 +270,41 @@ class GMCLinkManager:
         use_bottom = use_ground or _gmode == "point"   # bottom-center warp point
         if update_state:
             if self.prev_frame is not None:
-                # Estimate H_{t-1 -> t} and background warp residual
-                H_prev_to_curr, _ = self.ego_engine.estimate_homography(
-                    self.prev_frame, frame, self.prev_detections
-                )
-
-                # Update ALL cumulative homographies by composing with new homography
-                updated_homographies = deque(maxlen=self.frame_gap + 1)
-                for H_old in self.homography_buffer:
-                    # H_old maps frame[t_old] -> frame[t-1]
-                    # H_prev_to_curr maps frame[t-1] -> frame[t]
-                    # Composition: frame[t_old] -> frame[t]
-                    H_cumulative = H_prev_to_curr @ H_old
-                    updated_homographies.append(H_cumulative)
-
-                # Current frame has identity homography (maps to itself)
-                updated_homographies.append(np.eye(3, dtype=np.float32))
-                self.homography_buffer = updated_homographies
-
                 if use_road:
-                    # Parallel road-plane chain; fall back to the global step H
-                    # when the road fit fails (keeps the chain alive).
+                    # Road-plane chain (ship). The global step H is estimated
+                    # LAZILY — only when the road fit returns None, which has
+                    # never happened (0/7,690 adjacent pairs, A39) — so the
+                    # ship pays for one estimator per frame (2026-08-25; was
+                    # unconditional, costing 42.8 -> 31.8 FPS in A36). The
+                    # global cumulative buffer is not maintained in road mode:
+                    # nothing reads it there (ego_Hs comes from road_h_buffer).
                     R_step = self.ego_engine.estimate_road_homography(
                         self.prev_frame, frame, self.prev_detections
                     )
                     if R_step is None:
-                        R_step = H_prev_to_curr
+                        R_step, _ = self.ego_engine.estimate_homography(
+                            self.prev_frame, frame, self.prev_detections
+                        )
                     updated_road = deque(maxlen=self.frame_gap + 1)
                     for R_old in self.road_h_buffer:
                         updated_road.append(R_step @ R_old)
                     updated_road.append(np.eye(3, dtype=np.float32))
                     self.road_h_buffer = updated_road
+                else:
+                    # Global chain: estimate H_{t-1 -> t} and compose it into
+                    # every cumulative homography in the buffer.
+                    H_prev_to_curr, _ = self.ego_engine.estimate_homography(
+                        self.prev_frame, frame, self.prev_detections
+                    )
+                    updated_homographies = deque(maxlen=self.frame_gap + 1)
+                    for H_old in self.homography_buffer:
+                        # H_old maps frame[t_old] -> frame[t-1]
+                        # H_prev_to_curr maps frame[t-1] -> frame[t]
+                        # Composition: frame[t_old] -> frame[t]
+                        updated_homographies.append(H_prev_to_curr @ H_old)
+                    # Current frame has identity homography (maps to itself)
+                    updated_homographies.append(np.eye(3, dtype=np.float32))
+                    self.homography_buffer = updated_homographies
             else:
                 # First frame: identity homography
                 self.homography_buffer.append(np.eye(3, dtype=np.float32))

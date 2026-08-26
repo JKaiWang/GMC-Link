@@ -63,8 +63,12 @@ class ORBHomographyEngine:
         The road IS a plane, so a homography fit to road-region correspondences
         is geometrically exact for ground-contact points — the parallax the
         global background fit cannot model (A14: 3-57px object-level error).
-        Asphalt is low-texture for ORB, so this uses goodFeaturesToTrack +
-        pyramidal LK on the lower image band (minus detection boxes).
+        Uses goodFeaturesToTrack + pyramidal LK on the lower image band (minus
+        detection boxes) rather than the ORB pipeline: ORB finds plenty of
+        keypoints in the band (A39: 188 good matches p50) but they sit near the
+        horizon, off the road plane, so its H aligns the road no better than
+        the global fit (photometric 14.4 vs 10.5 for LK). Not a texture-count
+        problem.
         Returns 3x3 H or None (caller falls back to the global transform).
         """
         prev_gray = (cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
