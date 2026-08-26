@@ -21,8 +21,9 @@ Aligner weights `gmc_link_weights_v1train_sw12d_groad_seed{N}.pth`, caches
 
 Two-α routes on the canonical expression text (α_mot for MOVING/STATIC, α_app for
 APPEARANCE); per-host LOSO selects α_mot=α_app on both FlexHook settings, so they
-degenerate to a single α (A35, measured on the road chain). FPS (CPU, process-only,
-A36): road 31.8 / global 42.8.
+degenerate to a single α (A35, measured on the road chain). FPS (CPU, process-only, same
+session, A41): road **149.3** (6.7 ms/frame) / global 63.9. Never compare FPS across sessions —
+A36's 31.8 / 42.8 were machine-state-specific.
 
 **Historical ships (superseded, kept for provenance)**: 2026-08-10 12D single-α on the
 global similarity chain (iKUN 44.656 @0.5 / FH V1 54.011 @7 / FH V2 42.658 @5 — this was
@@ -97,11 +98,15 @@ pip install -e .
 - **Road-plane chain (SHIP, `GMC_GROUND_MODE=road`)**, `estimate_road_homography` (core.py:54-94):
   Shi-Tomasi corners (`goodFeaturesToTrack`, maxCorners=600, qualityLevel=0.01) + pyramidal
   Lucas-Kanade flow (winSize 21, maxLevel 3) on the lower half of the frame (road_band=0.5)
-  minus detection boxes; `findHomography(..., RANSAC, 3.0)`. NOT ORB — asphalt is too
-  low-texture for ORB. Returns None below 12 tracked points.
+  minus detection boxes; `findHomography(..., RANSAC, 3.0)`. NOT ORB — not because ORB
+  starves on asphalt (A39: it finds 188 good matches p50 in the band) but because its
+  keypoints sit near the horizon, off the road plane, so its H aligns the road no better
+  than the global fit. Returns None below 12 tracked points (never happened: 0/7,690, A39).
 - **Global chain (fallback + legacy ship)**: `ORBHomographyEngine` — ORB 1500 features,
-  BFMatcher (Hamming, Lowe 0.7), RANSAC 5.0px. Always computed; its step homography
-  substitutes when the road fit returns None (manager.py:291-303), so the chain never breaks.
+  BFMatcher (Hamming, Lowe 0.7), RANSAC 5.0px. In road mode it is estimated LAZILY — only
+  when the road fit returns None (A41, 2026-08-25; never observed: 0/7,690 pairs) — so the
+  ship pays for one estimator per frame; the global cumulative buffer is not maintained in
+  road mode. Cache equivalence verified (0011 seed0: 183,872 entries, max |Δ| 0.00).
 - Foreground mask prevents fitting to tracked objects instead of static background
 - Output: 3×3 homography mapping prev frame → current frame (one per chain)
 
@@ -173,7 +178,8 @@ HOTA-eval (TrackEval per-arch consumer: iKUN / FH V1 official-150 / FH V2)
 - Ship fusion (Option B, locked 2026-08-19): road chain + `s_host + α(expr)·s_gmc`, gate 0.0.
   α from LOSO: iKUN (α_mot 0.7, α_app 0.1); FlexHook V1 α=7, FlexHook V2 α=5 (A37).
   Road homography RANSAC threshold is **3.0px** (global path is 5.0px); the road fit succeeds
-  on 2065/2065 eval frame pairs, so the ORB fallback never fires. Old recipes superseded.
+  on 7,690/7,690 adjacent frame pairs across all 19 train+eval seqs (A39), so the lazy ORB
+  fallback never fires. Old recipes superseded.
 - Legacy Fusion Head arch (NOT ship): 3→32→16→1 sigmoid output
 
 ### Project Layout Notes
@@ -190,7 +196,7 @@ HOTA-eval (TrackEval per-arch consumer: iKUN / FH V1 official-150 / FH V2)
 
 ## Data Paths
 
-- Refer-KITTI dataset: `/home/seanachan/data/Dataset/refer-kitti-v2` (also symlinked `refer-kitti/` + `Refer-KITTI/`)
+- Refer-KITTI dataset: `/home/seanachan/data/Dataset/refer-kitti` (V1, 818 expressions / 18 seqs; symlinked `refer-kitti/` + `Refer-KITTI/`). The V2 paraphrase set is a separate directory `/home/seanachan/data/Dataset/refer-kitti-v2` (9,778 expressions), used only by `--split v2`
 - Full annotation JSON: `Refer-KITTI_labels.json`
 - iKUN precomputed scores: `iKUN/`
 - NeuralSORT track detections: `NeuralSORT/`
