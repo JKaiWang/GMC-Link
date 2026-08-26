@@ -11,6 +11,65 @@
 
 ---
 
+## paper-YYYY-MM-DD(待定,修訂中)— `gmc_v2.tex`(對 `gmc_v1.tex`)
+
+2026-08-25 起的修訂輪(reviewer 視角逐段檢查)。程式碼僅動一處(A41 惰性 fallback,快取逐位元等值),所有已報 HOTA 數字不變;FPS 重測。
+
+### [編輯] — §4.3 補 Welch 統計量(#29 item 2 / #31 item 1)
+
+- 「Both drops are significant under Welch's $t$-test」→ 加括號:$n{=}5$;−ego $t{=}11.8$(moving-class)/ $11.7$(pooled);−multiscale $t{=}6.2$ / $6.7$;all $p{<}0.01$。
+- 依據:A38(2026-08-25 重建)`diagnostics/welch_ablation_n5.py` → `results/ablation_n5_welch.json`,p = 1.75e-5 / 9.81e-6 / 1.84e-3 / 1.76e-3;平均值與 A34 一致。
+
+### [編輯] — §3.2 補 warm-up 棄權規則(#31 item 2)
+
+- Eq. (3) 說明段後加一段:軌跡需 11 幀連續歷史(最長間隔 10 + 1,三個間隔皆可定義)才產生運動特徵;不足時模組棄權、host 分數原樣通過;門檻由最長間隔決定,無自由參數。
+- 依據:`filter_warmup_cache.py`(T_MIN=11),所有 ship 快取皆 `_warm11`;A3 量測(25.0% 軌跡幀受影響,1,239/4,950)。依用戶決定只寫機制、不引新數字。
+
+### [編輯] — §3.2 補 1/g 實作註記(#31 item 3)
+
+- 「All velocities are normalized …」句後加:實作省略 $1/g$;等價於第一層投影對每個 gap 的常數重縮放(Sec. 3.3)。公式與 "velocity" 用詞不動。
+- 依據:`gmc_link/utils.py:38-60`、`manager.py:379-388` 僅以影像尺寸正規化、不除 gap;線性層可吸收每維常數(表示等價)。
+
+### [筆誤] — §3.1 框遮罩用詞(#31 item 4)
+
+- 「excluding the region where tracked object boxes overlap」→「excluding the interiors of the previous frame's tracked object boxes」。
+- 依據:`gmc_link/core.py:77-83` 將前一幀每個偵測框內部整塊置零(`manager.py:295` 傳入 `prev_detections`)。
+
+### [編輯] — §4.1 fallback 成功率擴到全資料集、FPS 重測(A39/A41)
+
+- 「succeeds on all 2,065 adjacent frame pairs across the four evaluation sequences」→「all 7,690 adjacent frame pairs of the 19 training and evaluation sequences」;「$31.8$ FPS」→「$149$ FPS on CPU ($6.7$\,ms per frame)」。
+- 依據(成功率):A39 `diag_road_chain.py`,19 條序列 7,690 對相鄰幀,路面擬合 0 次回傳 None(評估 2,065 對有偵測框遮罩;訓練 5,625 對無遮罩,即訓練程式的條件)。
+- 依據(FPS):A41。`gmc_link/manager.py` road 模式改為只在路面擬合失敗時才估全域 ORB(從未發生);0011 seed0 快取重建與既有快取 183,872 筆逐值相同(max |Δ| 0.00),HOTA 數字不受影響。FPS 以同一 session、同機器、`profile_inference.py --seq 0011`、16 reps 取 warm 中位數:road 149.3(IQR 147.5–150.8)/ 舊 ship 全域鏈 63.9。A36 的 31.8/42.8 為當日機器狀態數字,存 `results/fps_profile_a36_2026_08_17.json`;不可跨 session 比較。
+- 取代本段上方「[編輯] — ORB fallback 敘述全刪」條目中「程式碼保留 fallback,31.8 FPS 沿用」的說法。
+
+### [編輯] — §3.1 補「為何取畫面下半部」的幾何理由
+
+- RANSAC 句後加兩句:前視相機的地平線約在畫面垂直中央;其上是建物與天空(不在路面平面),其下是車前到地平線的路面,故只對下半部擬合。
+- 依據:幾何(單應性只對平面精確);A39 光度殘差佐證 —— 起點高於地平線的區域(0.3/0.4)一律較差,0.5–0.7 在近路面打平、但只有 0.5 取樣到中距離物體所在區域(`results/road_diag/road_chain_diag_evalnear.json`)。數字不入文。
+
+### [編輯] — §4.1 補訓練資料句(#29 item 1)
+
+- optimizer 句後加:aligner 以 Refer-KITTI V1 訓練分割(15 條序列,與測試序列不交)訓練;正樣本 = expression × 其標註指涉的 ground-truth 物體之運動特徵(由 GT 框計算);tracker 輸出僅在測試時使用。
+- 依據:`gmc_link/train.py:410-414, 717-719`(`--split v1` → 15 seqs)、`gmc_link/dataset.py:884, 926`(`labels_with_ids` GT 軌跡)、`refer-kitti/expression/` 818 條 = V1 發布數(#29 留言 2026-08-25)。
+
+### [編輯] — ORB fallback 敘述全刪
+
+- 刪方法段末句(路面擬合失敗 → ORB 全域單應性 fallback)與 Setup 的 fallback 參數句(1,500 keypoints / 5px 門檻)。
+- 依據:路面擬合在四條評測序列 2065/2065 全數成功(A37 的支持測量,`results/road_fallback_rate.json`),fallback 從未觸發、不影響任何已報數字;程式碼保留 fallback,31.8 FPS 沿用。
+- 保留「succeeds on all 2,065 adjacent frame pairs」作穩健性敘述;`\cite{orb}` 隨之移除(refs.bib 條目保留,BibTeX 不輸出未引用條目)。
+
+### [筆誤] — Limitations 誤述 fallback 觸發機制
+
+- 原句稱「非平面時退回 global estimate」;實際 fallback 只在特徵不足時觸發(<12 角點 / LK 追蹤失敗 / findHomography 回 None,`gmc_link/core.py:86-94`),與平面性無關 —— 路面不平時擬合多半「成功但有偏」,fallback 不會接手。
+- 改為直述模型適用範圍(不作未量測的退化宣稱、不用情態詞):「assumes a flat ground plane; scenes with strong slopes or uneven terrain fall outside the model」。程式一直是對的。方法段 L120「A homography is exact for a plane」保留 —— 那句講的是理想模型類(射影幾何定理),是設計動機;Limitations 講的是估計的適用範圍,分工清楚。
+
+### [編輯] — §2.2 三種速度定義補強(定義句用戶重寫)
+
+- raw / ego 補上公式($v^{raw}_g=(o_t-o_{t-g})/g$、$v^{ego}_g=(\hat o_t-o_{t-g})/g$),單應性應用明寫齊次座標,ego 句補「evaluated at the object's location」。
+- raw 的動機句改為字面精確的陳述:「it is the sum of the object's own motion and the motion induced by the camera」(原「is mixed with」語法含混;由 Eq. (2) 移項 $v^{raw}=v^{res}+v^{ego}$,此句字面為真)。
+- residual 定義句(camera-motion-compensated,raw 減 ego)作 Eq. (2) 引導;Eq. (2) 補恒等式 $v^{res}_g=(o_t-\hat o_t)/g$(殘差 = 觀測質心對「靜止預測」的偏差),句尾逗號改句號(後接新句子)。
+- 定義句草稿兩處事實更正:「consecutive frames」→ gap-$g$ 幀對($I_{t-g}$、$I_t$,gaps 2/5/10);「inter-frame homography」→ 累積單應性 $H_{t-g\to t}$。
+
 ## paper-2026-08-22 — `gmc_v1.tex`(對 `gmc.tex`)
 
 配置:**Option B,2026-08-19 拍板**(`docs/SHIP_DECISION_2026_08_16.md`)— 三個 host 設定統一路面 ego 鏈、warm11 遮罩、無 motion EMA、raw cosine、類別權重加法融合。

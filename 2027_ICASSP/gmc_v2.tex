@@ -1,0 +1,273 @@
+% Template for ICASSP-2024 paper; to be used with:
+%          spconf.sty  - ICASSP/ICIP LaTeX style file, and
+%          IEEEbib.bst - IEEE bibliography style file.
+% --------------------------------------------------------------------------
+\documentclass{article}
+\usepackage{spconf,amsmath,graphicx}
+\usepackage{multirow}              % per-host recipe table
+\usepackage{microtype}             % kills sub-3pt overfull, polishes justification
+\usepackage{csquotes}
+\usepackage{comment}
+\usepackage{xcolor}
+
+% Example definitions.
+% --------------------
+\def\x{{\mathbf x}}
+\def\L{{\cal L}}
+
+% Title.
+% ------
+\title{Referring Multi-Object Tracking in Moving-Camera Videos via Global Motion Compensation}
+%
+% Single address.
+% ---------------
+\name{Author(s) Name(s)}
+\address{Author Affiliation(s)}
+%
+% For example:
+% ------------
+%\address{School\\
+%	Department\\
+%	Address}
+%
+% Two addresses (uncomment and modify for two-address case).
+% ----------------------------------------------------------
+%\twoauthors
+%  {A. Author-one, B. Author-two\sthanks{Thanks to XYZ agency for funding.}}
+%	{School A-B\\
+%	Department A-B\\
+%	Address A-B}
+%  {C. Author-three, D. Author-four\sthanks{The fourth author performed the work
+%	while at ...}}
+%	{School C-D\\
+%	Department C-D\\
+%	Address C-D}
+%
+\begin{document}
+\ninept
+%
+\maketitle
+%
+\begin{abstract}
+  Referring multi-object tracking (RMOT) takes a video and a natural-language expression as input and tracks all objects described by the expression. Many expressions describe how an object moves rather than how it appears. In a video captured by moving cameras, a parked vehicle may appear to move, while a vehicle moving with the camera may show little displacement. Existing motion-language RMOT methods align motion with text but do not explicitly remove camera-induced motion. In this paper, we propose extracting residual motion across frames by estimating camera motion from road-region background correspondences in driver-view videos and comparing motion features with the query language expression. We consider the motion-matching extent and integrate it with the RMOT method's prediction result through late fusion with host-specific weights. In the evaluation, we verify the performance gain by taking the proposed motion compensation module as a plug-in across different RMOT hosts. On iKUN, the module raises moving-class HOTA by $7.08$ points, and all three evaluated settings exceed their hosts' published pooled HOTA.
+\end{abstract}
+%
+\begin{keywords}
+  referring multi-object tracking, ego-motion compensation, motion-language alignment, plug-in module, Refer-KITTI, video grounding
+\end{keywords}
+
+%-------------------------------
+
+\section{Introduction}
+\label{sec:intro}
+Referring multi-object tracking (RMOT) outputs tracking results of the objects described by a free-form language expression. For example, a \enquote{left-vehicles-in-red} description targets the red vehicles on the left. However, many descriptions focus on object motion, such as \enquote{moving cars} or \enquote{a vehicle turning left}. In videos captured by a moving camera, the observed motion is a mixture of object motion and camera motion, and thus a static car may appear to move, while a moving car may appear static across video frames.
+
+Previous RMOT methods~\cite{transrmot,ikun,flexhook} match language expressions to objects.  VMRMOT~\cite{vmrmot} considers explicit motion cues, such as changes in direction and speed, in the matching process. All of these methods, however, compute motion from the object's bounding-box displacement across frames, which mixes object motion with camera motion in a video captured by moving cameras.
+
+Conventional multi-object tracking (MOT) methods already proposed to remove camera motion: BoT-SORT~\cite{botsort} estimates camera-induced image motion, while UCMCTrack~\cite{ucmctrack} stabilizes object trajectories. How motion compensation can be extended to RMOT is still underexplored.
+
+%However, the compensated motion never reaches the language-matching stage. Camera motion could in principle be obtained from the global positioning system (GPS) and inertial measurement unit (IMU) recordings provided by KITTI~\cite{kitti}, which Refer-KITTI is built on. These sensors measure the position and orientation of the recording vehicle in the world, not how the camera's movement shifts pixels in the video. Converting between the two requires additional information: the pixel shift produced by a given camera movement depends on the camera's focal length, its mounting on the vehicle, and each point's distance from the camera. Moreover, general videos do not come with GPS or IMU recordings. We therefore estimate camera motion directly from image features, which keeps the module self-contained: it consumes only the frames the host model already uses and can be attached to different two-stage RMOT frameworks without modifying their architectures.
+
+We propose separating camera motion from object motion and providing motion information for language-guided tracking. It consists of four stages. First, a homography, which describes the geometric transformation across frames, is estimated to measure camera motion. The estimated homographies are accumulated across frames to reliably measure object motion. Second, residual velocity, which represents object motion after removing camera motion, is computed across frames and used as a temporal motion feature. Third, a Contrastive Motion Aligner is developed to compare motion features with language expressions and produce a motion-matching score. Finally, the motion-matching score is scaled by a host-specific weight and added to the host's matching score. Here, the host model refers to a two-stage RMOT method we use as a baseline, such as iKUN~\cite{ikun} and FlexHook~\cite{flexhook}. The proposed process is taken as a plug-in to provide an extra motion-matching score. We thus improve existing RMOT baselines without retraining them.
+
+The accumulated homographies are the key component. By compensating for camera motion, they allow the motion feature to better represent the object's actual movement rather than the apparent motion induced by camera movement. They also preserve motion information across frames, enabling the model to capture motion patterns described by expressions such as \enquote{moving} or \enquote{turning}.
+
+%This design leads to a two-sided prediction that can be tested directly: if residual velocity is replaced with raw image velocity, moving-class accuracy should decrease because objects travelling with the camera lose their image displacement, and static-class accuracy should also decrease because parked objects inherit the camera's motion. Section~\ref{sec:exp} confirms both effects and shows that, among the module's design choices, camera motion compensation is the only one whose removal significantly degrades either class. Compensation therefore makes the motion feature effective for object disambiguation rather than simply providing additional motion cues.
+
+This work connects ego-motion compensation with motion-language modeling for RMOT. Our main contributions are as follows.
+\begin{itemize}
+  \item We propose a plug-in that aligns ego-compensated residual velocity with the referring expression, thereby improving the host RMOT method without modifying or retraining it.
+        %  \item We show that among the module's design choices, camera motion compensation is the key factor: it is the only component whose removal significantly degrades both moving-class ($p{=}0.006$) and static-class ($p{<}10^{-4}$) HOTA.
+  \item Across iKUN and FlexHook, the GMC Module improves pooled HOTA in all three evaluated host settings. On iKUN, it raises MOVING HOTA from $25.531$ to $32.606\pm0.654$ (approximately $+7.08$ points).
+\end{itemize}
+
+%---------------------
+
+\begin{figure*}
+  \centering
+  \includegraphics[width=12cm]{figures/Architecture.png}
+  \caption{The host model, iKUN in this case, provides tracking scores. The GMC Module estimates camera motion, derives residual motion, aligns it with language, and provides an extra cue to adjust the tracking scores.}
+  \label{fig:architecture}
+\end{figure*}
+
+\section{Related Works}
+\label{sec:related}
+\subsection{Referring MOT and motion-language fusion}
+TransRMOT~\cite{transrmot} introduced the RMOT task on the Refer-KITTI dataset. Later methods improved different parts of this task. iKUN~\cite{ikun} separated language-based object matching from object tracking, while FlexHook~\cite{flexhook} improved how visual and language information interact. ReferGPT~\cite{refergpt} used a multimodal large language model to describe existing object tracks, and MEX~\cite{mex} provided a memory-efficient module for matching tracks with language.
+
+More recent RMOT methods~\cite{deeprmot} further improve models' understanding of object descriptions. STORM~\cite{storm} unifies grounding and tracking in an end-to-end multimodal large language model. VMRMOT~\cite{vmrmot} explicitly represents motion using information such as position, direction, changes in distance, and changes in speed. However, these methods still estimate object motion from the object's bounding-box movements across frames. When the camera moves, the observed bounding-box movement contains both object motion and camera motion. %Therefore, a stationary object may appear to be moving, while a moving object may appear nearly stationary. This makes it difficult for the model to correctly understand motion-related expressions.
+
+%TempRMOT~\cite{temprmot} is different because it already stores trajectory history in recurrent memory. In our experiments, adding our external motion module to TempRMOT reduced pooled Higher Order Tracking Accuracy (HOTA) in two separate trials. This result suggests that the additional module may introduce redundant motion information or unnecessary constraints because TempRMOT already models motion over time. We therefore focus on two-stage RMOT models that do not already encode trajectory history in recurrent memory.
+
+\subsection{Camera and ego-motion compensation in tracking}
+Camera motion compensation is widely used in traditional multi-object tracking (MOT). BoT-SORT~\cite{botsort} estimates camera-induced motion across frames. UCMCTrack~\cite{ucmctrack} estimates how the camera moves relative to the road surface. EMAP~\cite{emap} further separates the camera's turning and movement from object motion within the Kalman prediction process.
+
+These methods demonstrate that compensating for camera motion can improve tracking objects across frames. However, the compensated positions are mainly used to match objects between adjacent frames. They are not accumulated over time to describe an object's motion, nor are they connected to language expressions. Our method builds on established techniques for separating camera motion from object motion, including plane-plus-parallax analysis~\cite{iranianandan}, homography estimation~\cite{hartleyzisserman}, motion segmentation under moving cameras~\cite{bideau}, and ego-motion estimation in visual odometry~\cite{scaramuzza}. We do not propose a new camera-motion estimation technique. Instead, we convert camera-compensated trajectories into motion features and align them with language for RMOT.
+
+%\subsection{Connecting camera compensation with RMOT}
+%Existing RMOT methods can match object motion with language, but their motion estimates are still affected by camera movement. In contrast, camera-compensated MOT removes this effect, but uses the corrected motion only for tracking rather than for language understanding. The GMC Module connects these two research directions. It tracks object motion across multiple frames after removing camera motion, compares this corrected motion with the referring expression, and combines the resulting score with the host model's original score. In this way, the host model keeps its original appearance-based matching ability while gaining additional motion information. 
+
+%------------------------------------
+
+
+\section{Method}
+\label{sec:method}
+Figure~\ref{fig:architecture} shows the proposed RMOT framework with the global motion compensation (GMC) Module. The GMC Module is attached to a two-stage RMOT method, iKUN~\cite{ikun} in this case. iKUN performs object detection and tracking and then outputs appearance-language matching scores. The inputs to the GMC Module are the sequence of object bounding boxes across frames, the video frames, and the language expression. Based on these inputs, the GMC Module estimates camera motion, extracts residual object motion, aligns it with the language expression, and produces a matching score. The score is then combined with the host model's predicted score, as an embodiment of the late fusion scheme. The module consists of four stages: ego-motion compensation, multi-scale residual velocity extraction, motion-language alignment, and late fusion.
+
+
+\subsection{Ego-motion compensation}
+\label{sec:ego}
+This stage estimates camera motion from consecutive video frames so that object motion can be separated from ego-motion. Refer-KITTI is recorded from a driver-view camera, so the road surface is visible in most frames and stays close to a single plane. A homography is exact for a plane, which makes the road a reliable reference for camera motion. We select Shi-Tomasi corners~\cite{shitomasi} in the lower half of the frame, excluding the interiors of the previous frame's tracked object boxes, and follow them into the next frame with pyramidal Lucas-Kanade optical flow~\cite{lucaskanade}. RANSAC~\cite{ransac} then estimates the frame-to-frame homography $H_{t-1 \to t}$ from these correspondences. For a forward-facing camera the horizon lies near the vertical image center: pixels above it belong to buildings and sky, which are not on the road plane, whereas the lower half contains the road from directly ahead of the vehicle to the horizon. We therefore fit the homography to the lower half only.
+
+To describe camera motion across frames, the estimated homographies are accumulated as
+\begin{equation}
+  H_{t-k \to t} = H_{t-1 \to t} \times H_{t-2 \to t-1} \times \cdots \times H_{t-k \to t-k+1},
+  \label{eq:cumulative}
+\end{equation}
+where $H_{t-k \to t}$ represents the accumulated camera transformation from frame $I_{t-k}$ to frame $I_t$. Instead of repeatedly transforming already warped coordinates, the accumulated homography is applied only once to the original object centroid. This reduces numerical drift and provides a stable reference for estimating ego velocity in the next stage.
+
+\subsection{Multi-scale residual velocity}
+\label{sec:residual}
+Using the accumulated homography matrix and the objects' bounding boxes, this stage estimates the residual velocity, which represents object motion after removing the estimated camera motion. For a temporal gap $g$, the raw velocity $v^{\mathrm{raw}}_{g} = (\boldsymbol{o}_{t}-\boldsymbol{o}_{t-g})/g$ is the observed image-plane velocity of an object, computed from the displacement of its centroid $\boldsymbol{o}$ between frames $I_{t-g}$ and $I_{t}$; it is the sum of the object's own motion and the motion induced by the camera. To remove the camera motion, the accumulated homography $H_{t-g \to t}$ is applied to the centroid $\boldsymbol{o}_{t-g}$ in homogeneous coordinates, yielding $\hat{\boldsymbol{o}}_{t}$, the centroid predicted at $I_{t}$ under the assumption that the object is stationary. The ego velocity $v^{\mathrm{ego}}_{g} = (\hat{\boldsymbol{o}}_{t}-\boldsymbol{o}_{t-g})/g$ is thus the image-plane velocity induced by camera motion alone, evaluated at the object's location. The residual velocity $v^{\mathrm{res}}_{g}$ is the camera-motion-compensated object velocity, obtained by subtracting the ego velocity from the raw velocity:
+\begin{equation}
+  v^{\mathrm{res}}_{g} = v^{\mathrm{raw}}_{g} - v^{\mathrm{ego}}_{g} = \bigl(\boldsymbol{o}_{t}-\hat{\boldsymbol{o}}_{t}\bigr)/g.
+  \label{eq:residual}
+\end{equation}
+This representation approximates the motion that a stationary camera would observe. For example, a parked vehicle has near-zero residual velocity even when camera motion causes a large image displacement. All velocities are normalized by the image dimensions to make them independent of image resolution. In the implementation the factor $1/g$ is omitted; this is equivalent up to a per-gap rescaling of the first projection layer of Sec.~\ref{sec:align}.
+
+To capture motion over different time spans, residual velocities are computed at temporal gaps of $\{2,5,10\}$ frames. That means the accumulated homography matrices mentioned in Eqn.~(\ref{eq:cumulative}) have three versions, i.e., $H_{t-2 \to t}$, $H_{t-5 \to t}$, and $H_{t-10 \to t}$. The residual velocities are concatenated with the object's box information to form a 12-dimensional motion feature,
+\begin{equation}
+  \bigl((dx_s,dy_s),(dx_m,dy_m),(dx_l,dy_l),\Delta w,\Delta h,c_x,c_y,w,h\bigr),
+  \label{eq:descriptor}
+\end{equation}
+where the first six values are the residual velocities at the three temporal gaps, and $\Delta w, \Delta h$ capture the change in box scale. The terms $c_x$ and $c_y$ describe the coordinates of the box center, and $w$ and $h$ describe the width and height of the box, respectively.
+
+A track contributes a motion feature only once it has $11$ contiguous frames of history, the shortest history at which all three gaps are defined; on shorter histories the module abstains and the host score passes through unchanged. The threshold follows from the largest gap and adds no free parameter.
+
+\subsection{Motion-language alignment}
+\label{sec:align}
+Given the motion features mentioned above and the language expression, this stage measures how well the observed object motion matches the described motion. The 12-dimensional motion feature is encoded by a motion encoder, while the language expression is encoded by all-MiniLM-L6-v2 (MiniLM)~\cite{sbert} into the text embeddings. Both embeddings are projected into the same feature space using linear projection layers and a shared Multi-Layer Perceptron (MLP).
+
+The model is trained using Information Noise Contrastive Estimation (InfoNCE)~\cite{infonce} loss to maximize the similarity between matched motion-expression pairs while separating unmatched pairs. A positive pair is formed by the embeddings of an object and the corresponding expression. Other object-expression pairs in the same mini-batch are treated as negatives. The MiniLM text encoder is kept fixed, and only the projection layers and motion encoder are trained. During inference, the cosine similarity $s_{\mathrm{gmc}}$ between an object's motion embeddings and the target expression's embeddings is used as the matching score and passed to the late fusion stage described below.
+
+\subsection{Fusion}
+\label{sec:fusion}
+The matching score is combined with the prediction score of the host RMOT model to obtain the final prediction:
+\begin{equation}
+  s_{\mathrm{final}} = s_{\mathrm{host}} + \alpha_{c}\,s_{\mathrm{gmc}},
+  \label{eq:fusion}
+\end{equation}
+where $s_{\mathrm{host}}$ is the prediction score produced by the host model and $c\in\{\mathrm{MOVING},\mathrm{STATIC},\mathrm{APPEARANCE}\}$ is the category of the referring expression, assigned by a keyword classifier. MOVING and STATIC expressions use the motion-oriented weight $\alpha_{\mathrm{mot}}$, while APPEARANCE expressions use the appearance-oriented weight $\alpha_{\mathrm{app}}$. Because host models produce scores over different ranges, both weights are selected per host by leave-one-sequence-out cross-validation: for each fold the weight with the highest pooled HOTA is chosen on all but one sequence, and the final value is the median over folds. This yields $(\alpha_{\mathrm{mot}},\alpha_{\mathrm{app}})=(0.7,0.1)$ on iKUN, whereas on both FlexHook settings the procedure selects $\alpha_{\mathrm{mot}}=\alpha_{\mathrm{app}}$ ($7$ on V1 and $5$ on V2), so the routing degenerates to a single weight. Setting $\alpha_c=0$ recovers the native host exactly.
+
+
+Since the GMC Module only adds extra influence on the final prediction score, it can be integrated into existing two-stage RMOT frameworks without changing or retraining their detector, tracker, visual encoder, or language encoder.
+
+\section{Experiments}
+\label{sec:exp}
+
+\subsection{Setup}
+\label{sec:setup}
+We evaluate the proposed module on the Refer-KITTI V1~\cite{transrmot} and the Refer-KITTI V2~\cite{temprmot} benchmarks using the HOTA metric from TrackEval~\cite{hota}, which jointly measures detection and association performance. We report both moving-class HOTA, which evaluates only expressions referring to moving objects, and pooled HOTA, which evaluates all expressions in the benchmark. The V1 test split contains three sequences and the V2 test split four.
+
+The proposed module is attached to two host models, iKUN~\cite{ikun} and FlexHook~\cite{flexhook}. For comparison, we also evaluate a raw-velocity variant that uses image-plane motion directly, without ego-motion compensation. The GMC Module is trained using AdamW~\cite{adamw} with a learning rate of $10^{-3}$, batch size 256, and 100 epochs. The aligner is trained on the Refer-KITTI V1 training split (15 sequences, disjoint from the test sequences). Each positive pair consists of an expression and the motion feature of a ground-truth object annotated as its referent, computed from the object's ground-truth boxes; tracker outputs are used only at test time. The road-plane homography tracks up to 600 corners with a 3-pixel RANSAC threshold and succeeds on all 7,690 adjacent frame pairs of the 19 training and evaluation sequences. Excluding host inference, the module runs at $149$ FPS on CPU ($6.7$\,ms per frame).
+
+Results are averaged over three random seeds for the main configurations; ablation analyses use five seeds together with Welch's $t$-test. Both host models use their original detection results; FlexHook V1 is evaluated under the official 150-expression protocol. Our reproduced FlexHook baselines match their published scores exactly at $\alpha_c{=}0$, while our reproduced iKUN ($44.224$) is slightly below its published score; Table~\ref{tab:main} therefore reports the stricter comparison against the published baselines.
+
+Refer-KITTI does not provide a dedicated validation split. All fusion weights are therefore selected by the leave-one-sequence-out procedure of Sec.~\ref{sec:fusion}, so no weight is chosen on the sequence it is evaluated on.
+
+Refer-KITTI is highly imbalanced, with only about one-sixth of the language expressions referring to moving objects. Consequently, improvements in motion understanding may have only a limited impact on pooled HOTA. Therefore, moving-class HOTA is used as the primary evaluation metric, while pooled HOTA is reported to reflect overall benchmark performance.
+
+\subsection{Main results}
+\label{sec:main}
+Table~\ref{tab:main} summarizes the pooled HOTA results on the Refer-KITTI dataset. We evaluate the performance variations when iKUN or FlexHook is used as the host model, with or without the GMC Module. With the module attached, all three settings exceed not only our reproduced natives but also the hosts' published pooled HOTA ($+0.283$, $+0.156$, and $+0.099$, respectively).
+
+%Overall, these results show that camera-motion-compensated motion information is beneficial only when it is properly aligned with the host model. The gains are most visible on motion-referring expressions, while pooled HOTA changes are smaller because motion expressions form a minority of Refer-KITTI. Thus, the GMC Module should be viewed primarily as a motion-grounding correction that preserves competitive pooled performance in the evaluated settings.
+
+\begin{table}
+  \centering
+  \caption{Performance in terms of the pooled HOTA on the Refer-KITTI test dataset.}
+  \label{tab:main}
+  \small
+  \setlength{\tabcolsep}{2pt}
+  \begin{tabular}{lccc}
+    \hline
+    Host                        & Published & GMC Module           & Gain                      \\
+    \hline
+    iKUN~\cite{ikun}            & 44.564    & 44.847 $\pm$ 0.107 & $+0.283$ \\
+    FlexHook V1~\cite{flexhook} & 53.824    & 53.980 $\pm$ 0.059 & $+0.156$ \\
+    FlexHook V2~\cite{flexhook} & 42.526    & 42.625 $\pm$ 0.032 & $+0.099$ \\
+    \hline
+  \end{tabular}
+\end{table}
+
+
+Table~\ref{tab:deficit} reports HOTA variations for movement-related expressions. All three host settings improve, and the size of the improvement differs by an order of magnitude: iKUN gains $+7.08\pm0.65$, FlexHook V1 $+0.67\pm0.13$, and FlexHook V2 $+0.18\pm0.06$.
+
+%In our evaluated settings, this trend suggests that the GMC Module is most beneficial for host models with weaker motion understanding. When the host model already distinguishes camera motion from object motion reasonably well, the proposed module provides only a small improvement. Conversely, when the host struggles with motion grounding, the GMC Module can effectively compensate for this limitation and achieve a larger performance gain.
+
+%Although this trend is consistent across all evaluated settings, it is observed on two host architectures. Evaluating additional host models would help verify whether this trend generalizes to other architectures.
+
+\begin{table}
+  \centering
+  \caption{Moving-class HOTA on movement-related expressions ($27/158$ for iKUN, $25/150$ for FlexHook V1, $136/862$ for FlexHook V2), $n{=}3$ seeds.}
+  \label{tab:deficit}
+  \small
+  \setlength{\tabcolsep}{2pt}
+  \begin{tabular}{lcc}
+    \hline
+    Host        & Baseline & Performance gain \\
+    \hline
+    iKUN        & 25.53    & $+7.08\pm0.65$   \\
+    FlexHook V1 & 44.31    & $+0.67\pm0.13$   \\
+    FlexHook V2 & 38.15    & $+0.18\pm0.06$   \\
+    \hline
+  \end{tabular}
+\end{table}
+
+\subsection{Ablation Studies}
+\label{sec:ablation}
+Table~\ref{tab:ablation} reports the five-seed ablation measurements on iKUN. The full module improves moving-class HOTA from $25.53$ to $32.30\pm0.63$ and pooled HOTA from $44.22$ to $44.80\pm0.10$. The full module also improves STATIC HOTA from $43.91$ to $44.55$; without ego compensation it falls to $43.70$, below the native host, while removing the multi-scale gaps gives $44.43$. Removing ego-motion compensation costs $-3.81$ moving-class and $-0.64$ pooled HOTA; removing the multi-scale gaps costs $-1.85$ and $-0.32$. Both drops are significant under Welch's $t$-test ($n{=}5$; ego: $t{=}11.8$ moving-class, $11.7$ pooled; multi-scale: $t{=}6.2$ and $6.7$; all $p{<}0.01$), and ego-motion compensation accounts for the larger share.
+
+\begin{table}
+  \centering
+  \caption{Per-class HOTA ablation on iKUN ($n{=}5$ seeds).}
+  \label{tab:ablation}
+  \small
+  \setlength{\tabcolsep}{2pt}
+  \begin{tabular}{lcc}
+    \hline
+    Variant                    & MOVING HOTA               & POOLED HOTA               \\
+    \hline
+    Native host (no module)    & 25.53                     & 44.22                     \\
+    Full module                & \textbf{32.30 $\pm$ 0.63} & \textbf{44.80 $\pm$ 0.10} \\
+    $-$ego (raw velocity)      & 28.49 $\pm$ 0.35          & 44.17 $\pm$ 0.07          \\
+    $-$multiscale (single gap) & 30.45 $\pm$ 0.20          & 44.49 $\pm$ 0.02          \\
+    \hline
+  \end{tabular}
+\end{table}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{figures/qualitative.pdf}
+  \caption{``Moving cars'' (Refer-KITTI seq 0005). The parked car (red) sweeps across the image as the camera passes, while the moving car (green) barely shifts. Raw image motion misclassifies both; the ego-compensated residual recovers both from the same host score.}
+  \label{fig:qual}
+\end{figure}
+
+Figure~\ref{fig:qual} illustrates this behavior using a real example. The parked car moves across the image because of camera motion, while the moving car remains at nearly the same image location. Without ego-motion compensation, these two cases are easily confused because they have similar image-plane motion. After compensating for camera motion, the parked car has nearly zero residual motion, while the moving car retains nonzero residual motion. This allows the GMC Module to correctly distinguish between stationary and moving objects.
+
+\section{Conclusion and Limitations}
+\label{sec:conclusion}
+The GMC Module is a decision-level plug-in that improves motion grounding in referring multi-object tracking without modifying the detector, tracker, or appearance-language matching model. By compensating for camera motion and aligning residual motion with language descriptions, the proposed module helps distinguish object motion from camera-induced motion. Road-region background correspondences provide a geometric reference for estimating camera motion in driver-view driving scenes, after which the residual motion is aligned with language and integrated through late fusion with host-specific weights. On Refer-KITTI, pooled HOTA improves in all three evaluated host settings. For movement-related expressions, the largest gain is observed on iKUN ($+7.08\pm0.65$), and the ablation results show improvements in both MOVING and STATIC HOTA for the full module.
+
+Despite these promising results, several limitations remain. First, the road-plane homography assumes a flat ground plane; scenes with strong slopes or uneven terrain fall outside the model. Second, a keyword classifier decides which weight an expression receives. Therefore, a misread expression gets the incorrect fusion weight: $14$ of the $126$ direction expressions in Refer-KITTI V1 are treated as appearance. Third, two weights do not help every host. On both FlexHook settings the leave-one-sequence-out procedure selects a single weight. Finally, our experiments are conducted on two RMOT frameworks and the Refer-KITTI benchmarks, and additional evaluations on more host architectures and datasets are needed to further validate the generality of the proposed approach.
+
+In future work, we plan to investigate more robust camera motion estimation methods and richer motion features that can better handle complex dynamic scenes. We also hope to evaluate the GMC Module on a broader range of referring multi-object tracking frameworks to further improve its generalization.
+
+% References should be produced using the bibtex program from suitable
+% BiBTeX files (here: strings, refs, manuals). The IEEEbib.bst bibliography
+% style file from IEEE produces unsorted bibliography list.
+% -------------------------------------------------------------------------
+\bibliographystyle{IEEEbib}
+\bibliography{refs}
+
+\end{document}
