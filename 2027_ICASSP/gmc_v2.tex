@@ -117,7 +117,7 @@ Figure~\ref{fig:architecture} shows the proposed RMOT framework with the global 
 
 \subsection{Ego-motion compensation}
 \label{sec:ego}
-This stage estimates camera motion from consecutive video frames so that object motion can be separated from ego-motion. Refer-KITTI is recorded from a driver-view camera, so the road surface is visible in most frames and stays close to a single plane. A homography is exact for a plane, which makes the road a reliable reference for camera motion. We select Shi-Tomasi corners~\cite{shitomasi} in the lower half of the frame, excluding the region where tracked object boxes overlap, and follow them into the next frame with pyramidal Lucas-Kanade optical flow~\cite{lucaskanade}. RANSAC~\cite{ransac} then estimates the frame-to-frame homography $H_{t-1 \to t}$ from these correspondences.
+This stage estimates camera motion from consecutive video frames so that object motion can be separated from ego-motion. Refer-KITTI is recorded from a driver-view camera, so the road surface is visible in most frames and stays close to a single plane. A homography is exact for a plane, which makes the road a reliable reference for camera motion. We select Shi-Tomasi corners~\cite{shitomasi} in the lower half of the frame, excluding the interiors of the previous frame's tracked object boxes, and follow them into the next frame with pyramidal Lucas-Kanade optical flow~\cite{lucaskanade}. RANSAC~\cite{ransac} then estimates the frame-to-frame homography $H_{t-1 \to t}$ from these correspondences. For a forward-facing camera the horizon lies near the vertical image center: pixels above it belong to buildings and sky, which are not on the road plane, whereas the lower half contains the road from directly ahead of the vehicle to the horizon. We therefore fit the homography to the lower half only.
 
 To describe camera motion across frames, the estimated homographies are accumulated as
 \begin{equation}
@@ -133,7 +133,7 @@ Using the accumulated homography matrix and the objects' bounding boxes, this st
   v^{\mathrm{res}}_{g} = v^{\mathrm{raw}}_{g} - v^{\mathrm{ego}}_{g} = \bigl(\boldsymbol{o}_{t}-\hat{\boldsymbol{o}}_{t}\bigr)/g.
   \label{eq:residual}
 \end{equation}
-This representation approximates the motion that a stationary camera would observe. For example, a parked vehicle has near-zero residual velocity even when camera motion causes a large image displacement. All velocities are normalized by the image dimensions to make them independent of image resolution.
+This representation approximates the motion that a stationary camera would observe. For example, a parked vehicle has near-zero residual velocity even when camera motion causes a large image displacement. All velocities are normalized by the image dimensions to make them independent of image resolution. In the implementation the factor $1/g$ is omitted; this is equivalent up to a per-gap rescaling of the first projection layer of Sec.~\ref{sec:align}.
 
 To capture motion over different time spans, residual velocities are computed at temporal gaps of $\{2,5,10\}$ frames. That means the accumulated homography matrices mentioned in Eqn.~(\ref{eq:cumulative}) have three versions, i.e., $H_{t-2 \to t}$, $H_{t-5 \to t}$, and $H_{t-10 \to t}$. The residual velocities are concatenated with the object's box information to form a 12-dimensional motion feature,
 \begin{equation}
@@ -141,6 +141,8 @@ To capture motion over different time spans, residual velocities are computed at
   \label{eq:descriptor}
 \end{equation}
 where the first six values are the residual velocities at the three temporal gaps, and $\Delta w, \Delta h$ capture the change in box scale. The terms $c_x$ and $c_y$ describe the coordinates of the box center, and $w$ and $h$ describe the width and height of the box, respectively.
+
+A track contributes a motion feature only once it has $11$ contiguous frames of history, the shortest history at which all three gaps are defined; on shorter histories the module abstains and the host score passes through unchanged. The threshold follows from the largest gap and adds no free parameter.
 
 \subsection{Motion-language alignment}
 \label{sec:align}
@@ -167,7 +169,7 @@ Since the GMC Module only adds extra influence on the final prediction score, it
 \label{sec:setup}
 We evaluate the proposed module on the Refer-KITTI V1~\cite{transrmot} and the Refer-KITTI V2~\cite{temprmot} benchmarks using the HOTA metric from TrackEval~\cite{hota}, which jointly measures detection and association performance. We report both moving-class HOTA, which evaluates only expressions referring to moving objects, and pooled HOTA, which evaluates all expressions in the benchmark. The V1 test split contains three sequences and the V2 test split four.
 
-The proposed module is attached to two host models, iKUN~\cite{ikun} and FlexHook~\cite{flexhook}. For comparison, we also evaluate a raw-velocity variant that uses image-plane motion directly, without ego-motion compensation. The GMC Module is trained using AdamW~\cite{adamw} with a learning rate of $10^{-3}$, batch size 256, and 100 epochs. The road-plane homography tracks up to 600 corners with a 3-pixel RANSAC threshold and succeeds on all 2,065 adjacent frame pairs across the four evaluation sequences. Excluding host inference, the module runs at $31.8$ FPS on CPU.
+The proposed module is attached to two host models, iKUN~\cite{ikun} and FlexHook~\cite{flexhook}. For comparison, we also evaluate a raw-velocity variant that uses image-plane motion directly, without ego-motion compensation. The GMC Module is trained using AdamW~\cite{adamw} with a learning rate of $10^{-3}$, batch size 256, and 100 epochs. The aligner is trained on the Refer-KITTI V1 training split (15 sequences, disjoint from the test sequences). Each positive pair consists of an expression and the motion feature of a ground-truth object annotated as its referent, computed from the object's ground-truth boxes; tracker outputs are used only at test time. The road-plane homography tracks up to 600 corners with a 3-pixel RANSAC threshold and succeeds on all 7,690 adjacent frame pairs of the 19 training and evaluation sequences. Excluding host inference, the module runs at $149$ FPS on CPU ($6.7$\,ms per frame).
 
 Results are averaged over three random seeds for the main configurations; ablation analyses use five seeds together with Welch's $t$-test. Both host models use their original detection results; FlexHook V1 is evaluated under the official 150-expression protocol. Our reproduced FlexHook baselines match their published scores exactly at $\alpha_c{=}0$, while our reproduced iKUN ($44.224$) is slightly below its published score; Table~\ref{tab:main} therefore reports the stricter comparison against the published baselines.
 
@@ -224,7 +226,7 @@ Table~\ref{tab:deficit} reports HOTA variations for movement-related expressions
 
 \subsection{Ablation Studies}
 \label{sec:ablation}
-Table~\ref{tab:ablation} reports the five-seed ablation measurements on iKUN. The full module improves moving-class HOTA from $25.53$ to $32.30\pm0.63$ and pooled HOTA from $44.22$ to $44.80\pm0.10$. The full module also improves STATIC HOTA from $43.91$ to $44.55$; without ego compensation it falls to $43.70$, below the native host, while removing the multi-scale gaps gives $44.43$. Removing ego-motion compensation costs $-3.81$ moving-class and $-0.64$ pooled HOTA; removing the multi-scale gaps costs $-1.85$ and $-0.32$. Both drops are significant under Welch's $t$-test, and ego-motion compensation accounts for the larger share.
+Table~\ref{tab:ablation} reports the five-seed ablation measurements on iKUN. The full module improves moving-class HOTA from $25.53$ to $32.30\pm0.63$ and pooled HOTA from $44.22$ to $44.80\pm0.10$. The full module also improves STATIC HOTA from $43.91$ to $44.55$; without ego compensation it falls to $43.70$, below the native host, while removing the multi-scale gaps gives $44.43$. Removing ego-motion compensation costs $-3.81$ moving-class and $-0.64$ pooled HOTA; removing the multi-scale gaps costs $-1.85$ and $-0.32$. Both drops are significant under Welch's $t$-test ($n{=}5$; ego: $t{=}11.8$ moving-class, $11.7$ pooled; multi-scale: $t{=}6.2$ and $6.7$; all $p{<}0.01$), and ego-motion compensation accounts for the larger share.
 
 \begin{table}
   \centering
