@@ -27,7 +27,11 @@ DATA_ROOT  = "/home/seanachan/data/Dataset/refer-kitti-v2"
 OUT_TPL    = os.path.join(REPO, "hota_eval_flexhook_v2_raw_gmc_sw12d_seed{seed}", "alpha{alpha}")
 TRACKEVAL  = "/home/seanachan/TempRMOT/TrackEval/scripts/run_mot_challenge.py"
 
-# V1-canonical keyword lists (= run_ikun_linear_additive.py; iKUN classify order)
+# Canonical rows: shared A43 classifier (gmc_link/moving_kw.py = the router).
+sys.path.insert(0, REPO)
+from gmc_link.moving_kw import classify as classify_canonical  # noqa: E402
+
+# Pre-A43 V1 lists, kept ONLY for the legacy slug DIRECTION row below.
 MOTION_KW = ["moving","walking","running","turning","faster","slower","braking",
              "parking","parked","stopped","stop","stand","static","stationary","accelerat"]
 STATIC_KW = ["parking","parked","stopped","stop","stand","static","stationary"]
@@ -36,13 +40,6 @@ STATIC_KW = ["parking","parked","stopped","stop","stand","static","stationary"]
 SLUG_MOTION_KW = MOTION_KW + ["transit","traveling","headed","going","passing","drive",
                               "driving","circulating","in-motion","in-the-process-of-moving"]
 SLUG_STATIC_KW = STATIC_KW + ["left-on","abandoned","left-behind"]
-
-
-def classify_canonical(sentence):
-    s = sentence.lower()
-    if not any(k in s for k in MOTION_KW): return "APPEARANCE"
-    if any(k in s for k in STATIC_KW): return "STATIC"
-    return "MOVING"
 
 
 def classify_slug(expr_id):

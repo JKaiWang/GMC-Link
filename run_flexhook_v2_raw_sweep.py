@@ -55,17 +55,10 @@ def classify(e):
     return "APPEARANCE"
 
 
-# Two-α router classifies the canonical raw_sentence with the V1 lists in iKUN
-# order (= run_v2_canonical_regroup.py, A30) — slug classification is void for
-# the method; slug-tuned classify() above stays for legacy per-class rows only.
-CANON_MOTION_KW = ["moving","walking","running","turning","faster","slower","braking",
-                   "parking","parked","stopped","stop","stand","static","stationary","accelerat"]
-CANON_STATIC_KW = ["parking","parked","stopped","stop","stand","static","stationary"]
-def route_class(text):
-    t = text.lower()
-    if not any(k in t for k in CANON_MOTION_KW): return "APPEARANCE"
-    if any(k in t for k in CANON_STATIC_KW): return "STATIC"
-    return "MOVING"
+# Two-α router classifies the canonical raw_sentence with the shared A43 lists
+# (= run_v2_canonical_regroup.py) — slug classification is void for the method;
+# slug-tuned classify() above stays for legacy per-class rows only.
+from gmc_link.moving_kw import classify as route_class  # noqa: E402
 
 
 def load_tracks(seq):
