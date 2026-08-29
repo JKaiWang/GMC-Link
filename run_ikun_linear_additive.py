@@ -48,16 +48,8 @@ TEST_SEQS = os.environ.get("GMC_EVAL_SEQS", "0005,0011,0013").split(",")  # LOSO
 FRAMES = {"0005": (0, 296), "0011": (0, 372), "0013": (0, 339)}
 SIM_A, SIM_B, SIM_TAU = 8.0, -0.1, 100.0
 
-MOTION_KW = ["moving","walking","running","turning","faster","slower","braking",
-             "parking","parked","stopped","stop","stand","static","stationary","accelerat"]
-STATIC_KW = ["parking","parked","stopped","stop","stand","static","stationary"]
-
-
-def is_motion(e): return any(k in e.lower() for k in MOTION_KW)
-def classify(e):
-    if not is_motion(e): return "APPEARANCE"
-    if any(k in e.lower() for k in STATIC_KW): return "STATIC"
-    return "MOVING"
+# A43: shared router/grouping classifier (gmc_link/moving_kw.py); pre-A43 lists in git history.
+from gmc_link.moving_kw import classify  # noqa: E402
 
 
 def compute_simcalib_bias(text_feat, exprs):

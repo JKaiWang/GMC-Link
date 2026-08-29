@@ -11,6 +11,32 @@
 
 ---
 
+## paper-YYYY-MM-DD(待定)— `gmc_v3.tex`(對 `gmc_v2.tex` @ 148b6be,即 paper-2026-08-26 之後的最後修訂)
+
+2026-08-29 起的新一輪:`gmc_v3.tex` 由已 commit 的 `gmc_v2.tex` 複製;v2 不再改。本輪兩件事:A42(協議)、A43(方法),新的在上。
+
+### [方法] — MOVING 類別改用使用者給定的關鍵字清單;分類器同時決定 α 路由與分類報表;iKUN 重跑、FlexHook 重分組(A43)
+
+- 舊分類器把 `turning`、`faster` 視為 MOVING;使用者改定 MOVING = {moving, in motion, driving, walking, running, jogging, crossing, riding, travelling/traveling, braking, brake, accelerat, decelerat, slowing down, speeding up, approaching, overtaking, receding},STATIC 七個字根不變,其餘為 APPEARANCE。統一放在 `gmc_link/moving_kw.py`,三個評測腳本與 V2 canonical regroup 都改為 import 它。
+- 類別數量:V1 官方 150 條 MOVING 25 → **21**(`0011+turning-cars/-vehicles`、`0011+cars/vehicles-which-are-faster-than-ours` 改為 APPEARANCE);V2 862 條 canonical MOVING 136 → **111**。
+- 同一分類器也是 iKUN 雙權重的路由器,所以 iKUN 15 個目錄(5 seeds × full/−ego/−multiscale)以新路由重跑到 `*_mkw` 樹(舊樹不動);對比舊樹只有兩條 `faster-than-ours` 的 predict.txt 不同(`turning-*` 在 iKUN 分數檔裡本來就沒有分數,任何 α 都是空預測)。FlexHook 兩個設定 α_mot=α_app,預測不變,只重跑 TrackEval 分組。STATIC 列在全部目錄逐位元相同(gate)。
+- iKUN 雙權重在新路由下**重跑 LOSO**(受影響的 hold-0005 / hold-0013 兩折全網格 × 3 seeds;hold-0011 折不含改動句子,沿用):兩折 argmax 都是 (1.0, 0.1),第三折照舊 censor → 規則值 **(α_mot, α_app) = (1.0, 0.1)**,取代 (0.7, 0.1)。fold 曲線在 0.7–1.0 間平坦(差 0.03),由規則定;pooled 只差 +0.04,MOVING +0.86。FlexHook α=7 / 5 不受影響(α_mot=α_app)。
+- 數字變動(新分類 + 新 α):iKUN native MOVING 25.778 → **27.697**(pooled 44.543、STATIC 43.914 不變);ship 45.158±0.104 → **45.304±0.115**(對已發表 +0.598 → **+0.744**);MOVING 32.902±0.660 → **37.139±0.923(+9.44)**。Table 3(n=5):native 27.70/44.54、full 36.99±0.68/45.28±0.09、−ego 32.37±0.39/44.61±0.07、−multiscale 35.14±0.38/45.00±0.02;Welch ego t=13.1/13.2、multiscale 5.3/6.8,全部 p<0.01;STATIC 43.91/44.53/43.40/44.35。(同路由下若維持 (0.7, 0.1):45.261±0.086 / MOVING 36.279±0.627,留在 `ikun_official150_mkw.json` 作對照。)FH V1 MOVING 44.31 → **47.90**,增益 +0.67±0.13 → **+0.43±0.19**;FH V2 canonical MOVING 38.15 → **38.56**,增益 +0.18±0.06 → **+0.69±0.04**;兩者 pooled 不變。
+- 改動位置(全部在 `gmc_v3.tex`;`gmc_v2.tex` 維持 148b6be):§3.4 α 值、摘要、§1 貢獻、§4.1(「one-sixth」→「one-seventh」,21/150 = 14%)、§4.2 文字與 Table 1 iKUN 列、Table 2 標題(21/150、111/862)與三列、§4.3 文字與 Table 3、§5。**待作者處理的文字**:§5 「14 of the 126 direction expressions … treated as appearance」— 新分類器依設計把所有方向/轉彎/快慢句都歸 APPEARANCE,已不是「誤讀」;§3.4 建議加一句「α 在最終分類器下重跑 LOSO 選出;fold 曲線 0.7–1.0 平坦,取規則值」。
+- §5 第二項限制改寫(2026-08-30,作者定稿):舊句「誤讀 → 14/126 方向句被當 appearance」在新分類器下不成立(方向/轉彎句依設計全歸 APPEARANCE);改為「分類器只把明確運動句路由到 α_mot;方向/轉彎句(214/818,V1 全部表達式)吃 α_app,模組對它們無助益」。計數:含 direction/turning/faster/slower 的 V1 句 218 條,其中 4 條同時含 moving 而路由到 α_mot。
+- 依據:A43,`results/moving_kw/{ikun_official150_mkw_am1.0,loso_two_alpha_mkw,fh_mkw,v2_canonical_regroup_mkw}.json`;一次性腳本(`regroup_fh_mkw.py`、`rescore_official150.py --out-name`、`diagnostics/aggregate_official150.py --tree-suffix`)不進 git。
+
+### [協議] — iKUN 改用 Refer-KITTI V1 官方 150 條測試表達式;iKUN 全部數字重算(A42)
+
+- 舊的 iKUN 評測名單是我們自己列 `expression/{seq}` 資料夾得到的 158 條;benchmark 官方名單(TransRMOT `seqmap.txt` = FlexHook `kitti-1.txt` = iKUN `utils.py` 的 `dropped` 補集)只評 150 條。多出的 8 條(braking×2、horizon×2、back-to-the-camera×4)benchmark 從不評,iKUN 自己的 `test.py` 也跳過;在我們的樹裡它們只有害(braking 零預測對 99 行 GT、men-back-to-the-camera 205 預測對 11 行 GT)。FlexHook 兩個設定早已用官方名單(A31),不受影響。
+- 修法:預測檔一個 byte 不動,只換成官方 seqmap 重跑 TrackEval(485 個目錄含 LOSO 折;做法見 `RESEARCH_NOTES.md` A42,一次性腳本不進 git)。LOSO 重選結果不變:雙權重 (0.7, 0.1)、單權重 0.35。
+- 數字變動(158 → 150):native 44.224 → **44.543**(iKUN 已發表 44.56,差距 −0.34 → −0.02);ship 44.847±0.107 → **45.158±0.104**(對已發表 +0.283 → **+0.598**);MOVING 25.531→32.606(+7.08)→ **25.778→32.902±0.660(+7.12)**;STATIC 不變(8 條裡沒有 static)。
+- 改動位置:摘要、§1 貢獻、§4.1(改寫為「所有 V1 設定皆用官方 150 條名單」、reproduced iKUN 44.543)、§4.2 文字與 Table 1(iKUN 列;Published 改為 iKUN README 的 44.56,原 44.564 是我們自己的 paper-pure 重現值)、Table 2 標題(改為「25/150 for iKUN and FlexHook V1」)與 iKUN 列、§4.3 文字與 Table 3(n=5:native 25.78/44.54、full 32.58±0.64/45.12±0.10、−ego 28.72±0.35/44.47±0.07、−multiscale 30.70±0.20/44.80±0.02;Welch ego t=11.8/12.1、multiscale 6.3/7.0)、§5。
+- 依據:A42,`results/official150/ikun_official150.json`、`seqmaps/refer_kitti_v1_test_official_150.txt`。
+- 註:本條的 iKUN 數字是本輪的中間值,同一輪內再被下面的 A43(新分類 + α 重選)覆蓋;v3 最終數字以 A43 條為準。這些修改原先寫在 v2 工作樹裡,2026-08-30 v2 還原為 148b6be,A42 只存在於 v3。
+
+---
+
 ## paper-2026-08-26 — `gmc_v2.tex`(對 `gmc_v1.tex`)
 
 2026-08-25 起的修訂輪(reviewer 視角逐段檢查)。程式碼僅動一處(A41 惰性 fallback,快取逐位元等值),所有已報 HOTA 數字不變;FPS 重測。
@@ -187,3 +213,4 @@ MOVING 本來就不預期動;−0.18 在 n=3 種子變異範圍內。
 | A39 | 路面估法逐幀對診斷:19 條序列 7,690 對相鄰幀,以光度殘差當裁判(對 identity、對舊全域估法) | fallback 0/7,690(含訓練序列);HGATE 門檻對路面估法無效(h32 是物理量);路面估法 90% 幀對贏全域;下半幅 = 地平線以下最寬區域;ORB 在路面**找得到點**但擬合較差 |
 | A40 | 由既有掃描量出單/雙權重的耦合;ORB 機制與訓練/推論遮罩差異的補充量測 | APPEAR 在 α≈0.2 達峰後單調下降、MOVING 到 1.0 才封頂 → 單一 α 是被迫折衷;ORB 差在取樣點深度(內點靠近地平線),非亮度/門檻;遮罩差異二階(p50 9.8 px),記錄不重訓 |
 | A41 | road 模式改為只在路面擬合失敗時才估全域 ORB(從未發生);快取重建逐值相同;FPS 同 session 重測 | 0011 seed0 快取 183,872 筆 max|Δ|=0.00,HOTA 不變;road 149.3 FPS(6.7 ms/幀)/ 舊 ship 63.9;A36 的 31.8/42.8 為當日機器狀態數字 |
+| A42 | iKUN 改用官方 150 條測試名單重跑 TrackEval(預測不動;485 目錄含 LOSO 折) | native 44.543(已發表 44.56);ship 45.158±0.104、MOVING +7.12;LOSO 重選 α 不變;消融 t 值 11.8/12.1、6.3/7.0;舊 158 名單是我們自己列資料夾多算 8 條 |

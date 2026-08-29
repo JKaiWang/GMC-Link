@@ -1,0 +1,170 @@
+{
+  "classifier": {
+    "MOVING_KW": [
+      "moving",
+      "in motion",
+      "driving",
+      "walking",
+      "running",
+      "jogging",
+      "crossing",
+      "riding",
+      "travelling",
+      "traveling",
+      "braking",
+      "brake",
+      "accelerat",
+      "decelerat",
+      "slowing down",
+      "speeding up",
+      "approaching",
+      "overtaking",
+      "receding"
+    ],
+    "STATIC_KW": [
+      "parking",
+      "parked",
+      "stopped",
+      "stop",
+      "stand",
+      "static",
+      "stationary"
+    ],
+    "rule": "STATIC if any STATIC_KW else MOVING if any MOVING_KW else APPEARANCE; '-'->' '"
+  },
+  "protocol": "TrackEval-only regroup of the road-ship FlexHook trees (A37); predictions unchanged; t = delta/(std/sqrt(n)) vs the seed-invariant native, as in A37",
+  "fh_v1_official150": {
+    "n_by_class": {
+      "MOVING": 21,
+      "STATIC": 12,
+      "APPEARANCE": 117
+    },
+    "alpha": 7.0,
+    "pooled": {
+      "native": 53.824,
+      "n": 3,
+      "mean": 53.98,
+      "std": 0.059,
+      "delta": 0.156,
+      "t": 4.56,
+      "per_seed": [
+        53.994,
+        54.031,
+        53.915
+      ]
+    },
+    "moving": {
+      "native": 47.896,
+      "n": 3,
+      "mean": 48.33,
+      "std": 0.189,
+      "delta": 0.434,
+      "t": 3.98,
+      "per_seed": [
+        48.544,
+        48.256,
+        48.189
+      ]
+    },
+    "static": {
+      "native": 48.983,
+      "n": 3,
+      "mean": 49.293,
+      "std": 0.125,
+      "delta": 0.31,
+      "t": 4.3,
+      "per_seed": [
+        49.358,
+        49.372,
+        49.149
+      ]
+    },
+    "appearance": {
+      "native": 55.721,
+      "n": 3,
+      "mean": 55.825,
+      "std": 0.049,
+      "delta": 0.104,
+      "t": 3.67,
+      "per_seed": [
+        55.801,
+        55.882,
+        55.793
+      ]
+    }
+  },
+  "fh_v2_canonical": {
+    "n_by_class": {
+      "MOVING": 111,
+      "STATIC": 93,
+      "APPEARANCE": 658,
+      "DIRECTION": 83
+    },
+    "alpha": 5.0,
+    "moving": {
+      "native": 38.561,
+      "n": 3,
+      "mean": 39.255,
+      "std": 0.044,
+      "delta": 0.694,
+      "t": 27.2,
+      "per_seed": [
+        39.282,
+        39.279,
+        39.204
+      ]
+    },
+    "static": {
+      "native": 44.576,
+      "n": 3,
+      "mean": 44.832,
+      "std": 0.011,
+      "delta": 0.256,
+      "t": 41.41,
+      "per_seed": [
+        44.826,
+        44.825,
+        44.844
+      ]
+    },
+    "appearance": {
+      "native": 42.542,
+      "n": 3,
+      "mean": 42.604,
+      "std": 0.036,
+      "delta": 0.062,
+      "t": 2.97,
+      "per_seed": [
+        42.613,
+        42.564,
+        42.634
+      ]
+    },
+    "direction": {
+      "native": 53.127,
+      "n": 3,
+      "mean": 52.903,
+      "std": 0.15,
+      "delta": -0.224,
+      "t": -2.58,
+      "per_seed": [
+        52.986,
+        52.729,
+        52.993
+      ]
+    },
+    "pooled": {
+      "native": 42.526,
+      "n": 3,
+      "mean": 42.625,
+      "std": 0.032,
+      "delta": 0.099,
+      "t": 5.4,
+      "per_seed": [
+        42.633,
+        42.59,
+        42.652
+      ]
+    }
+  }
+}

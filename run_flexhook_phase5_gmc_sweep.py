@@ -41,20 +41,8 @@ _OFFICIAL = (set(l.strip() for l in open(_OFFICIAL_SM) if l.strip())
 
 TEST_SEQS = os.environ.get("GMC_EVAL_SEQS", "0005,0011,0013").split(",")  # LOSO folds override
 FRAMES = {"0005": (0, 296), "0011": (0, 372), "0013": (0, 339)}
-MOTION_KW = ["moving", "walking", "running", "turning", "faster", "slower",
-             "braking", "parking", "parked", "stopped", "stop", "stand",
-             "static", "stationary", "accelerat"]
-STATIC_KW = ["parking", "parked", "stopped", "stop", "stand", "static",
-             "stationary"]
-
-
-def is_motion(e): return any(k in e.lower() for k in MOTION_KW)
-def is_strict_static(e): return any(k in e.lower() for k in STATIC_KW)
-def classify(e):
-    el = e.lower()
-    if any(k in el for k in STATIC_KW): return "STATIC"
-    if any(k in el for k in MOTION_KW): return "MOVING"
-    return "APPEARANCE"
+# A43: shared router/grouping classifier (gmc_link/moving_kw.py); pre-A43 lists in git history.
+from gmc_link.moving_kw import classify  # noqa: E402
 
 
 def load_tracks(seq):

@@ -1,0 +1,282 @@
+{
+  "protocol": "official Refer-KITTI V1 test seqmap, 150 exprs (seqmaps/refer_kitti_v1_test_official_150.txt); TrackEval-only rescore of existing trees, predictions unchanged",
+  "tag": "am0.7_aa0.1",
+  "native": {
+    "seqmap": "official150",
+    "n_expr": 150,
+    "n_expr_orig": 158,
+    "pooled": 44.543,
+    "moving": 27.697,
+    "static": 43.914,
+    "appearance": 46.3,
+    "alpha": 0.0,
+    "gmc_suffix": "_sw12d_groad_seed0_warm11",
+    "eval_seqs": [
+      "0005",
+      "0011",
+      "0013"
+    ],
+    "pooled_158": 44.224
+  },
+  "ship_two_alpha_n3": {
+    "n": 3,
+    "per_seed": [
+      {
+        "pooled": 45.253,
+        "moving": 36.476,
+        "static": 44.621,
+        "appearance": 46.337,
+        "pooled_158": 44.937
+      },
+      {
+        "pooled": 45.351,
+        "moving": 36.784,
+        "static": 44.683,
+        "appearance": 46.422,
+        "pooled_158": 45.042
+      },
+      {
+        "pooled": 45.18,
+        "moving": 35.577,
+        "static": 44.448,
+        "appearance": 46.356,
+        "pooled_158": 44.866
+      }
+    ],
+    "pooled_mean": 45.261,
+    "pooled_std": 0.086,
+    "moving_mean": 36.279,
+    "moving_std": 0.627,
+    "static_mean": 44.584,
+    "static_std": 0.122,
+    "appearance_mean": 46.372,
+    "appearance_std": 0.045
+  },
+  "ship_two_alpha_n5": {
+    "n": 5,
+    "per_seed": [
+      {
+        "pooled": 45.253,
+        "moving": 36.476,
+        "static": 44.621,
+        "appearance": 46.337,
+        "pooled_158": 44.937
+      },
+      {
+        "pooled": 45.351,
+        "moving": 36.784,
+        "static": 44.683,
+        "appearance": 46.422,
+        "pooled_158": 45.042
+      },
+      {
+        "pooled": 45.18,
+        "moving": 35.577,
+        "static": 44.448,
+        "appearance": 46.356,
+        "pooled_158": 44.866
+      },
+      {
+        "pooled": 45.213,
+        "moving": 35.402,
+        "static": 44.535,
+        "appearance": 46.444,
+        "pooled_158": 44.89
+      },
+      {
+        "pooled": 45.136,
+        "moving": 35.407,
+        "static": 44.436,
+        "appearance": 46.352,
+        "pooled_158": 44.815
+      }
+    ],
+    "pooled_mean": 45.227,
+    "pooled_std": 0.082,
+    "moving_mean": 35.929,
+    "moving_std": 0.653,
+    "static_mean": 44.545,
+    "static_std": 0.107,
+    "appearance_mean": 46.382,
+    "appearance_std": 0.048
+  },
+  "ablation_B_n5": {
+    "B-full": {
+      "n": 5,
+      "per_seed": [
+        {
+          "pooled": 45.253,
+          "moving": 36.476,
+          "static": 44.621,
+          "appearance": 46.337,
+          "pooled_158": 44.937
+        },
+        {
+          "pooled": 45.351,
+          "moving": 36.784,
+          "static": 44.683,
+          "appearance": 46.422,
+          "pooled_158": 45.042
+        },
+        {
+          "pooled": 45.18,
+          "moving": 35.577,
+          "static": 44.448,
+          "appearance": 46.356,
+          "pooled_158": 44.866
+        },
+        {
+          "pooled": 45.213,
+          "moving": 35.402,
+          "static": 44.535,
+          "appearance": 46.444,
+          "pooled_158": 44.89
+        },
+        {
+          "pooled": 45.136,
+          "moving": 35.407,
+          "static": 44.436,
+          "appearance": 46.352,
+          "pooled_158": 44.815
+        }
+      ],
+      "pooled_mean": 45.227,
+      "pooled_std": 0.082,
+      "moving_mean": 35.929,
+      "moving_std": 0.653,
+      "static_mean": 44.545,
+      "static_std": 0.107,
+      "appearance_mean": 46.382,
+      "appearance_std": 0.048
+    },
+    "B-noego": {
+      "n": 5,
+      "per_seed": [
+        {
+          "pooled": 44.745,
+          "moving": 32.884,
+          "static": 43.785,
+          "appearance": 46.284,
+          "pooled_158": 44.437
+        },
+        {
+          "pooled": 44.712,
+          "moving": 31.87,
+          "static": 43.734,
+          "appearance": 46.349,
+          "pooled_158": 44.393
+        },
+        {
+          "pooled": 44.702,
+          "moving": 32.36,
+          "static": 43.755,
+          "appearance": 46.281,
+          "pooled_158": 44.394
+        },
+        {
+          "pooled": 44.71,
+          "moving": 32.401,
+          "static": 43.906,
+          "appearance": 46.253,
+          "pooled_158": 44.396
+        },
+        {
+          "pooled": 44.589,
+          "moving": 32.251,
+          "static": 43.329,
+          "appearance": 46.27,
+          "pooled_158": 44.279
+        }
+      ],
+      "pooled_mean": 44.692,
+      "pooled_std": 0.06,
+      "moving_mean": 32.353,
+      "moving_std": 0.363,
+      "static_mean": 43.702,
+      "static_std": 0.219,
+      "appearance_mean": 46.287,
+      "appearance_std": 0.037
+    },
+    "B-nomulti": {
+      "n": 5,
+      "per_seed": [
+        {
+          "pooled": 45.017,
+          "moving": 34.265,
+          "static": 44.532,
+          "appearance": 46.338,
+          "pooled_158": 44.699
+        },
+        {
+          "pooled": 44.996,
+          "moving": 34.511,
+          "static": 44.426,
+          "appearance": 46.282,
+          "pooled_158": 44.69
+        },
+        {
+          "pooled": 44.996,
+          "moving": 34.564,
+          "static": 44.38,
+          "appearance": 46.292,
+          "pooled_158": 44.675
+        },
+        {
+          "pooled": 44.977,
+          "moving": 34.328,
+          "static": 44.391,
+          "appearance": 46.31,
+          "pooled_158": 44.66
+        },
+        {
+          "pooled": 44.999,
+          "moving": 34.335,
+          "static": 44.409,
+          "appearance": 46.334,
+          "pooled_158": 44.675
+        }
+      ],
+      "pooled_mean": 44.997,
+      "pooled_std": 0.014,
+      "moving_mean": 34.401,
+      "moving_std": 0.129,
+      "static_mean": 44.428,
+      "static_std": 0.061,
+      "appearance_mean": 46.311,
+      "appearance_std": 0.025
+    }
+  },
+  "welch_full_vs_arm": {
+    "B-noego/pooled": {
+      "delta": -0.535,
+      "t": 11.82,
+      "p": 4.96e-06
+    },
+    "B-noego/moving": {
+      "delta": -3.576,
+      "t": 10.7,
+      "p": 2.96e-05
+    },
+    "B-noego/static": {
+      "delta": -0.843,
+      "t": 7.73,
+      "p": 0.000284
+    },
+    "B-nomulti/pooled": {
+      "delta": -0.23,
+      "t": 6.19,
+      "p": 0.00285
+    },
+    "B-nomulti/moving": {
+      "delta": -1.529,
+      "t": 5.14,
+      "p": 0.00554
+    },
+    "B-nomulti/static": {
+      "delta": -0.117,
+      "t": 2.12,
+      "p": 0.0762
+    }
+  },
+  "note": "tree suffix _mkw: re-run trees hold only am0.7_aa0.1; sweep/LOSO blocks skipped"
+}
