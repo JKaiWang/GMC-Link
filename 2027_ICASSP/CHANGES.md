@@ -15,6 +15,13 @@
 
 2026-08-29 起的新一輪:`gmc_v3.tex` 由已 commit 的 `gmc_v2.tex` 複製;v2 不再改。本輪兩件事:A42(協議)、A43(方法),新的在上。
 
+### [編輯] — 依 RMOT 文獻內容調查補充表格:Table 1 加 ΔDetA/ΔAssA、Table 3 加 STATIC 欄與單-α 列、新增 Table 4 α 敏感度(A44)
+
+- 調查:`docs/RESEARCH_RMOT_CONTENT_SURVEY_2026_08_30.md`(Zotero 10 篇 RMOT 論文)。9/10 篇主表列 DetA/AssA;5/10 篇有關鍵超參掃描表;消融表慣例列全指標並比對設計替代方案。作者決定:做 A(子指標)、B(α 小表,三個 host,FH V1 補跑 15 次)、E(單-α 列 n=5)、F(STATIC 欄);C/D/G/H 四句(TempRMOT 負結果、參數量、統計句、frame-convention 註腳)只留草稿於調查 §6,未進稿。
+- 數字(A44):iKUN native→ship DetA +0.87、AssA +0.46(DetRe +1.52);FH V1 +0.15/+0.15;FH V2 +0.12/+0.04。單 α=0.35(LOSO)n=5:44.95±0.11 / MOVING 32.42±0.25 / STATIC 44.35±0.06,雙權重比它高 +0.33 / +4.57 / +0.18。α 掃描:FlexHook pooled 在 α*/2 到網格最大內變動 ≤0.1;iKUN 單 α 最佳 0.5(45.01),α=2 掉到 42.96。
+- 版面:三張表改 \footnotesize;Table 1/3 加欄、Table 3 加一列、Table 4 五列 + 一句參照(待作者審)。**目前超出 4 頁約 30 行(結論溢到第 5 頁)**,待作者裁減;首選刪 Table 2(其數字已在 §4.2 文字與 Table 4 的 0/α* 列),約省 9 行。
+- 依據:A44,`results/moving_kw/{submetrics,alpha_sweep_mkw,v2_canonical_regroup_mkw_sweep,single_alpha_0.35_n5}.json`;一次性腳本(`submetrics_mkw.py`、`alpha_sweep_mkw.py`)不進 git。
+
 ### [方法] — MOVING 類別改用使用者給定的關鍵字清單;分類器同時決定 α 路由與分類報表;iKUN 重跑、FlexHook 重分組(A43)
 
 - 舊分類器把 `turning`、`faster` 視為 MOVING;使用者改定 MOVING = {moving, in motion, driving, walking, running, jogging, crossing, riding, travelling/traveling, braking, brake, accelerat, decelerat, slowing down, speeding up, approaching, overtaking, receding},STATIC 七個字根不變,其餘為 APPEARANCE。統一放在 `gmc_link/moving_kw.py`,三個評測腳本與 V2 canonical regroup 都改為 import 它。
