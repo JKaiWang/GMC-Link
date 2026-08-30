@@ -185,7 +185,7 @@ Table~\ref{tab:main} summarizes the pooled HOTA results on the Refer-KITTI datas
 
 \begin{table}
   \centering
-  \caption{Pooled HOTA on the Refer-KITTI test sets: published host score, host with the GMC Module (mean $\pm$ std over three seeds) and its gain, and the change in detection and association accuracy relative to our reproduced host.}
+  \caption{Pooled HOTA on the Refer-KITTI test sets (mean $\pm$ std over three seeds) and the change in DetA\,/\,AssA relative to the reproduced host.}
   \label{tab:main}
   \footnotesize
   \setlength{\tabcolsep}{2pt}
@@ -224,34 +224,13 @@ Table~\ref{tab:deficit} reports HOTA variations for movement-related expressions
   \end{tabular}
 \end{table}
 
-Table~\ref{tab:alpha} varies a single fusion weight around its leave-one-sequence-out value $\alpha^\ast$: on both FlexHook settings pooled HOTA stays within $0.1$ of its optimum from $\alpha^\ast/2$ to the grid maximum, while iKUN's optimum is narrower, which is why it benefits from the two-weight routing.
-
-\begin{table}
-  \centering
-  \caption{Sensitivity to a single fusion weight (pooled\,/\,MOVING HOTA, $n{=}3$). $\alpha^\ast$ = single-weight LOSO choice ($0.35$\,/\,$7$\,/\,$5$); rows use $\alpha^\ast/2$ ($0.2$\,/\,$3$\,/\,$3$), $2\alpha^\ast$ ($0.7$\,/\,--\,/\,$10$) and the grid maximum ($2$\,/\,$10$\,/\,$10$).}
-  \label{tab:alpha}
-  \footnotesize
-  \setlength{\tabcolsep}{2pt}
-  \begin{tabular}{lccc}
-    \hline
-    $\alpha$          & iKUN          & FlexHook V1   & FlexHook V2   \\
-    \hline
-    $0$ (native)      & 44.54 / 27.70 & 53.82 / 47.90 & 42.53 / 38.56 \\
-    $\alpha^\ast/2$   & 44.82 / 30.34 & 53.93 / 48.06 & 42.60 / 38.98 \\
-    $\alpha^\ast$     & 44.91 / 32.45 & 53.98 / 48.33 & 42.63 / 39.26 \\
-    $2\alpha^\ast$    & 44.87 / 36.28 & --            & 42.41 / 39.84 \\
-    grid maximum      & 42.96 / 36.90 & 53.89 / 48.32 & 42.41 / 39.84 \\
-    \hline
-  \end{tabular}
-\end{table}
-
 \subsection{Ablation Studies}
 \label{sec:ablation}
 Table~\ref{tab:ablation} reports the five-seed ablation measurements on iKUN. The full module improves moving-class HOTA from $27.70$ to $36.99\pm0.68$ and pooled HOTA from $44.54$ to $45.28\pm0.09$. The full module also improves STATIC HOTA from $43.91$ to $44.53$; without ego compensation it falls to $43.40$, below the native host, while removing the multi-scale gaps gives $44.35$. Removing ego-motion compensation costs $-4.62$ moving-class and $-0.67$ pooled HOTA; removing the multi-scale gaps costs $-1.85$ and $-0.28$. Both drops are significant under Welch's $t$-test ($n{=}5$; ego: $t{=}13.1$ moving-class, $13.2$ pooled; multi-scale: $t{=}5.3$ and $6.8$; all $p{<}0.01$), and ego-motion compensation accounts for the larger share.
 
 \begin{table}
   \centering
-  \caption{Per-class HOTA ablation on iKUN ($n{=}5$ seeds). The single-weight row uses $\alpha_{\mathrm{mot}}=\alpha_{\mathrm{app}}=0.35$, the leave-one-sequence-out choice for one weight.}
+  \caption{Per-class HOTA ablation on iKUN ($n{=}5$); single $\alpha$: $\alpha_{\mathrm{mot}}{=}\alpha_{\mathrm{app}}{=}0.35$ (LOSO).}
   \label{tab:ablation}
   \footnotesize
   \setlength{\tabcolsep}{2pt}
