@@ -33,7 +33,7 @@ STATIC: parking, parked, stopped, stop, stand, static, stationary; else APPEARAN
 V1 official-150: MOVING 21 / STATIC 12 / APPEAR 117; V2 canonical 111 / 93 / 658. iKUN ship trees are
 `hota_eval_ikun_linear_additive_sw12d_*_mkw/am1.0_aa0.1` (re-run under the A43 router; `am0.7_aa0.1` there = same router, old α; vs the pre-A43
 trees only the two `0011+*-faster-than-ours` predict.txt differ — `turning-*` have no iKUN host scores)
-— read `result_off150_mkw.json`; summaries in `results/moving_kw/` (canonical iKUN: `ikun_official150_mkw_am1.0.json`; LOSO: `loso_two_alpha_mkw.json`). FlexHook needs no re-run (α_mot=α_app).
+— read `result_off150_mkw.json`; summaries in `results/moving_kw/` (canonical iKUN: `ikun_official150_mkw_am1.0.json`; LOSO: `loso_two_alpha_mkw.json`; A44 sub-metrics / α sweep / single-α n=5: `submetrics.json`, `alpha_sweep_mkw.json`, `single_alpha_0.35_n5.json`). FlexHook needs no re-run (α_mot=α_app).
 
 **Historical ships (superseded, kept for provenance)**: 2026-08-10 12D single-α on the
 global similarity chain (iKUN 44.656 @0.5 / FH V1 54.011 @7 / FH V2 42.658 @5 — this was

@@ -1,0 +1,312 @@
+{
+  "protocol": "one pooled TrackEval per dir on the official seqmap; A43 trees; n=3 for ship rows",
+  "hosts": {
+    "iKUN": {
+      "native": {
+        "n": 1,
+        "per_seed": [
+          {
+            "HOTA": 44.543,
+            "DetA": 32.037,
+            "AssA": 62.482,
+            "DetRe": 48.535,
+            "DetPr": 44.715,
+            "AssRe": 70.505,
+            "AssPr": 76.684,
+            "LocA": 81.114,
+            "gate_recorded_pooled": 44.543,
+            "gate_ok": true
+          }
+        ],
+        "HOTA_mean": 44.543,
+        "DetA_mean": 32.037,
+        "AssA_mean": 62.482,
+        "DetRe_mean": 48.535,
+        "DetPr_mean": 44.715,
+        "AssRe_mean": 70.505,
+        "AssPr_mean": 76.684,
+        "LocA_mean": 81.114,
+        "HOTA_std": 0.0,
+        "DetA_std": 0.0,
+        "AssA_std": 0.0,
+        "DetRe_std": 0.0,
+        "DetPr_std": 0.0,
+        "AssRe_std": 0.0,
+        "AssPr_std": 0.0,
+        "LocA_std": 0.0
+      },
+      "ship": {
+        "n": 3,
+        "per_seed": [
+          {
+            "HOTA": 45.288,
+            "DetA": 32.853,
+            "AssA": 62.999,
+            "DetRe": 49.987,
+            "DetPr": 45.078,
+            "AssRe": 71.155,
+            "AssPr": 76.727,
+            "LocA": 81.155,
+            "gate_recorded_pooled": 45.288,
+            "gate_ok": true
+          },
+          {
+            "HOTA": 45.426,
+            "DetA": 33.088,
+            "AssA": 62.927,
+            "DetRe": 50.353,
+            "DetPr": 45.217,
+            "AssRe": 71.045,
+            "AssPr": 76.729,
+            "LocA": 81.155,
+            "gate_recorded_pooled": 45.426,
+            "gate_ok": true
+          },
+          {
+            "HOTA": 45.197,
+            "DetA": 32.77,
+            "AssA": 62.906,
+            "DetRe": 49.84,
+            "DetPr": 45.04,
+            "AssRe": 71.096,
+            "AssPr": 76.684,
+            "LocA": 81.149,
+            "gate_recorded_pooled": 45.197,
+            "gate_ok": true
+          }
+        ],
+        "HOTA_mean": 45.304,
+        "DetA_mean": 32.904,
+        "AssA_mean": 62.944,
+        "DetRe_mean": 50.06,
+        "DetPr_mean": 45.112,
+        "AssRe_mean": 71.099,
+        "AssPr_mean": 76.713,
+        "LocA_mean": 81.153,
+        "HOTA_std": 0.115,
+        "DetA_std": 0.165,
+        "AssA_std": 0.049,
+        "DetRe_std": 0.264,
+        "DetPr_std": 0.093,
+        "AssRe_std": 0.055,
+        "AssPr_std": 0.025,
+        "LocA_std": 0.003
+      },
+      "delta": {
+        "HOTA": 0.761,
+        "DetA": 0.867,
+        "AssA": 0.462,
+        "DetRe": 1.525,
+        "DetPr": 0.397,
+        "AssRe": 0.594,
+        "AssPr": 0.029,
+        "LocA": 0.039
+      }
+    },
+    "FH_V1": {
+      "native": {
+        "n": 1,
+        "per_seed": [
+          {
+            "HOTA": 53.824,
+            "DetA": 43.354,
+            "AssA": 66.916,
+            "DetRe": 59.706,
+            "DetPr": 59.833,
+            "AssRe": 71.672,
+            "AssPr": 88.658,
+            "LocA": 90.872,
+            "gate_recorded_pooled": 53.824,
+            "gate_ok": true
+          }
+        ],
+        "HOTA_mean": 53.824,
+        "DetA_mean": 43.354,
+        "AssA_mean": 66.916,
+        "DetRe_mean": 59.706,
+        "DetPr_mean": 59.833,
+        "AssRe_mean": 71.672,
+        "AssPr_mean": 88.658,
+        "LocA_mean": 90.872,
+        "HOTA_std": 0.0,
+        "DetA_std": 0.0,
+        "AssA_std": 0.0,
+        "DetRe_std": 0.0,
+        "DetPr_std": 0.0,
+        "AssRe_std": 0.0,
+        "AssPr_std": 0.0,
+        "LocA_std": 0.0
+      },
+      "ship": {
+        "n": 3,
+        "per_seed": [
+          {
+            "HOTA": 53.994,
+            "DetA": 43.548,
+            "AssA": 67.038,
+            "DetRe": 60.039,
+            "DetPr": 59.871,
+            "AssRe": 71.838,
+            "AssPr": 88.557,
+            "LocA": 90.877,
+            "gate_recorded_pooled": 53.994,
+            "gate_ok": true
+          },
+          {
+            "HOTA": 54.031,
+            "DetA": 43.56,
+            "AssA": 67.111,
+            "DetRe": 60.212,
+            "DetPr": 59.721,
+            "AssRe": 71.891,
+            "AssPr": 88.591,
+            "LocA": 90.88,
+            "gate_recorded_pooled": 54.031,
+            "gate_ok": true
+          },
+          {
+            "HOTA": 53.915,
+            "DetA": 43.413,
+            "AssA": 67.052,
+            "DetRe": 60.13,
+            "DetPr": 59.527,
+            "AssRe": 71.853,
+            "AssPr": 88.576,
+            "LocA": 90.884,
+            "gate_recorded_pooled": 53.915,
+            "gate_ok": true
+          }
+        ],
+        "HOTA_mean": 53.98,
+        "DetA_mean": 43.507,
+        "AssA_mean": 67.067,
+        "DetRe_mean": 60.127,
+        "DetPr_mean": 59.706,
+        "AssRe_mean": 71.861,
+        "AssPr_mean": 88.575,
+        "LocA_mean": 90.88,
+        "HOTA_std": 0.059,
+        "DetA_std": 0.082,
+        "AssA_std": 0.039,
+        "DetRe_std": 0.087,
+        "DetPr_std": 0.172,
+        "AssRe_std": 0.027,
+        "AssPr_std": 0.017,
+        "LocA_std": 0.004
+      },
+      "delta": {
+        "HOTA": 0.156,
+        "DetA": 0.153,
+        "AssA": 0.151,
+        "DetRe": 0.421,
+        "DetPr": -0.127,
+        "AssRe": 0.189,
+        "AssPr": -0.083,
+        "LocA": 0.008
+      }
+    },
+    "FH_V2": {
+      "native": {
+        "n": 1,
+        "per_seed": [
+          {
+            "HOTA": 42.526,
+            "DetA": 30.629,
+            "AssA": 59.186,
+            "DetRe": 58.55,
+            "DetPr": 38.31,
+            "AssRe": 64.69,
+            "AssPr": 85.048,
+            "LocA": 89.088,
+            "gate_recorded_pooled": 42.526,
+            "gate_ok": true
+          }
+        ],
+        "HOTA_mean": 42.526,
+        "DetA_mean": 30.629,
+        "AssA_mean": 59.186,
+        "DetRe_mean": 58.55,
+        "DetPr_mean": 38.31,
+        "AssRe_mean": 64.69,
+        "AssPr_mean": 85.048,
+        "LocA_mean": 89.088,
+        "HOTA_std": 0.0,
+        "DetA_std": 0.0,
+        "AssA_std": 0.0,
+        "DetRe_std": 0.0,
+        "DetPr_std": 0.0,
+        "AssRe_std": 0.0,
+        "AssPr_std": 0.0,
+        "LocA_std": 0.0
+      },
+      "ship": {
+        "n": 3,
+        "per_seed": [
+          {
+            "HOTA": 42.633,
+            "DetA": 30.761,
+            "AssA": 59.227,
+            "DetRe": 58.388,
+            "DetPr": 38.589,
+            "AssRe": 64.744,
+            "AssPr": 84.999,
+            "LocA": 89.089,
+            "gate_recorded_pooled": 42.633,
+            "gate_ok": true
+          },
+          {
+            "HOTA": 42.59,
+            "DetA": 30.722,
+            "AssA": 59.185,
+            "DetRe": 58.388,
+            "DetPr": 38.527,
+            "AssRe": 64.652,
+            "AssPr": 85.082,
+            "LocA": 89.092,
+            "gate_recorded_pooled": 42.59,
+            "gate_ok": true
+          },
+          {
+            "HOTA": 42.652,
+            "DetA": 30.763,
+            "AssA": 59.276,
+            "DetRe": 58.271,
+            "DetPr": 38.643,
+            "AssRe": 64.779,
+            "AssPr": 85.065,
+            "LocA": 89.102,
+            "gate_recorded_pooled": 42.652,
+            "gate_ok": true
+          }
+        ],
+        "HOTA_mean": 42.625,
+        "DetA_mean": 30.749,
+        "AssA_mean": 59.229,
+        "DetRe_mean": 58.349,
+        "DetPr_mean": 38.586,
+        "AssRe_mean": 64.725,
+        "AssPr_mean": 85.049,
+        "LocA_mean": 89.094,
+        "HOTA_std": 0.032,
+        "DetA_std": 0.023,
+        "AssA_std": 0.046,
+        "DetRe_std": 0.068,
+        "DetPr_std": 0.058,
+        "AssRe_std": 0.066,
+        "AssPr_std": 0.044,
+        "LocA_std": 0.007
+      },
+      "delta": {
+        "HOTA": 0.099,
+        "DetA": 0.12,
+        "AssA": 0.043,
+        "DetRe": -0.201,
+        "DetPr": 0.276,
+        "AssRe": 0.035,
+        "AssPr": 0.001,
+        "LocA": 0.006
+      }
+    }
+  },
+  "gate_all_ok": true
+}

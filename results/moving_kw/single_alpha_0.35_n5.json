@@ -1,0 +1,44 @@
+{
+  "alpha": 0.35,
+  "selection": "A42 single-alpha LOSO on the official list; routing-invariant under A43",
+  "n": 5,
+  "pooled_mean": 44.948,
+  "pooled_std": 0.112,
+  "moving_mean": 32.423,
+  "moving_std": 0.247,
+  "static_mean": 44.349,
+  "static_std": 0.064,
+  "per_seed": [
+    {
+      "pooled": 44.835,
+      "moving": 32.57,
+      "static": 44.391,
+      "appearance": 46.17
+    },
+    {
+      "pooled": 45.003,
+      "moving": 32.709,
+      "static": 44.381,
+      "appearance": 46.387
+    },
+    {
+      "pooled": 44.891,
+      "moving": 32.081,
+      "static": 44.397,
+      "appearance": 46.287
+    },
+    {
+      "pooled": 45.117,
+      "moving": 32.477,
+      "static": 44.245,
+      "appearance": 46.603
+    },
+    {
+      "pooled": 44.894,
+      "moving": 32.28,
+      "static": 44.332,
+      "appearance": 46.3
+    }
+  ],
+  "gate_seeds012_pooled_equal_A42": true
+}
