@@ -15,6 +15,12 @@
 
 2026-08-29 起的新一輪:`gmc_v3.tex` 由已 commit 的 `gmc_v2.tex` 複製;v2 不再改。本輪兩件事:A42(協議)、A43(方法),新的在上。
 
+### [編輯] — 用語統一與 Table 1 位置(release 後同日修正,assets 已更新)
+
+- 「和動作有關的 expression」在文中有四種說法(expressions referring to moving objects、movement-related expressions、explicit-motion expressions、MOVING HOTA),依作者要求統一為 **moving-class expressions / moving-class HOTA**:§4.1 首次出現處定義(= 分類器判為 MOVING 的 expression),§1、§4.1、§4.2、Table 2 標題、§5 共 8 處改寫;數字不變。
+- Table 1 原本浮到第 4 頁(§4.2 在第 3 頁底),把表的原始碼移到 §4.1 之前並加 `[t]`,現在排在第 3 頁右欄頂;Table 2/3 仍在第 4 頁。頁數 5、第 5 頁純參考文獻、無 overfull。
+- release `paper-2026-08-30` 的三個 assets 以此版重傳(PDF、latexdiff、來源包);tag 仍指向 c6d6571,修正 commit 見 release notes。
+
 ### [編輯] — 依 RMOT 文獻內容調查補充表格:Table 1 加 ΔDetA/ΔAssA、Table 3 加 STATIC 欄與單-α 列(A44;α 敏感度表因版面退回筆記)
 
 - 調查:`docs/RESEARCH_RMOT_CONTENT_SURVEY_2026_08_30.md`(Zotero 10 篇 RMOT 論文)。9/10 篇主表列 DetA/AssA;5/10 篇有關鍵超參掃描表;消融表慣例列全指標並比對設計替代方案。作者決定:做 A(子指標)、B(α 小表,三個 host,FH V1 補跑 15 次)、E(單-α 列 n=5)、F(STATIC 欄);C/D/G/H 四句(TempRMOT 負結果、參數量、統計句、frame-convention 註腳)只留草稿於調查 §6,未進稿。

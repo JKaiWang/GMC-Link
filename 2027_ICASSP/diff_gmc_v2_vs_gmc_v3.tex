@@ -1,7 +1,7 @@
 % Template for ICASSP-2024 paper; to be used with:
 %DIF LATEXDIFF DIFFERENCE FILE
 %DIF DEL gmc_v2.tex   Sun Aug 30 00:32:32 2026
-%DIF ADD gmc_v3.tex   Sun Aug 30 17:19:17 2026
+%DIF ADD gmc_v3.tex   Sun Aug 30 17:44:15 2026
 %          spconf.sty  - ICASSP/ICIP LaTeX style file, and
 %          IEEEbib.bst - IEEE bibliography style file.
 % --------------------------------------------------------------------------
@@ -167,7 +167,7 @@ This work connects ego-motion compensation with motion-language modeling for RMO
 \begin{itemize}
   \item We propose a plug-in that aligns ego-compensated residual velocity with the referring expression, thereby improving the host RMOT method without modifying or retraining it.
         %  \item We show that among the module's design choices, camera motion compensation is the key factor: it is the only component whose removal significantly degrades both moving-class ($p{=}0.006$) and static-class ($p{<}10^{-4}$) HOTA.
-  \item Across iKUN and FlexHook, the GMC Module improves pooled HOTA in all three evaluated host settings. On iKUN, it raises MOVING HOTA from \DIFdelbegin \DIFdel{$25.531$ to $32.606\pm0.654$ (approximately $+7.08$ }\DIFdelend \DIFaddbegin \DIFadd{$27.697$ to $37.139\pm0.923$ (approximately $+9.44$ }\DIFaddend points).
+  \item Across iKUN and FlexHook, the GMC Module improves pooled HOTA in all three evaluated host settings. On iKUN, it raises \DIFdelbegin \DIFdel{MOVING HOTA from $25.531$ to $32.606\pm0.654$ (approximately $+7.08$ }\DIFdelend \DIFaddbegin \DIFadd{moving-class HOTA from $27.697$ to $37.139\pm0.923$ (approximately $+9.44$ }\DIFaddend points).
 \end{itemize}
 
 %---------------------
@@ -254,9 +254,32 @@ Since the GMC Module only adds extra influence on the final prediction score, it
 \section{Experiments}
 \label{sec:exp}
 
-\subsection{Setup}
+\DIFaddbegin \begin{table}[t]
+  \centering
+  \caption{\DIFaddFL{Pooled HOTA on the Refer-KITTI test sets (mean $\pm$ std over three seeds) and the change in DetA\,/\,AssA relative to the reproduced host.}}
+  \label{tab:main}
+  \footnotesize
+  \setlength{\tabcolsep}{2pt}
+  \begin{tabular}{lccccc}
+    \hline
+    \DIFaddFL{Host                        }& \DIFaddFL{Published }& \DIFaddFL{GMC Module           }& \DIFaddFL{Gain     }& \DIFaddFL{$\Delta$DetA }& \DIFaddFL{$\Delta$AssA }\\
+    \hline
+    \DIFaddFL{iKUN~\mbox{%DIFAUXCMD
+\cite{ikun}            }\hskip0pt%DIFAUXCMD
+}& \DIFaddFL{44.56     }& \DIFaddFL{45.304 $\pm$ 0.115 }& \DIFaddFL{$+0.744$ }& \DIFaddFL{$+0.87$ }& \DIFaddFL{$+0.46$ }\\
+    \DIFaddFL{FlexHook V1~\mbox{%DIFAUXCMD
+\cite{flexhook} }\hskip0pt%DIFAUXCMD
+}& \DIFaddFL{53.824    }& \DIFaddFL{53.980 $\pm$ 0.059 }& \DIFaddFL{$+0.156$ }& \DIFaddFL{$+0.15$ }& \DIFaddFL{$+0.15$ }\\
+    \DIFaddFL{FlexHook V2~\mbox{%DIFAUXCMD
+\cite{flexhook} }\hskip0pt%DIFAUXCMD
+}& \DIFaddFL{42.526    }& \DIFaddFL{42.625 $\pm$ 0.032 }& \DIFaddFL{$+0.099$ }& \DIFaddFL{$+0.12$ }& \DIFaddFL{$+0.04$ }\\
+    \hline
+  \end{tabular}
+\end{table}
+
+\DIFaddend \subsection{Setup}
 \label{sec:setup}
-We evaluate the proposed module on the Refer-KITTI V1~\cite{transrmot} and the Refer-KITTI V2~\cite{temprmot} benchmarks using the HOTA metric from TrackEval~\cite{hota}, which jointly measures detection and association performance. We report both moving-class HOTA, which evaluates only expressions referring to moving objects, and pooled HOTA, which evaluates all expressions in the benchmark. The V1 test split contains three sequences and the V2 test split four.
+We evaluate the proposed module on the Refer-KITTI V1~\cite{transrmot} and the Refer-KITTI V2~\cite{temprmot} benchmarks using the HOTA metric from TrackEval~\cite{hota}, which jointly measures detection and association performance. We report both moving-class HOTA, which evaluates only \DIFdelbegin \DIFdel{expressions referring to moving objects}\DIFdelend \DIFaddbegin \DIFadd{the moving-class expressions (those assigned to the MOVING class by the keyword classifier of Sec.~\ref{sec:fusion})}\DIFaddend , and pooled HOTA, which evaluates all expressions in the benchmark. The V1 test split contains three sequences and the V2 test split four.
 
 The proposed module is attached to two host models, iKUN~\cite{ikun} and FlexHook~\cite{flexhook}. For comparison, we also evaluate a raw-velocity variant that uses image-plane motion directly, without ego-motion compensation. The GMC Module is trained using AdamW~\cite{adamw} with a learning rate of $10^{-3}$, batch size 256, and 100 epochs. The aligner is trained on the Refer-KITTI V1 training split (15 sequences, disjoint from the test sequences). Each positive pair consists of an expression and the motion feature of a ground-truth object annotated as its referent, computed from the object's ground-truth boxes; tracker outputs are used only at test time. The road-plane homography tracks up to 600 corners with a 3-pixel RANSAC threshold and succeeds on all 7,690 adjacent frame pairs of the 19 training and evaluation sequences. Excluding host inference, the module runs at $149$ FPS on CPU ($6.7$\,ms per frame).
 
@@ -264,7 +287,7 @@ Results are averaged over three random seeds for the main configurations; ablati
 
 Refer-KITTI does not provide a dedicated validation split. All fusion weights are therefore selected by the leave-one-sequence-out procedure of Sec.~\ref{sec:fusion}, so no weight is chosen on the sequence it is evaluated on.
 
-Refer-KITTI is highly imbalanced\DIFdelbegin \DIFdel{, with only about one-sixth of the language expressions referring }\DIFdelend \DIFaddbegin \DIFadd{: only $21$ of the $150$ V1 and $111$ of the $862$ V2 test expressions refer }\DIFaddend to moving objects. Consequently, improvements in motion understanding may have only a limited impact on pooled HOTA. Therefore, moving-class HOTA is used as the primary evaluation metric, while pooled HOTA is reported to reflect overall benchmark performance.
+Refer-KITTI is highly imbalanced\DIFdelbegin \DIFdel{, with only about one-sixth of the language expressions referring to moving objects}\DIFdelend \DIFaddbegin \DIFadd{: only $21$ of the $150$ V1 and $111$ of the $862$ V2 test expressions are moving-class expressions}\DIFaddend . Consequently, improvements in motion understanding may have only a limited impact on pooled HOTA. Therefore, moving-class HOTA is used as the primary evaluation metric, while pooled HOTA is reported to reflect overall benchmark performance.
 
 \subsection{Main results}
 \label{sec:main}
@@ -272,29 +295,54 @@ Table~\ref{tab:main} summarizes the pooled HOTA results on the Refer-KITTI datas
 
 %Overall, these results show that camera-motion-compensated motion information is beneficial only when it is properly aligned with the host model. The gains are most visible on motion-referring expressions, while pooled HOTA changes are smaller because motion expressions form a minority of Refer-KITTI. Thus, the GMC Module should be viewed primarily as a motion-grounding correction that preserves competitive pooled performance in the evaluated settings.
 
-\begin{table}
-  \centering
-  \caption{\DIFdelbeginFL \DIFdelFL{Performance in terms of the pooled }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Pooled }\DIFaddendFL HOTA on the Refer-KITTI test \DIFdelbeginFL \DIFdelFL{dataset}\DIFdelendFL \DIFaddbeginFL \DIFaddFL{sets (mean $\pm$ std over three seeds) and the change in DetA\,/\,AssA relative to the reproduced host}\DIFaddendFL .}
-  \label{tab:main}
-  \DIFdelbeginFL %DIFDELCMD < \small
+
+
+\DIFdelbegin %DIFDELCMD < \begin{table}
+%DIFDELCMD <   \centering
 %DIFDELCMD <   %%%
-\DIFdelendFL \DIFaddbeginFL \footnotesize
-  \DIFaddendFL \setlength{\tabcolsep}{2pt}
-  \DIFdelbeginFL %DIFDELCMD < \begin{tabular}{lccc}
+%DIFDELCMD < \caption{%
+{%DIFAUXCMD
+\DIFdelFL{Performance in terms of the pooled HOTA on the Refer-KITTI test dataset.}}
+  %DIFAUXCMD
+%DIFDELCMD < \label{tab:main}
+%DIFDELCMD <   \small
+%DIFDELCMD <   \setlength{\tabcolsep}{2pt}
+%DIFDELCMD <   \begin{tabular}{lccc}
+%DIFDELCMD <     \hline
 %DIFDELCMD <     %%%
-\DIFdelendFL \DIFaddbeginFL \begin{tabular}{lccccc}
-    \hline \DIFaddendFL 
-    Host                        & Published & GMC Module           & Gain     \DIFaddbeginFL & \DIFaddFL{$\Delta$DetA }& \DIFaddFL{$\Delta$AssA }\DIFaddendFL \\
-    \hline
-    iKUN~\cite{ikun}            & \DIFdelbeginFL \DIFdelFL{44.564    }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{44.56     }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{44.847 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{45.304 }\DIFaddendFL $\pm$ \DIFdelbeginFL \DIFdelFL{0.107 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{0.115 }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{$+0.283$ }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{$+0.744$ }& \DIFaddFL{$+0.87$ }& \DIFaddFL{$+0.46$ }\DIFaddendFL \\
-    FlexHook V1~\cite{flexhook} & 53.824    & 53.980 $\pm$ 0.059 & $+0.156$ \DIFaddbeginFL & \DIFaddFL{$+0.15$ }& \DIFaddFL{$+0.15$ }\DIFaddendFL \\
-    FlexHook V2~\cite{flexhook} & 42.526    & 42.625 $\pm$ 0.032 & $+0.099$ \DIFaddbeginFL & \DIFaddFL{$+0.12$ }& \DIFaddFL{$+0.04$ }\DIFaddendFL \\
-    \hline
-  \end{tabular}
-\end{table}
+\DIFdelFL{Host                        }%DIFDELCMD < & %%%
+\DIFdelFL{Published }%DIFDELCMD < & %%%
+\DIFdelFL{GMC Module           }%DIFDELCMD < & %%%
+\DIFdelFL{Gain                      }%DIFDELCMD < \\
+%DIFDELCMD <     \hline
+%DIFDELCMD <     %%%
+\DIFdelFL{iKUN~\mbox{%DIFAUXCMD
+\cite{ikun}            }\hskip0pt%DIFAUXCMD
+}%DIFDELCMD < & %%%
+\DIFdelFL{44.564    }%DIFDELCMD < & %%%
+\DIFdelFL{44.847 $\pm$ 0.107 }%DIFDELCMD < & %%%
+\DIFdelFL{$+0.283$ }%DIFDELCMD < \\
+%DIFDELCMD <     %%%
+\DIFdelFL{FlexHook V1~\mbox{%DIFAUXCMD
+\cite{flexhook} }\hskip0pt%DIFAUXCMD
+}%DIFDELCMD < & %%%
+\DIFdelFL{53.824    }%DIFDELCMD < & %%%
+\DIFdelFL{53.980 $\pm$ 0.059 }%DIFDELCMD < & %%%
+\DIFdelFL{$+0.156$ }%DIFDELCMD < \\
+%DIFDELCMD <     %%%
+\DIFdelFL{FlexHook V2~\mbox{%DIFAUXCMD
+\cite{flexhook} }\hskip0pt%DIFAUXCMD
+}%DIFDELCMD < & %%%
+\DIFdelFL{42.526    }%DIFDELCMD < & %%%
+\DIFdelFL{42.625 $\pm$ 0.032 }%DIFDELCMD < & %%%
+\DIFdelFL{$+0.099$ }%DIFDELCMD < \\
+%DIFDELCMD <     \hline
+%DIFDELCMD <   \end{tabular}
+%DIFDELCMD < \end{table}
+%DIFDELCMD < 
 
-
-Table~\ref{tab:deficit} reports HOTA variations for movement-related expressions. All three host settings improve, and the size of the improvement differs by an order of magnitude: iKUN gains \DIFdelbegin \DIFdel{$+7.08\pm0.65$}\DIFdelend \DIFaddbegin \DIFadd{$+9.44\pm0.92$}\DIFaddend , FlexHook V1 \DIFdelbegin \DIFdel{$+0.67\pm0.13$}\DIFdelend \DIFaddbegin \DIFadd{$+0.43\pm0.19$}\DIFaddend , and FlexHook V2 \DIFdelbegin \DIFdel{$+0.18\pm0.06$}\DIFdelend \DIFaddbegin \DIFadd{$+0.69\pm0.04$}\DIFaddend .
+%DIFDELCMD < %%%
+\DIFdelend Table~\ref{tab:deficit} reports HOTA variations \DIFdelbegin \DIFdel{for movement-related }\DIFdelend \DIFaddbegin \DIFadd{on the moving-class }\DIFaddend expressions. All three host settings improve, and the size of the improvement differs by an order of magnitude: iKUN gains \DIFdelbegin \DIFdel{$+7.08\pm0.65$}\DIFdelend \DIFaddbegin \DIFadd{$+9.44\pm0.92$}\DIFaddend , FlexHook V1 \DIFdelbegin \DIFdel{$+0.67\pm0.13$}\DIFdelend \DIFaddbegin \DIFadd{$+0.43\pm0.19$}\DIFaddend , and FlexHook V2 \DIFdelbegin \DIFdel{$+0.18\pm0.06$}\DIFdelend \DIFaddbegin \DIFadd{$+0.69\pm0.04$}\DIFaddend .
 
 %In our evaluated settings, this trend suggests that the GMC Module is most beneficial for host models with weaker motion understanding. When the host model already distinguishes camera motion from object motion reasonably well, the proposed module provides only a small improvement. Conversely, when the host struggles with motion grounding, the GMC Module can effectively compensate for this limitation and achieve a larger performance gain.
 
@@ -302,7 +350,7 @@ Table~\ref{tab:deficit} reports HOTA variations for movement-related expressions
 
 \begin{table}
   \centering
-  \caption{Moving-class HOTA on movement-related expressions (\DIFdelbeginFL \DIFdelFL{$27/158$ }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{$21/150$ }\DIFaddendFL for iKUN \DIFdelbeginFL \DIFdelFL{, $25/150$ for }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{and }\DIFaddendFL FlexHook V1, \DIFdelbeginFL \DIFdelFL{$136/862$ }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{$111/862$ }\DIFaddendFL for FlexHook V2), $n{=}3$ seeds.}
+  \caption{Moving-class HOTA \DIFdelbeginFL \DIFdelFL{on movement-related expressions }\DIFdelendFL (\DIFdelbeginFL \DIFdelFL{$27/158$ }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{moving-class expressions: $21/150$ }\DIFaddendFL for iKUN \DIFdelbeginFL \DIFdelFL{, $25/150$ for }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{and }\DIFaddendFL FlexHook V1, \DIFdelbeginFL \DIFdelFL{$136/862$ }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{$111/862$ }\DIFaddendFL for FlexHook V2), $n{=}3$ seeds.}
   \label{tab:deficit}
   \small
   \setlength{\tabcolsep}{2pt}
@@ -355,9 +403,9 @@ Figure~\ref{fig:qual} illustrates this behavior using a real example. The parked
 
 \section{Conclusion and Limitations}
 \label{sec:conclusion}
-The GMC Module is a decision-level plug-in that improves motion grounding in referring multi-object tracking without modifying the detector, tracker, or appearance-language matching model. By compensating for camera motion and aligning residual motion with language descriptions, the proposed module helps distinguish object motion from camera-induced motion. Road-region background correspondences provide a geometric reference for estimating camera motion in driver-view driving scenes, after which the residual motion is aligned with language and integrated through late fusion with host-specific weights. On Refer-KITTI, pooled HOTA improves in all three evaluated host settings. For movement-related expressions, the largest gain is observed on iKUN (\DIFdelbegin \DIFdel{$+7.08\pm0.65$}\DIFdelend \DIFaddbegin \DIFadd{$+9.44\pm0.92$}\DIFaddend ), and the ablation results show improvements in both MOVING and STATIC HOTA for the full module.
+The GMC Module is a decision-level plug-in that improves motion grounding in referring multi-object tracking without modifying the detector, tracker, or appearance-language matching model. By compensating for camera motion and aligning residual motion with language descriptions, the proposed module helps distinguish object motion from camera-induced motion. Road-region background correspondences provide a geometric reference for estimating camera motion in driver-view driving scenes, after which the residual motion is aligned with language and integrated through late fusion with host-specific weights. On Refer-KITTI, pooled HOTA improves in all three evaluated host settings. \DIFdelbegin \DIFdel{For movement-related }\DIFdelend \DIFaddbegin \DIFadd{On the moving-class }\DIFaddend expressions, the largest gain is observed on iKUN (\DIFdelbegin \DIFdel{$+7.08\pm0.65$}\DIFdelend \DIFaddbegin \DIFadd{$+9.44\pm0.92$}\DIFaddend ), and the ablation results show improvements in both \DIFdelbegin \DIFdel{MOVING and STATIC }\DIFdelend \DIFaddbegin \DIFadd{moving-class and static-class }\DIFaddend HOTA for the full module.
 
-Despite these promising results, several limitations remain. First, the road-plane homography assumes a flat ground plane; scenes with strong slopes or uneven terrain fall outside the model. Second, \DIFdelbegin \DIFdel{a keyword classifier decides which weight an expression receives. Therefore, a misread expression gets the incorrect fusion weight: $14$ }\DIFdelend \DIFaddbegin \DIFadd{the keyword classifier routes only explicit-motion expressions to $\alpha_{\mathrm{mot}}$; direction and turning expressions ($214$ }\DIFaddend of the \DIFdelbegin \DIFdel{$126$ direction expressions }\DIFdelend \DIFaddbegin \DIFadd{$818$ }\DIFaddend in Refer-KITTI V1\DIFdelbegin \DIFdel{are treated as appearance }\DIFdelend \DIFaddbegin \DIFadd{) receive the appearance weight, so the module does not help them even though they describe motion}\DIFaddend . Third, two weights do not help every host. On both FlexHook settings the leave-one-sequence-out procedure selects a single weight. Finally, our experiments are conducted on two RMOT frameworks and the Refer-KITTI benchmarks, and additional evaluations on more host architectures and datasets are needed to further validate the generality of the proposed approach.
+Despite these promising results, several limitations remain. First, the road-plane homography assumes a flat ground plane; scenes with strong slopes or uneven terrain fall outside the model. Second, \DIFdelbegin \DIFdel{a keyword classifier decides which weight an expression receives. Therefore, a misread expression gets the incorrect fusion weight: $14$ }\DIFdelend \DIFaddbegin \DIFadd{the keyword classifier routes only moving-class expressions to $\alpha_{\mathrm{mot}}$; direction and turning expressions ($214$ }\DIFaddend of the \DIFdelbegin \DIFdel{$126$ direction expressions }\DIFdelend \DIFaddbegin \DIFadd{$818$ }\DIFaddend in Refer-KITTI V1\DIFdelbegin \DIFdel{are treated as appearance }\DIFdelend \DIFaddbegin \DIFadd{) receive the appearance weight, so the module does not help them even though they describe motion}\DIFaddend . Third, two weights do not help every host. On both FlexHook settings the leave-one-sequence-out procedure selects a single weight. Finally, our experiments are conducted on two RMOT frameworks and the Refer-KITTI benchmarks, and additional evaluations on more host architectures and datasets are needed to further validate the generality of the proposed approach.
 
 In future work, we plan to investigate more robust camera motion estimation methods and richer motion features that can better handle complex dynamic scenes. We also hope to evaluate the GMC Module on a broader range of referring multi-object tracking frameworks to further improve its generalization.
 
