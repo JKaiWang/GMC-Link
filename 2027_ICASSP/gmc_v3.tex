@@ -185,17 +185,17 @@ Table~\ref{tab:main} summarizes the pooled HOTA results on the Refer-KITTI datas
 
 \begin{table}
   \centering
-  \caption{Performance in terms of the pooled HOTA on the Refer-KITTI test dataset.}
+  \caption{Pooled HOTA on the Refer-KITTI test sets (mean $\pm$ std over three seeds) and the change in DetA\,/\,AssA relative to the reproduced host.}
   \label{tab:main}
-  \small
+  \footnotesize
   \setlength{\tabcolsep}{2pt}
-  \begin{tabular}{lccc}
+  \begin{tabular}{lccccc}
     \hline
-    Host                        & Published & GMC Module           & Gain                      \\
+    Host                        & Published & GMC Module           & Gain     & $\Delta$DetA & $\Delta$AssA \\
     \hline
-    iKUN~\cite{ikun}            & 44.56     & 45.304 $\pm$ 0.115 & $+0.744$ \\
-    FlexHook V1~\cite{flexhook} & 53.824    & 53.980 $\pm$ 0.059 & $+0.156$ \\
-    FlexHook V2~\cite{flexhook} & 42.526    & 42.625 $\pm$ 0.032 & $+0.099$ \\
+    iKUN~\cite{ikun}            & 44.56     & 45.304 $\pm$ 0.115 & $+0.744$ & $+0.87$ & $+0.46$ \\
+    FlexHook V1~\cite{flexhook} & 53.824    & 53.980 $\pm$ 0.059 & $+0.156$ & $+0.15$ & $+0.15$ \\
+    FlexHook V2~\cite{flexhook} & 42.526    & 42.625 $\pm$ 0.032 & $+0.099$ & $+0.12$ & $+0.04$ \\
     \hline
   \end{tabular}
 \end{table}
@@ -230,18 +230,19 @@ Table~\ref{tab:ablation} reports the five-seed ablation measurements on iKUN. Th
 
 \begin{table}
   \centering
-  \caption{Per-class HOTA ablation on iKUN ($n{=}5$ seeds).}
+  \caption{Per-class HOTA ablation on iKUN ($n{=}5$); single $\alpha$: $\alpha_{\mathrm{mot}}{=}\alpha_{\mathrm{app}}{=}0.35$ (LOSO).}
   \label{tab:ablation}
-  \small
+  \footnotesize
   \setlength{\tabcolsep}{2pt}
-  \begin{tabular}{lcc}
+  \begin{tabular}{lccc}
     \hline
-    Variant                    & MOVING HOTA               & POOLED HOTA               \\
+    Variant                    & MOVING                    & STATIC                    & POOLED                    \\
     \hline
-    Native host (no module)    & 27.70                     & 44.54                     \\
-    Full module                & \textbf{36.99 $\pm$ 0.68} & \textbf{45.28 $\pm$ 0.09} \\
-    $-$ego (raw velocity)      & 32.37 $\pm$ 0.39          & 44.61 $\pm$ 0.07          \\
-    $-$multiscale (single gap) & 35.14 $\pm$ 0.38          & 45.00 $\pm$ 0.02          \\
+    Native host (no module)    & 27.70                     & 43.91                     & 44.54                     \\
+    Full module                & \textbf{36.99 $\pm$ 0.68} & \textbf{44.53 $\pm$ 0.16} & \textbf{45.28 $\pm$ 0.09} \\
+    single $\alpha$ (no routing) & 32.42 $\pm$ 0.25        & 44.35 $\pm$ 0.06          & 44.95 $\pm$ 0.11          \\
+    $-$ego (raw velocity)      & 32.37 $\pm$ 0.39          & 43.40 $\pm$ 0.23          & 44.61 $\pm$ 0.07          \\
+    $-$multiscale (single gap) & 35.14 $\pm$ 0.38          & 44.35 $\pm$ 0.12          & 45.00 $\pm$ 0.02          \\
     \hline
   \end{tabular}
 \end{table}

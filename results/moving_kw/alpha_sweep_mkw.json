@@ -1,0 +1,295 @@
+{
+  "classifier": "gmc_link/moving_kw.py (A43)",
+  "note": "single alpha is routing-invariant; pooled from existing predictions, MOVING regrouped",
+  "hosts": {
+    "iKUN": {
+      "loso_single_alpha": 0.35,
+      "ship_two_alpha": [
+        1.0,
+        0.1
+      ],
+      "sweep": {
+        "0.0": {
+          "n": 3,
+          "pooled_mean": 44.543,
+          "pooled_std": 0.0,
+          "moving_mean": 27.697,
+          "moving_std": 0.0,
+          "static_mean": 43.914,
+          "static_std": 0.0
+        },
+        "0.1": {
+          "n": 3,
+          "pooled_mean": 44.708,
+          "pooled_std": 0.032,
+          "moving_mean": 28.907,
+          "moving_std": 0.149,
+          "static_mean": 44.135,
+          "static_std": 0.042
+        },
+        "0.2": {
+          "n": 3,
+          "pooled_mean": 44.82,
+          "pooled_std": 0.051,
+          "moving_mean": 30.339,
+          "moving_std": 0.305,
+          "static_mean": 44.293,
+          "static_std": 0.03
+        },
+        "0.3": {
+          "n": 3,
+          "pooled_mean": 44.87,
+          "pooled_std": 0.071,
+          "moving_mean": 31.554,
+          "moving_std": 0.232,
+          "static_mean": 44.335,
+          "static_std": 0.032
+        },
+        "0.35": {
+          "n": 3,
+          "pooled_mean": 44.91,
+          "pooled_std": 0.086,
+          "moving_mean": 32.453,
+          "moving_std": 0.33,
+          "static_mean": 44.39,
+          "static_std": 0.008
+        },
+        "0.4": {
+          "n": 3,
+          "pooled_mean": 44.92,
+          "pooled_std": 0.098,
+          "moving_mean": 32.792,
+          "moving_std": 0.48,
+          "static_mean": 44.468,
+          "static_std": 0.019
+        },
+        "0.45": {
+          "n": 3,
+          "pooled_mean": 44.973,
+          "pooled_std": 0.117,
+          "moving_mean": 33.887,
+          "moving_std": 0.78,
+          "static_mean": 44.488,
+          "static_std": 0.021
+        },
+        "0.5": {
+          "n": 3,
+          "pooled_mean": 45.008,
+          "pooled_std": 0.115,
+          "moving_mean": 34.878,
+          "moving_std": 0.732,
+          "static_mean": 44.522,
+          "static_std": 0.014
+        },
+        "0.55": {
+          "n": 3,
+          "pooled_mean": 44.986,
+          "pooled_std": 0.106,
+          "moving_mean": 35.256,
+          "moving_std": 0.798,
+          "static_mean": 44.532,
+          "static_std": 0.049
+        },
+        "0.6": {
+          "n": 3,
+          "pooled_mean": 44.968,
+          "pooled_std": 0.109,
+          "moving_mean": 35.737,
+          "moving_std": 0.663,
+          "static_mean": 44.547,
+          "static_std": 0.082
+        },
+        "0.65": {
+          "n": 3,
+          "pooled_mean": 44.913,
+          "pooled_std": 0.105,
+          "moving_mean": 36.065,
+          "moving_std": 0.516,
+          "static_mean": 44.549,
+          "static_std": 0.112
+        },
+        "0.7": {
+          "n": 3,
+          "pooled_mean": 44.866,
+          "pooled_std": 0.109,
+          "moving_mean": 36.279,
+          "moving_std": 0.627,
+          "static_mean": 44.584,
+          "static_std": 0.122
+        },
+        "1.0": {
+          "n": 3,
+          "pooled_mean": 44.558,
+          "pooled_std": 0.152,
+          "moving_mean": 37.139,
+          "moving_std": 0.923,
+          "static_mean": 44.584,
+          "static_std": 0.196
+        },
+        "1.25": {
+          "n": 3,
+          "pooled_mean": 44.276,
+          "pooled_std": 0.186,
+          "moving_mean": 37.539,
+          "moving_std": 0.99,
+          "static_mean": 44.419,
+          "static_std": 0.392
+        },
+        "1.5": {
+          "n": 3,
+          "pooled_mean": 43.891,
+          "pooled_std": 0.202,
+          "moving_mean": 37.403,
+          "moving_std": 1.073,
+          "static_mean": 44.249,
+          "static_std": 0.489
+        },
+        "2.0": {
+          "n": 3,
+          "pooled_mean": 42.96,
+          "pooled_std": 0.272,
+          "moving_mean": 36.897,
+          "moving_std": 0.853,
+          "static_mean": 43.919,
+          "static_std": 0.695
+        }
+      }
+    },
+    "FH_V1": {
+      "loso_single_alpha": 7.0,
+      "sweep": {
+        "0.0": {
+          "n": 1,
+          "pooled_mean": 53.824,
+          "pooled_std": 0.0,
+          "moving_mean": 47.896,
+          "moving_std": 0.0,
+          "static_mean": 48.983,
+          "static_std": 0.0
+        },
+        "1.0": {
+          "n": 3,
+          "pooled_mean": 53.869,
+          "pooled_std": 0.012,
+          "moving_mean": 47.942,
+          "moving_std": 0.01,
+          "static_mean": 49.035,
+          "static_std": 0.047
+        },
+        "2.0": {
+          "n": 3,
+          "pooled_mean": 53.904,
+          "pooled_std": 0.018,
+          "moving_mean": 47.998,
+          "moving_std": 0.038,
+          "static_mean": 49.128,
+          "static_std": 0.063
+        },
+        "3.0": {
+          "n": 3,
+          "pooled_mean": 53.929,
+          "pooled_std": 0.032,
+          "moving_mean": 48.06,
+          "moving_std": 0.08,
+          "static_mean": 49.169,
+          "static_std": 0.091
+        },
+        "5.0": {
+          "n": 3,
+          "pooled_mean": 53.981,
+          "pooled_std": 0.043,
+          "moving_mean": 48.161,
+          "moving_std": 0.16,
+          "static_mean": 49.257,
+          "static_std": 0.101
+        },
+        "7.0": {
+          "n": 3,
+          "pooled_mean": 53.98,
+          "pooled_std": 0.059,
+          "moving_mean": 48.33,
+          "moving_std": 0.189,
+          "static_mean": 49.293,
+          "static_std": 0.125
+        },
+        "10.0": {
+          "n": 3,
+          "pooled_mean": 53.887,
+          "pooled_std": 0.035,
+          "moving_mean": 48.317,
+          "moving_std": 0.34,
+          "static_mean": 49.328,
+          "static_std": 0.126
+        }
+      }
+    },
+    "FH_V2": {
+      "loso_single_alpha": 5.0,
+      "sweep": {
+        "0.0": {
+          "n": 1,
+          "pooled_mean": 42.526,
+          "pooled_std": 0.0,
+          "moving_mean": 38.561,
+          "moving_std": 0.0,
+          "static_mean": 44.576,
+          "static_std": 0.0
+        },
+        "1.0": {
+          "n": 3,
+          "pooled_mean": 42.553,
+          "pooled_std": 0.006,
+          "moving_mean": 38.683,
+          "moving_std": 0.004,
+          "static_mean": 44.643,
+          "static_std": 0.008
+        },
+        "2.0": {
+          "n": 3,
+          "pooled_mean": 42.585,
+          "pooled_std": 0.004,
+          "moving_mean": 38.851,
+          "moving_std": 0.008,
+          "static_mean": 44.688,
+          "static_std": 0.021
+        },
+        "3.0": {
+          "n": 3,
+          "pooled_mean": 42.603,
+          "pooled_std": 0.013,
+          "moving_mean": 38.979,
+          "moving_std": 0.018,
+          "static_mean": 44.734,
+          "static_std": 0.016
+        },
+        "5.0": {
+          "n": 3,
+          "pooled_mean": 42.625,
+          "pooled_std": 0.032,
+          "moving_mean": 39.255,
+          "moving_std": 0.044,
+          "static_mean": 44.832,
+          "static_std": 0.011
+        },
+        "7.0": {
+          "n": 3,
+          "pooled_mean": 42.576,
+          "pooled_std": 0.042,
+          "moving_mean": 39.537,
+          "moving_std": 0.054,
+          "static_mean": 44.814,
+          "static_std": 0.034
+        },
+        "10.0": {
+          "n": 3,
+          "pooled_mean": 42.413,
+          "pooled_std": 0.1,
+          "moving_mean": 39.839,
+          "moving_std": 0.181,
+          "static_mean": 44.719,
+          "static_std": 0.179
+        }
+      }
+    }
+  }
+}
