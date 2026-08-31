@@ -11,7 +11,7 @@
 
 ---
 
-## paper-YYYY-MM-DD(待定)— `gmc_v3.tex`(對 `paper-2026-08-30`)
+## paper-2026-08-31 — `gmc_v3.tex`(對 `paper-2026-08-30`)
 
 ### [編輯] — 合併教授改稿(`gmc_v1_by_WTC.pdf`,2026-08-29,基於 v1);Table 1 改列 DetA/AssA 數值;Table 3 改 Moving/Others/Pooled(A45)
 
@@ -241,3 +241,4 @@ MOVING 本來就不預期動;−0.18 在 n=3 種子變異範圍內。
 | A42 | iKUN 改用官方 150 條測試名單重跑 TrackEval(預測不動;485 目錄含 LOSO 折) | native 44.543(已發表 44.56);ship 45.158±0.104、MOVING +7.12;LOSO 重選 α 不變;消融 t 值 11.8/12.1、6.3/7.0;舊 158 名單是我們自己列資料夾多算 8 條 |
 | A43 | MOVING 類別改用使用者給定關鍵字清單(`gmc_link/moving_kw.py`),同一分類器路由 α 與分組;iKUN 15 目錄重跑、兩折 LOSO 重選;FlexHook 重分組 | V1 MOVING 25→21 條、V2 136→111;LOSO 改選 (1.0, 0.1);iKUN 45.304±0.115(對已發表 +0.744)、MOVING +9.44;FH V1 MOVING +0.43、V2 +0.69;STATIC 逐位元不變 |
 | A44 | RMOT 文獻內容調查(Zotero 10 篇)→ 子指標、三 host 單 α 掃描(FH V1 補跑 15 次)、單 α=0.35 n=5 | iKUN ΔDetA +0.87 / ΔAssA +0.46;FH V1 +0.15/+0.15、V2 +0.12/+0.04;雙權重比單權重 +0.33 pooled / +4.57 MOVING;FlexHook pooled 對 α 平坦(≤0.1)、iKUN 單 α 最佳 0.5;α 表因版面退回筆記(Z) |
+| A45 | 合併教授改稿(措辭照教授、數字照 v3);Table 3 Others 欄新量測(非 moving 129 條,21 目錄 TrackEval) | Others:native 45.87、full 46.05±0.05、−ego 45.77(最低)、−multi 45.96、單α 45.99;Table 1 改列 DetA/AssA 數值;引用 24→19 |
