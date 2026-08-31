@@ -15,6 +15,10 @@
 
 ### [編輯] — latexdiff 基準改為教授版(release 後修正)
 
+### [編輯] — 消除 diff 噪音:v3 對齊教授版的 token 與來源順序(release 後修正 2)
+
+- 使用者指出 diff 充滿無意義的大小寫/格式標記。將 `gmc_v3.tex` 與 `gmc_v2_1.tex` 逐 token 對齊:`$\alpha_c$` 寫法、`\emph`、`w. GMC`、權重不進 math、bullet 不加粗、恢復教授的「(relative)」「at $I_{t-g}$」「to describe」「(on the validation set)」措辭、Architecture 13cm、qualitative 改用教授的 `qualitative.png`(PR #39)、Table 3 行名 `\quad -`;**Table 1 原始碼移回教授的位置**(§4.2 段後)—— 這消除了 latexdiff 把整段 §4.1 標成整刪整加的假差異,代價是 Table 1 浮回第 4 頁。重生 `diff_gmc_v2_1_vs_gmc_v3.pdf`,現在只標真實改動(α 1.0、事實句、數字、表格)。三個 assets 再更新。
+
 - PR #39(JKaiWang)把教授的原始 `gmc_v2_1.tex` 與圖源(`Architecture.pptx`、`qualitative.pptx`、更新的 `Architecture.png`、新增 `qualitative.png`)進 repo。原 release 附的 `diff_gmc_v3_0830_vs_0831.pdf`(基準 = 我們自己的 0830 版)撤下並自 repo 移除;改為 **`diff_gmc_v2_1_vs_gmc_v3.pdf`(基準 = 教授版 `gmc_v2_1.tex`)**,直接顯示我們在教授改稿之上動了什麼(α 1.0、事實句恢復、表格改動)。release assets 已更新。
 
 ### [編輯] — 合併教授改稿(`gmc_v1_by_WTC.pdf`,2026-08-29,基於 v1);Table 1 改列 DetA/AssA 數值;Table 3 改 Moving/Others/Pooled(A45)
