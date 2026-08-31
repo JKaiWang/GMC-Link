@@ -1,0 +1,62 @@
+{
+  "definition": "OTHERS = official-150 minus MOVING (129 exprs: 12 STATIC + 117 APPEARANCE; A43 classifier)",
+  "n_expr": 129,
+  "variants": {
+    "native": {
+      "n": 1,
+      "mean": 45.87,
+      "std": 0.0,
+      "per_seed": [
+        45.87
+      ]
+    },
+    "full": {
+      "n": 5,
+      "mean": 46.051,
+      "std": 0.053,
+      "per_seed": [
+        46.045,
+        46.113,
+        45.995,
+        46.096,
+        46.004
+      ]
+    },
+    "single_alpha_0.35": {
+      "n": 5,
+      "mean": 45.99,
+      "std": 0.122,
+      "per_seed": [
+        45.851,
+        46.026,
+        45.948,
+        46.177,
+        45.947
+      ]
+    },
+    "noego": {
+      "n": 5,
+      "mean": 45.772,
+      "std": 0.038,
+      "per_seed": [
+        45.783,
+        45.806,
+        45.719,
+        45.805,
+        45.748
+      ]
+    },
+    "nomulti": {
+      "n": 5,
+      "mean": 45.96,
+      "std": 0.036,
+      "per_seed": [
+        45.988,
+        45.945,
+        45.905,
+        45.972,
+        45.99
+      ]
+    }
+  }
+}
