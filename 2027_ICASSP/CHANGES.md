@@ -11,6 +11,18 @@
 
 ---
 
+## paper-YYYY-MM-DD(待定)— `gmc_v3.tex`(對 `paper-2026-08-30`)
+
+### [編輯] — 合併教授改稿(`gmc_v1_by_WTC.pdf`,2026-08-29,基於 v1);Table 1 改列 DetA/AssA 數值;Table 3 改 Moving/Others/Pooled(A45)
+
+- 合併原則:**措辭/結構照教授、數字與後續輪次的事實照 v3**(教授改的是 v1,沒看過 A42–A44)。來源只有 PDF(無 tex),逐頁重建。
+- 照教授:摘要與 keywords 重寫(縮短;數字句移到 §1 貢獻點)、§2 重構為 2.1 Referring MOT / 2.2 Motion Compensation(刪 plane-plus-parallax 等四篇引用與 ORB,參考文獻 24→19)、§3 標題(Motion Compensation / Multi-Scale Residual Velocity / Motion-Language Matching)、§3.2 三種 velocity 的 bullet 定義、§3.4 例句式分類說明 + 「left vehicles which are parking」腳註 + 逐 host 權重白話句、§4 敘述(含各列對應資料集的說明句)、§4.3 簡化敘述、Fig.1 新圖說、§5 重寫(刪 future-work 段與「Third, two weights…」限制)、GMC Module→GMC module、stationary→static。
+- 保留(教授未見的事實層):A42–A44 全部數字(α=(1.0,0.1)、45.304±0.115、+9.44、21/150、111/862、214/818)、官方 150 條名單句、44.543 重現揭露、7,690 擬合成功、149 FPS、Welch t 值、warm-up 段、1/g 註記、horizon 句(v2 新增,壓縮成一句)、框排除子句、moving-class 用語(作者規則)。
+- 表格(作者 2026-08-31 指示):Table 1 改列 DetA/AssA 數值對(reproduced→w. GMC;w/o GMC / w. GMC 欄名照教授)、刪 Gain 欄(增益在 §4.2 文字);Table 3 欄改 **Moving / Others / Pooled**(Others = 非 moving 的 129 條,新算:native 45.87、full 46.05±0.05、single-α 45.99±0.12、−ego 45.77±0.04、−multi 45.96±0.04,`results/moving_kw/others_mkw.json`),STATIC 欄與 §4.3 STATIC 句移除;行名照教授(w/o GMC / w. GMC)。
+- 版面:5 頁、正文第 4 頁收、第 5 頁純參考文獻、0 overfull、無未解引用。release `paper-2026-08-30` 的 assets 未動(此輪屬下一個里程碑)。
+
+---
+
 ## paper-2026-08-30 — `gmc_v3.tex`(對 `gmc_v2.tex` @ 148b6be,即 paper-2026-08-26 之後的最後修訂)
 
 2026-08-29 起的新一輪:`gmc_v3.tex` 由已 commit 的 `gmc_v2.tex` 複製;v2 不再改。本輪兩件事:A42(協議)、A43(方法),新的在上。
