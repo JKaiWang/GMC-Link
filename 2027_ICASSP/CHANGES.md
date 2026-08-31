@@ -13,6 +13,10 @@
 
 ## paper-2026-08-31 — `gmc_v3.tex`(對 `paper-2026-08-30`)
 
+### [編輯] — latexdiff 基準改為教授版(release 後修正)
+
+- PR #39(JKaiWang)把教授的原始 `gmc_v2_1.tex` 與圖源(`Architecture.pptx`、`qualitative.pptx`、更新的 `Architecture.png`、新增 `qualitative.png`)進 repo。原 release 附的 `diff_gmc_v3_0830_vs_0831.pdf`(基準 = 我們自己的 0830 版)撤下並自 repo 移除;改為 **`diff_gmc_v2_1_vs_gmc_v3.pdf`(基準 = 教授版 `gmc_v2_1.tex`)**,直接顯示我們在教授改稿之上動了什麼(α 1.0、事實句恢復、表格改動)。release assets 已更新。
+
 ### [編輯] — 合併教授改稿(`gmc_v1_by_WTC.pdf`,2026-08-29,基於 v1);Table 1 改列 DetA/AssA 數值;Table 3 改 Moving/Others/Pooled(A45)
 
 - 合併原則:**措辭/結構照教授、數字與後續輪次的事實照 v3**(教授改的是 v1,沒看過 A42–A44)。來源只有 PDF(無 tex),逐頁重建。
