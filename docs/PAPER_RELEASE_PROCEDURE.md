@@ -5,7 +5,7 @@
 
 ## 步驟
 
-1. **前置檢查**(在 `2027_ICASSP/`):
+1. **前置檢查**(在 `2027_MVA/`):
    ```bash
    latexmk -pdf -interaction=nonstopmode gmc_v1.tex && latexmk -c gmc_v1.tex
    pdfinfo gmc_v1.pdf | grep Pages          # 必須 5 頁
@@ -36,14 +36,14 @@
    - **在乾淨資料夾實測 `latexmk -pdf gmc_v1.tex` 編得過、頁數對,才打 zip**:
      `zip -r gmc_v1-latex-source.zip gmc_v1-latex-source/`
 
-4. **更新 `2027_ICASSP/CHANGES.md`**:開新段 `paper-YYYY-MM-DD`,每條掛
+4. **更新 `2027_MVA/CHANGES.md`**:開新段 `paper-YYYY-MM-DD`,每條掛
    [方法]/[協議]/[筆誤]/[編輯] 標籤;引用的實驗編號補進文末附表。
 
 5. **開 release**:
    ```bash
    gh release create paper-YYYY-MM-DD --target "$(git rev-parse HEAD)" \
      --title "Paper YYYY-MM-DD" --notes "<見下方格式>" \
-     2027_ICASSP/gmc_v1.pdf 2027_ICASSP/diff_gmc_vs_gmc_v1.pdf gmc_v1-latex-source.zip
+     2027_MVA/gmc_v1.pdf 2027_MVA/diff_gmc_vs_gmc_v1.pdf gmc_v1-latex-source.zip
    ```
 
 ## Release notes 格式(照 GitHub 預設 What's Changed)

@@ -58,7 +58,7 @@ This work connects motion compensation with motion-language modeling for RMOT. O
 \begin{figure*}
   \centering
   \includegraphics[width=13cm]{figures/Architecture.png}
-  \caption{The proposed RMOT framework with the global motion compensation module. The host model (iKUN in this case) predicts an object-language matching score. The GMC module provides an extra matching score to adjust matching results.}
+  \caption{The proposed RMOT framework with the global motion compensation module. The host model (iKUN in this case) predicts an object-language matching score. The GMC Module provides an extra matching score to adjust matching results.}
   \label{fig:architecture}
 \end{figure*}
 
@@ -116,7 +116,7 @@ To capture motion over different time spans, residual velocities are computed at
 \end{equation}
 where the first six values are the residual velocities at the three temporal gaps, and $\Delta w, \Delta h$ capture the change in box scale. The terms $c_x$ and $c_y$ describe the coordinates of the box center, and $w$ and $h$ describe the width and height of the box, respectively.
 
-A track contributes a motion feature only once it has $11$ contiguous frames of history, the shortest history at which all three gaps are defined; on shorter histories the module abstains and the host score passes through unchanged. The threshold follows from the largest gap and adds no free parameter.
+The largest gap requires $11$ contiguous frames, so a track contributes a motion feature only after its history reaches that length. Shorter histories are left to the host: the module abstains and the host score passes through unchanged. The threshold is fixed by the largest gap and adds no free parameter.
 
 \subsection{Motion-Language Matching}
 \label{sec:align}

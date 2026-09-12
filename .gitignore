@@ -273,15 +273,15 @@ gmc_link/depth_cache_lidar/
 # CodeGraph index
 .codegraph/
 
-# LaTeX build artifacts (2027 ICASSP paper v2)
-2027_ICASSP/*.aux
-2027_ICASSP/*.bbl
-2027_ICASSP/*.blg
-2027_ICASSP/*.fdb_latexmk
-2027_ICASSP/*.fls
-2027_ICASSP/*.log
-2027_ICASSP/*.out
-2027_ICASSP/*.synctex.gz
+# LaTeX build artifacts (2027 MVA paper)
+2027_MVA/*.aux
+2027_MVA/*.bbl
+2027_MVA/*.blg
+2027_MVA/*.fdb_latexmk
+2027_MVA/*.fls
+2027_MVA/*.log
+2027_MVA/*.out
+2027_MVA/*.synctex.gz
 CLAUDE.md.bak-*
 
 # Local tooling + internal planning (not part of the public repo)
@@ -289,15 +289,15 @@ CLAUDE.md.bak-*
 paper/*.md
 paper/*.txt
 !paper/REPRODUCIBILITY.md
-2027_ICASSP/ICASSP2024_Paper_Templates/
-2027_ICASSP/format.*
-2027_ICASSP/Template.pdf
-2027_ICASSP/image*.eps
-2027_ICASSP/image*.pdf
-2027_ICASSP/strings.bib
-2027_ICASSP/gmc.pdf
+2027_MVA/ICASSP2024_Paper_Templates/
+2027_MVA/format.*
+2027_MVA/Template.pdf
+2027_MVA/image*.eps
+2027_MVA/image*.pdf
+2027_MVA/strings.bib
+2027_MVA/gmc.pdf
 *.pptx
-2027_ICASSP/submission_mainv3/
+2027_MVA/submission_mainv3/
 
 # T-probe raw sample dumps (regenerable via diagnostics/tprobe*.py)
 results/tprobe/*.npy

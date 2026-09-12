@@ -2,7 +2,7 @@
 
 > **SUPERSEDED 2026-08-19.** This maps the MMAsia '26 draft (13D, 18-hyperparameter recipe
 > ship). The current configuration is Option B — road-plane ego chain on all three host
-> settings, iKUN two-α — and the live paper is `2027_ICASSP/gmc_v1.tex`. Current provenance:
+> settings, iKUN two-α — and the live paper is `2027_MVA/gmc_v1.tex`. Current provenance:
 > `CLAUDE.md` → Current ship, `docs/PAPER_NUMBER_PACK_2026_08_17.md`, RESEARCH_NOTES §10
 > A22–A37. Kept for the older draft's numbers.
 
