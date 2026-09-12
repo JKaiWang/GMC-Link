@@ -1,7 +1,7 @@
 % Template for ICASSP-2024 paper; to be used with:
 %DIF LATEXDIFF DIFFERENCE FILE
 %DIF DEL gmc_v2_1.tex   Sat Sep 12 11:03:45 2026
-%DIF ADD gmc_v3.tex     Sat Sep 12 11:27:17 2026
+%DIF ADD gmc_v3.tex     Sat Sep 12 11:44:51 2026
 %          spconf.sty  - ICASSP/ICIP LaTeX style file, and
 %          IEEEbib.bst - IEEE bibliography style file.
 % --------------------------------------------------------------------------
@@ -188,7 +188,7 @@ Previous RMOT methods~\cite{transrmot,ikun,flexhook} match language expressions 
 \section{Related Works}
 \label{sec:related}
 \subsection{Referring Multi-Object Tracking}
-TransRMOT~\cite{transrmot} introduced the RMOT task on the Refer-KITTI dataset. Later methods improved different parts of this task. iKUN~\cite{ikun} separated language-based object matching from object tracking, while FlexHook~\cite{flexhook} improved how visual and language information interact. ReferGPT~\cite{refergpt} used a multimodal large language model to describe \DIFaddbegin \DIFadd{existing }\DIFaddend object tracks, and MEX~\cite{mex} provided a memory-efficient module for matching tracks with language.
+TransRMOT~\cite{transrmot} introduced the RMOT task on the Refer-KITTI dataset. Later methods improved different parts of this task. iKUN~\cite{ikun} separated language-based object matching from object tracking, while FlexHook~\cite{flexhook} improved how visual and language information interact. ReferGPT~\cite{refergpt} used a multimodal large language model to describe object tracks, and MEX~\cite{mex} provided a memory-efficient module for matching tracks with language.
 
 Recent RMOT methods~\cite{deeprmot} further improve models' understanding of object descriptions. STORM~\cite{storm} unifies grounding and tracking in an end-to-end multimodal large language model. VMRMOT~\cite{vmrmot} explicitly represents motion using information such as position, direction, changes in distance, and changes in speed. These methods estimate object motion from the object's bounding-box movements across frames.
 %DIF < When the camera moves, the observed bounding-box movement contains both object motion and camera motion. %Therefore, a stationary object may appear to be moving, while a moving object may appear nearly stationary. This makes it difficult for the model to correctly understand motion-related expressions.
@@ -216,7 +216,7 @@ These methods demonstrate that compensating for camera motion can improve tracki
 
 \section{Method}
 \label{sec:method}
-Figure~\ref{fig:architecture} shows the proposed RMOT framework with the global motion compensation (GMC) module. The GMC \DIFdelbegin \DIFdel{Module }\DIFdelend \DIFaddbegin \DIFadd{module }\DIFaddend is attached to a two-stage RMOT method, iKUN~\cite{ikun} in this case. iKUN performs object detection and tracking and then outputs object-language matching scores. The inputs to the GMC module are the sequence of object bounding boxes across frames, the video frames, and the language expression. Based on these inputs, it estimates camera motion, extracts residual object motion, aligns it with the language expression, and produces another matching score. The score is then combined with the host model's predicted score to determine the final tracking result. The GMC module consists of four stages: motion compensation, multi-scale residual velocity extraction, motion-language alignment, and late fusion.
+Figure~\ref{fig:architecture} shows the proposed RMOT framework with the global motion compensation (GMC) module. The GMC Module is attached to a two-stage RMOT method, iKUN~\cite{ikun} in this case. iKUN performs object detection and tracking and then outputs object-language matching scores. The inputs to the GMC module are the sequence of object bounding boxes across frames, the video frames, and the language expression. Based on these inputs, it estimates camera motion, extracts residual object motion, aligns it with the language expression, and produces another matching score. The score is then combined with the host model's predicted score to determine the final tracking result. The GMC module consists of four stages: motion compensation, multi-scale residual velocity extraction, motion-language alignment, and late fusion.
 
 
 \subsection{Motion Compensation}
@@ -315,7 +315,7 @@ Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the perform
 \DIFdelendFL \DIFaddbeginFL \footnotesize
   \setlength{\tabcolsep}{1.5pt}
   \begin{tabular}{lcccc}
-    \hline \DIFaddendFL 
+    \DIFaddendFL \hline
     Host                        & w/o GMC & w. GMC              & \DIFdelbeginFL \DIFdelFL{Gain                      }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{DetA }& \DIFaddFL{AssA }\DIFaddendFL \\
     \hline
     iKUN~\cite{ikun}            & \DIFdelbeginFL \DIFdelFL{44.564    }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{44.56   }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{44.847 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{45.304 }\DIFaddendFL $\pm$ \DIFdelbeginFL \DIFdelFL{0.107 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{0.115 }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{+0.283 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{32.04${\to}$32.90 }& \DIFaddFL{62.48${\to}$62.94 }\DIFaddendFL \\
@@ -371,7 +371,7 @@ Table~\ref{tab:ablation} reports the five-seed ablation measurements when iKUN i
   \DIFdelbeginFL %DIFDELCMD < \begin{tabular}{lcc}
 %DIFDELCMD <     %%%
 \DIFdelendFL \DIFaddbeginFL \begin{tabular}{lccc}
-    \hline \DIFaddendFL 
+    \DIFaddendFL \hline
     Variant                    & Moving HOTA               & \DIFaddbeginFL \DIFaddFL{Others HOTA               }& \DIFaddendFL Pooled HOTA               \\
     \hline
     Native host (w/o GMC)      & \DIFdelbeginFL \DIFdelFL{25.53                     }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{27.70                     }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{44.22                     }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{45.87                     }& \DIFaddFL{44.54                     }\DIFaddendFL \\
