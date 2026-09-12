@@ -1,0 +1,163 @@
+{
+  "campaign": "A46 (prereg docs/PREREG_TRANSRMOT_HOST_2026_09.md)",
+  "host": "TransRMOT, official checkpoint0099, no retraining",
+  "protocol": "official 150-expr seqmap; GT gt_template/ (TransRMOT frame convention); classes gmc_link.moving_kw; fused = refer + alpha(expr)*raw_cos, gate strict >0.5",
+  "native_disclosure": {
+    "ours_protocol": {
+      "pooled": 45.757,
+      "moving": 33.883,
+      "static": 43.673,
+      "appearance": 47.76
+    },
+    "paper_precorrection": 46.56,
+    "repo_readme_corrected": 38.06,
+    "gate1_decomposition": {
+      "old_tree_old_enum_inference_gt": 39.09,
+      "old_tree_off150_inference_gt": 36.986,
+      "new_tree_off150_inference_gt": 37.486,
+      "new_tree_off150_gt_template": 45.757,
+      "attribution": {
+        "list": -2.104,
+        "runtime_drift": 0.5,
+        "gt_convention": 8.271
+      }
+    }
+  },
+  "integrity_gates": {
+    "alpha0_bit_identity": "150/150 predict.txt byte-identical to native re-run",
+    "class_counts": [
+      21,
+      12,
+      117
+    ],
+    "warm11_inline_per_expression": "0 violations (smoke audit); filter_warmup_cache.py union-grid replay NOT applicable (expression-conditioned streams)",
+    "loso_seqs_dirs": "all fold cells in _seqsXXXX-YYYY dirs"
+  },
+  "loso": {
+    "grid": [
+      0.0,
+      0.05,
+      0.1,
+      0.2,
+      0.35,
+      0.5,
+      0.7,
+      1.0,
+      1.5,
+      2.0
+    ],
+    "fold_argmaxes_two_alpha": {
+      "hold0005": [
+        0.7,
+        0.2
+      ],
+      "hold0011": [
+        1.5,
+        1.0
+      ],
+      "hold0013": [
+        0.5,
+        0.5
+      ]
+    },
+    "fold_argmaxes_single": {
+      "hold0005": 0.35,
+      "hold0011": 1.0,
+      "hold0013": 0.5
+    },
+    "selected_two_alpha": [
+      0.7,
+      0.5
+    ],
+    "selected_single": 0.5,
+    "censoring": "no fold at grid max on either axis",
+    "detail": "results/transrmot_host/loso_transrmot.json"
+  },
+  "full_test_n3": {
+    "two_alpha_0.7_0.5": {
+      "pooled": {
+        "mean": 46.149,
+        "std": 0.025,
+        "delta_vs_native": 0.392,
+        "one_sample_t_df2": 27.2
+      },
+      "moving": {
+        "mean": 35.317,
+        "std": 0.131,
+        "delta_vs_native": 1.434,
+        "one_sample_t_df2": 19.0
+      },
+      "static": {
+        "mean": 44.086,
+        "std": 0.103,
+        "delta_vs_native": 0.413,
+        "one_sample_t_df2": 6.9
+      },
+      "appearance": {
+        "mean": 48.053,
+        "std": 0.025,
+        "delta_vs_native": 0.293,
+        "one_sample_t_df2": 20.3
+      }
+    },
+    "single_alpha_0.5": {
+      "pooled": {
+        "mean": 46.139,
+        "std": 0.022,
+        "delta_vs_native": 0.382,
+        "one_sample_t_df2": 30.1
+      },
+      "moving": {
+        "mean": 35.203,
+        "std": 0.188,
+        "delta_vs_native": 1.32,
+        "one_sample_t_df2": 12.2
+      },
+      "static": {
+        "mean": 44.024,
+        "std": 0.071,
+        "delta_vs_native": 0.351,
+        "one_sample_t_df2": 8.6
+      },
+      "appearance": {
+        "mean": 48.053,
+        "std": 0.025,
+        "delta_vs_native": 0.293,
+        "one_sample_t_df2": 20.3
+      }
+    },
+    "seeds": [
+      0,
+      1,
+      2
+    ]
+  },
+  "hypotheses": {
+    "H1_host_deficit_curve": {
+      "verdict": "SUPPORTED",
+      "curve_native_moving_vs_gain": {
+        "ikun": [
+          27.7,
+          9.44
+        ],
+        "transrmot": [
+          33.883,
+          1.434
+        ],
+        "fh_v2": [
+          38.56,
+          0.694
+        ],
+        "fh_v1": [
+          47.9,
+          0.43
+        ]
+      },
+      "note": "monotone decreasing gain across four host settings / three architectures"
+    },
+    "H2_temporal_memory_regression": {
+      "verdict": "REJECTED",
+      "note": "pooled +0.392 (t=27 df2); track-query propagation does NOT reproduce the TempRMOT-style structural regression (-3.8..-5.4)"
+    }
+  }
+}

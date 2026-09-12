@@ -18,6 +18,7 @@ Aligner weights `gmc_link_weights_v1train_sw12d_groad_seed{N}.pth`, caches
 | iKUN | two-α, α_mot=1.0 / α_app=0.1 (LOSO re-run under the A43 router; was 0.7/0.1 under the pre-A43 router, A32/A42) | **45.304 ± 0.115** (MOVING 37.139 ± 0.923, A43 class) | 44.543 |
 | FlexHook V1 (official 150-expr protocol, A31) | single α\*=7 (LOSO, A37) | **53.980 ± 0.059** (MOVING 48.330 ± 0.189, A43 class) | 53.824 |
 | FlexHook V2 | single α\*=5 (LOSO, A37) | **42.625 ± 0.032** (canonical MOVING +0.694, t=27, A43 class) | 42.526 |
+| TransRMOT (A46, third architecture; official-150, `gt_template/` convention, gate 0.5) | two-α, α_mot=0.7 / α_app=0.5 (LOSO; single-α 0.5 near-degenerate, +0.11 MOVING apart) | **46.149 ± 0.025** (MOVING 35.317 ± 0.131, +1.434) | 45.757 (ours; paper pre-correction 46.56, README corrected 38.06 — see `results/transrmot_host/transrmot_host.json`) |
 
 Two-α routes on the canonical expression text (α_mot for MOVING/STATIC, α_app for
 APPEARANCE); per-host LOSO selects α_mot=α_app on both FlexHook settings, so they
