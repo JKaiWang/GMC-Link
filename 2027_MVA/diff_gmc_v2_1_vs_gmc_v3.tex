@@ -1,7 +1,7 @@
 % Template for ICASSP-2024 paper; to be used with:
 %DIF LATEXDIFF DIFFERENCE FILE
-%DIF DEL gmc_v2_1.tex   Mon Aug 31 22:14:19 2026
-%DIF ADD gmc_v3.tex     Mon Aug 31 22:25:33 2026
+%DIF DEL gmc_v2_1.tex   Sat Sep 12 11:03:45 2026
+%DIF ADD gmc_v3.tex     Sat Sep 12 11:27:17 2026
 %          spconf.sty  - ICASSP/ICIP LaTeX style file, and
 %          IEEEbib.bst - IEEE bibliography style file.
 % --------------------------------------------------------------------------
@@ -255,7 +255,7 @@ To capture motion over different time spans, residual velocities are computed at
 \end{equation}
 where the first six values are the residual velocities at the three temporal gaps, and $\Delta w, \Delta h$ capture the change in box scale. The terms $c_x$ and $c_y$ describe the coordinates of the box center, and $w$ and $h$ describe the width and height of the box, respectively.
 
-\DIFaddbegin \DIFadd{A track contributes a motion feature only once it has $11$ contiguous frames of history, the shortest history at which all three gaps are defined; on shorter histories the module abstains and the host score passes through unchanged. The threshold follows from the largest gap and adds no free parameter.
+\DIFaddbegin \DIFadd{The largest gap requires $11$ contiguous frames, so a track contributes a motion feature only after its history reaches that length. Shorter histories are left to the host: the module abstains and the host score passes through unchanged. The threshold is fixed by the largest gap and adds no free parameter.
 }
 
 \DIFaddend \subsection{Motion-Language Matching}
