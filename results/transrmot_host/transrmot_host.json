@@ -159,5 +159,35 @@
       "verdict": "REJECTED",
       "note": "pooled +0.392 (t=27 df2); track-query propagation does NOT reproduce the TempRMOT-style structural regression (-3.8..-5.4)"
     }
+  },
+  "submetrics": {
+    "native": {
+      "HOTA": 45.757,
+      "DetA": 36.636,
+      "AssA": 57.4
+    },
+    "two_alpha_0.7_0.5_n3": {
+      "DetA": {
+        "per_seed": [
+          36.984,
+          36.968,
+          36.898
+        ],
+        "mean": 36.95,
+        "std": 0.046,
+        "delta": 0.314
+      },
+      "AssA": {
+        "per_seed": [
+          57.895,
+          57.877,
+          57.904
+        ],
+        "mean": 57.892,
+        "std": 0.014,
+        "delta": 0.492
+      }
+    },
+    "note": "pooled TrackEval per tree, official-150, gt_template convention; HOTA columns match result.json exactly (gate)"
   }
 }
