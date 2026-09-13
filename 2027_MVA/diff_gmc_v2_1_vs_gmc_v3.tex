@@ -1,7 +1,7 @@
 % Template for ICASSP-2024 paper; to be used with:
 %DIF LATEXDIFF DIFFERENCE FILE
 %DIF DEL gmc_v2_1.tex   Sat Sep 12 22:09:57 2026
-%DIF ADD gmc_v3.tex     Sun Sep 13 12:40:08 2026
+%DIF ADD gmc_v3.tex     Sun Sep 13 12:41:17 2026
 %          spconf.sty  - ICASSP/ICIP LaTeX style file, and
 %          IEEEbib.bst - IEEE bibliography style file.
 % --------------------------------------------------------------------------
@@ -384,8 +384,7 @@ Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the perform
 %DIFDELCMD < 
 
 %DIFDELCMD < %%%
-\DIFdelend Table~\ref{tab:deficit} reports HOTA variations \DIFdelbegin \DIFdel{for movement-related }\DIFdelend \DIFaddbegin \DIFadd{on the moving-class }\DIFaddend expressions only. As can be seen, the GMC module provides performance improvement across all \DIFdelbegin \DIFdel{three }\DIFdelend \DIFaddbegin \DIFadd{four }\DIFaddend settings. The performance gains differ by an order of magnitude: iKUN gains \DIFdelbegin \DIFdel{$+7.08\pm0.65$, FlexHook V1 $+0.67\pm0.13$}\DIFdelend \DIFaddbegin \DIFadd{$+9.44\pm0.92$, TransRMOT $+1.43\pm0.13$, FlexHook V2 $+0.69\pm0.04$}\DIFaddend , and FlexHook \DIFdelbegin \DIFdel{V2 $+0.18\pm0.06$. }\DIFdelend \DIFaddbegin \DIFadd{V1 $+0.43\pm0.19$. The gain decreases monotonically as the host's baseline moving-class HOTA increases, across three different architectures: the weaker the host's own motion understanding, the more the compensated motion cues contribute.
-}\DIFaddend 
+\DIFdelend Table~\ref{tab:deficit} reports HOTA variations \DIFdelbegin \DIFdel{for movement-related }\DIFdelend \DIFaddbegin \DIFadd{on the moving-class }\DIFaddend expressions only. As can be seen, the GMC module provides performance improvement across all \DIFdelbegin \DIFdel{three }\DIFdelend \DIFaddbegin \DIFadd{four }\DIFaddend settings. The performance gains differ by an order of magnitude\DIFdelbegin \DIFdel{: iKUN gains $+7.08\pm0.65$, }\DIFdelend \DIFaddbegin \DIFadd{, from $+9.44\pm0.92$ on iKUN down to $+0.43\pm0.19$ on }\DIFaddend FlexHook V1\DIFdelbegin \DIFdel{$+0.67\pm0.13$, and FlexHook V2 $+0.18\pm0.06$}\DIFdelend \DIFaddbegin \DIFadd{. The gain decreases monotonically as the host's baseline moving-class HOTA increases, across three different architectures: the weaker the host's own motion understanding, the more the compensated motion cues contribute}\DIFaddend .
 
 %DIF < In our evaluated settings, this trend suggests that the GMC Module is most beneficial for host models with weaker motion understanding. When the host model already distinguishes camera motion from object motion reasonably well, the proposed module provides only a small improvement. Conversely, when the host struggles with motion grounding, the GMC Module can effectively compensate for this limitation and achieve a larger performance gain.
 \DIFaddbegin \begin{table}[t]

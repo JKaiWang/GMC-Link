@@ -272,3 +272,4 @@ MOVING 本來就不預期動;−0.18 在 n=3 種子變異範圍內。
 | A46t | diff 配方第 4 條 perl 規則:latexdiff 會把有改動的表整個包成 \DIFaddbegin \begin{table}(未改的表是裸的)→ 對這類表在 caption 開頭注入 \DIFaddFL{[changed]} 藍字標記;表本體仍顯示最終版 | 4 表標記,diff 5 頁 0 error |
 | A46u | §4.2 exceed-published 句壓一行(刪 +0.744/+0.156/+0.099 三個 delta,主張保留:gains across all settings, including over published where directly comparable;TransRMOT vs our reproduction):防 reproduction-slack 質疑的功能不變,省 ~2 行(MVA 4 頁限制的頭期款) | 編譯 5 頁 0 overfull;diff 重生 |
 | A46v | A46u 句再改寫(使用者:where directly comparable 難讀):點名式兩短句——For iKUN and both FlexHook settings, the fused model also exceeds the host's published score; for TransRMOT, the comparison is against our reproduction | 編譯 5 頁 0 overfull;diff 重生 |
+| A46w | §4.2 Table 3 段四值枚舉改引兩端(from +9.44 on iKUN down to +0.43 on FH V1):數值由表承載,正文只撐量級差+單調主張;再省 ~1.5 行 | 編譯 5 頁 0 overfull;diff 重生 |
