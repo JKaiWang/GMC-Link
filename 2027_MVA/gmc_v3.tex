@@ -162,7 +162,7 @@ We evaluate the proposed module on the Refer-KITTI V1~\cite{transrmot} and the R
 
 The proposed GMC module is integrated with three host models, i.e., iKUN~\cite{ikun}, FlexHook~\cite{flexhook}, and TransRMOT~\cite{transrmot}. For comparison, we also evaluate a raw-velocity variant that uses image-plane motion directly, without ego-motion compensation. The GMC module is trained using the AdamW~\cite{adamw} optimizer with a learning rate of $10^{-3}$, batch size 256, and 100 epochs. The linear projectors and MLP in the module are trained based on the Refer-KITTI V1 training split (15 sequences, disjoint from the test sequences). Each positive pair consists of an expression and the motion features derived from the object's ground-truth boxes. At test time, raw object movement is derived from the host model's initial tracking results, the residual velocity is calculated, and the motion features are finally computed. The road-plane homography tracks up to 600 corners with a 3-pixel RANSAC threshold and succeeds on all 7,690 adjacent frame pairs of the 19 training and evaluation sequences. Excluding host inference, the module runs at $149$ FPS on CPU ($6.7$\,ms per frame).
 
-Results are averaged over three random seeds for the main configurations. Ablation analyses are done using five seeds together with Welch's $t$-test. All host models use their original detection results, and every Refer-KITTI V1 setting is evaluated on the benchmark's official 150-expression test list. Our reproduced FlexHook baselines match their published scores exactly at $\alpha_c{=}0$, while our reproduced iKUN ($44.543$) is marginally below its published score ($44.56$); Table~\ref{tab:main} therefore reports the stricter comparison against the published baselines. For TransRMOT, the two published scores are not directly comparable to our protocol: the original $46.56$ predates the community frame-numbering correction of the ground truth, and the corrected score in the official repository ($38.06$) uses a different ground-truth convention. We therefore evaluate TransRMOT under its own frame convention on the official 150-expression list and compare against our reproduced baseline ($45.757$), which the fused model reproduces exactly at $\alpha_c{=}0$.
+Results are averaged over three random seeds for the main configurations. Ablation analyses are done using five seeds together with Welch's $t$-test. All host models use their original detection results, and every Refer-KITTI V1 setting is evaluated on the benchmark's official 150-expression test list. Our reproduced FlexHook baselines match their published scores exactly at $\alpha_c{=}0$. TransRMOT's published scores ($46.56$ before and $38.06$ after the community frame-numbering correction) use different ground-truth conventions and are not directly comparable; Table~\ref{tab:main} therefore lists our reproduction under the host's own frame convention, which the fused model reproduces exactly at $\alpha_c{=}0$.
 
 Refer-KITTI does not provide a dedicated validation split. All fusion weights are therefore selected by the leave-one-sequence-out procedure mentioned in Sec.~\ref{sec:fusion}. No weight is chosen on the sequence it is evaluated on.
 
@@ -174,7 +174,7 @@ Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the perform
 
 \begin{table}[t]
   \centering
-  \caption{Pooled HOTA on the Refer-KITTI test sets (mean $\pm$ std over three seeds). The DetA and AssA cells give the reproduced host value and the value with the GMC module.}
+  \caption{Pooled HOTA on the Refer-KITTI test sets (mean $\pm$ std over three seeds). The DetA and AssA cells give the reproduced host value and the value with the GMC module. $^\ddagger$ denotes our reproduction using the official implementation, under the host's own frame convention (Sec.~\ref{sec:setup}).}
   \label{tab:main}
   \footnotesize
   \setlength{\tabcolsep}{1.5pt}
@@ -183,7 +183,7 @@ Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the perform
     Host                        & w/o GMC & w. GMC              & DetA & AssA \\
     \hline
     iKUN~\cite{ikun}            & 44.56   & 45.304 $\pm$ 0.115 & 32.04${\to}$32.90 & 62.48${\to}$62.94 \\
-    TransRMOT~\cite{transrmot}  & 45.757  & 46.149 $\pm$ 0.025 & 36.64${\to}$36.95 & 57.40${\to}$57.89 \\
+    TransRMOT~\cite{transrmot}  & 45.757$^\ddagger$ & 46.149 $\pm$ 0.025 & 36.64${\to}$36.95 & 57.40${\to}$57.89 \\
     FlexHook V1~\cite{flexhook} & 53.824  & 53.980 $\pm$ 0.059 & 43.35${\to}$43.51 & 66.92${\to}$67.07 \\
     FlexHook V2~\cite{flexhook} & 42.526  & 42.625 $\pm$ 0.032 & 30.63${\to}$30.75 & 59.19${\to}$59.23 \\
     \hline
