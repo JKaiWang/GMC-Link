@@ -261,3 +261,4 @@ MOVING 本來就不預期動;−0.18 在 n=3 種子變異範圍內。
 | A46i | Table 2 照社群主表樣式重排(FlexHook/C²RMOT/iKUN 三篇查證):Refer-KITTI / V2 兩節、每 host 配對加 \hline 分組、+GMC 列粗體、表頭 Host→Method;§4.2 刪「哪些列來自 V1/V2」句(表內分節已載明) | 編譯 5 頁 0 overfull;diff 重生 |
 | A46j | Table 2 +GMC 列去 ±(caption 改「mean over three seeds」);與 A46d ablation 表同邏輯——std/顯著性由 Table 3 與正文承載,參考論文主表皆單值 | 編譯 5 頁 0 overfull;diff 重生 |
 | A46k | 表格側向空白:四表改 tabular*{\linewidth}+extracolsep fill 撐滿欄寬(原本 Table 3 僅 ~60% 欄寬、置中兩側大空白,caption 卻全寬);float 間距統一 floatsep 10pt / textfloatsep 11pt(左欄 ~18pt vs 右欄 ~10pt 不一致) | 編譯 5 頁 0 overfull;diff 重生 |
+| A46l | latexdiff 後處理擴充(perl 三規則):舊 sed 只換 DIFaddendFL+hline;新表的 DIFaddbeginFL+hline 與 DIFaddbeginFL+multicolumn(展開 \omit 必須是 cell 首 token)也要搬——marker 移到 hline 後 / multicolumn cell 內 | diff rc=0、0 error、5 頁 |
