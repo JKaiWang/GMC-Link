@@ -274,3 +274,4 @@ MOVING 本來就不預期動;−0.18 在 n=3 種子變異範圍內。
 | A46v | A46u 句再改寫(使用者:where directly comparable 難讀):點名式兩短句——For iKUN and both FlexHook settings, the fused model also exceeds the host's published score; for TransRMOT, the comparison is against our reproduction | 編譯 5 頁 0 overfull;diff 重生 |
 | A46w | §4.2 Table 3 段四值枚舉改引兩端(from +9.44 on iKUN down to +0.43 on FH V1):數值由表承載,正文只撐量級差+單調主張;再省 ~1.5 行 | 編譯 5 頁 0 overfull;diff 重生 |
 | A46x | diff 重生配方固化為 2027_MVA/rebuild_diff.sh(latexmk v3 → latexdiff PICTUREENV → perl 四規則 → latexmk diff → 頁數/overfull/標記數摘要);之後每輪一條指令 | v3 5 頁 0 overfull;diff 5 頁 0 error、4 表標記 |
+| A46y | Table 1 改 [b] 沉 p3 右欄底(原 [t] 卡右欄頂,把 §3.4 的論述切成兩半);§4.2 兩個極值數字刪(order-of-magnitude 主張留,值由 Table 3 承載,再省 ~1 行);rebuild_diff.sh 規則 4 regex 放寬 [t]→[tb] | 編譯 5 頁 0 overfull;diff 5 頁 0 error、4 表標記 |

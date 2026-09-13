@@ -19,7 +19,7 @@ perl -0pi -e '
 s/\\DIFaddendFL \\hline/\\hline \\DIFaddendFL/g;
 s/\\DIFaddbeginFL\s+\\hline/\\hline \\DIFaddbeginFL/g;
 s/\\DIFaddbeginFL\s+(\\multicolumn\{\d+\}\{c\}\{)/$1\\DIFaddbeginFL /g;
-s/(\\DIFaddbegin \\begin\{table\}\[t\]\s*\\centering\s*\\caption\{)/$1\\DIFaddFL{[changed] }/g;
+s/(\\DIFaddbegin \\begin\{table\}\[[tb]\]\s*\\centering\s*\\caption\{)/$1\\DIFaddFL{[changed] }/g;
 ' diff_gmc_v2_1_vs_gmc_v3.tex
 latexmk -pdf -interaction=nonstopmode diff_gmc_v2_1_vs_gmc_v3.tex >/dev/null
 
