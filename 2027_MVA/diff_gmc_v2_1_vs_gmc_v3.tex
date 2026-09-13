@@ -1,7 +1,7 @@
 % Template for ICASSP-2024 paper; to be used with:
 %DIF LATEXDIFF DIFFERENCE FILE
 %DIF DEL gmc_v2_1.tex   Sat Sep 12 22:09:57 2026
-%DIF ADD gmc_v3.tex     Sun Sep 13 11:02:23 2026
+%DIF ADD gmc_v3.tex     Sun Sep 13 11:04:31 2026
 %          spconf.sty  - ICASSP/ICIP LaTeX style file, and
 %          IEEEbib.bst - IEEE bibliography style file.
 % --------------------------------------------------------------------------
@@ -16,8 +16,8 @@
 %DIF 13a13-21
 % float spacing: article defaults (12pt/20pt + stretch) leave visible holes %DIF > 
 % around stacked column floats; tighten and cap the stretch %DIF > 
-\setlength{\floatsep}{7pt plus 2pt minus 2pt} %DIF > 
-\setlength{\textfloatsep}{9pt plus 2pt minus 2pt} %DIF > 
+\setlength{\floatsep}{10pt plus 2pt minus 2pt} %DIF > 
+\setlength{\textfloatsep}{11pt plus 2pt minus 2pt} %DIF > 
 % captions sit ABOVE our tables, so the default 10pt-above/0pt-below skip %DIF > 
 % pair is inverted: dead space at the float top, caption glued to the rule %DIF > 
 \setlength{\abovecaptionskip}{4pt} %DIF > 
@@ -294,7 +294,7 @@ where $s_{\mathrm{host}}$ is the prediction score from the host model. The weigh
   \caption{\DIFaddFL{Fusion weightings $\alpha_c$ selected by leave-one-sequence-out cross-validation.}}
   \label{tab:alphas}
   \footnotesize
-  \begin{tabular}{lcc}
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcc}
     \hline
     \DIFaddFL{Host        }& \DIFaddFL{$\alpha_{\mathrm{mot}}$ (moving/static) }& \DIFaddFL{$\alpha_{\mathrm{app}}$ (appearance) }\\
     \hline
@@ -305,7 +305,7 @@ When }\DIFdelendFL \DIFaddbeginFL \\
     \DIFaddendFL FlexHook V2 \DIFdelbeginFL \DIFdelFL{is used as the host model, the weighting $\alpha_c$ is set to }\DIFdelendFL \DIFaddbeginFL & \DIFaddendFL 5   \DIFdelbeginFL \DIFdelFL{for all expressions. 
 }\DIFdelendFL \DIFaddbeginFL & \DIFaddFL{5   }\\
     \hline
-  \end{tabular}
+  \end{tabular*}
 \end{table}
 \DIFaddend 
 
@@ -349,10 +349,11 @@ Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the perform
   \label{tab:main}
   \DIFdelbeginFL %DIFDELCMD < \small
 %DIFDELCMD <   \setlength{\tabcolsep}{2pt}
-%DIFDELCMD <   %%%
+%DIFDELCMD <   \begin{tabular}{lccc}
+%DIFDELCMD <     %%%
 \DIFdelendFL \DIFaddbeginFL \footnotesize
-  \DIFaddendFL \begin{tabular}{lccc}
-    \hline
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lccc}
+    \hline \DIFaddendFL
     \DIFdelbeginFL \DIFdelFL{Host                        }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Method                      }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{w/o GMC }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{HOTA               }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{w. GMC           }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{DetA  }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{Gain                      }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{AssA  }\DIFaddendFL \\
     \hline
     \DIFaddbeginFL \multicolumn{4}{c}{\textit{\DIFaddFL{Refer-KITTI}}} \\
@@ -373,8 +374,10 @@ Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the perform
     \DIFaddendFL FlexHook V2~\cite{flexhook} & 42.526             & \DIFdelbeginFL \DIFdelFL{42.625 $\pm$ 0.032 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{30.63 }\DIFaddendFL & \DIFaddbeginFL \DIFaddFL{59.19 }\\
     \DIFaddFL{\quad }\DIFaddendFL +\DIFdelbeginFL \DIFdelFL{0.099 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{\,GMC                }& \textbf{\DIFaddFL{42.625}} & \textbf{\DIFaddFL{30.75}} & \textbf{\DIFaddFL{59.23}} \DIFaddendFL \\
     \hline
-  \end{tabular}
-\end{table}
+  \DIFdelbeginFL %DIFDELCMD < \end{tabular}
+%DIFDELCMD < %%%
+\DIFdelendFL \DIFaddbeginFL \end{tabular*}
+\DIFaddendFL \end{table}
 
 Table~\ref{tab:deficit} reports HOTA variations \DIFdelbegin \DIFdel{for movement-related }\DIFdelend \DIFaddbegin \DIFadd{on the moving-class }\DIFaddend expressions only. As can be seen, the GMC module provides performance improvement across all \DIFdelbegin \DIFdel{three }\DIFdelend \DIFaddbegin \DIFadd{four }\DIFaddend settings. The performance gains differ by an order of magnitude: iKUN gains \DIFdelbegin \DIFdel{$+7.08\pm0.65$, FlexHook V1 $+0.67\pm0.13$}\DIFdelend \DIFaddbegin \DIFadd{$+9.44\pm0.92$, TransRMOT $+1.43\pm0.13$, FlexHook V2 $+0.69\pm0.04$}\DIFaddend , and FlexHook \DIFdelbegin \DIFdel{V2 $+0.18\pm0.06$. }\DIFdelend \DIFaddbegin \DIFadd{V1 $+0.43\pm0.19$. The gain decreases monotonically as the host's baseline moving-class HOTA increases, across three different architectures: the weaker the host's own motion understanding, the more the compensated motion cues contribute.
 }\DIFaddend 
@@ -394,8 +397,10 @@ Table~\ref{tab:deficit} reports HOTA variations \DIFdelbegin \DIFdel{for movemen
   \label{tab:deficit}
   \small
   \setlength{\tabcolsep}{2pt}
-  \begin{tabular}{lcc}
-    \hline
+  \DIFdelbeginFL %DIFDELCMD < \begin{tabular}{lcc}
+%DIFDELCMD <     %%%
+\DIFdelendFL \DIFaddbeginFL \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcc}
+    \hline \DIFaddendFL
     Host        & Baseline & Performance gain \\
     \hline
     iKUN        & \DIFdelbeginFL \DIFdelFL{25.53    }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{27.70    }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{$+7.08\pm0.65$   }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{$+9.44\pm0.92$   }\DIFaddendFL \\
@@ -403,8 +408,10 @@ Table~\ref{tab:deficit} reports HOTA variations \DIFdelbegin \DIFdel{for movemen
     FlexHook V2 & \DIFdelbeginFL \DIFdelFL{38.15    }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{38.56    }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{$+0.18\pm0.06$   }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{$+0.69\pm0.04$   }\DIFaddendFL \\
     \DIFaddbeginFL \DIFaddFL{FlexHook V1 }& \DIFaddFL{47.90    }& \DIFaddFL{$+0.43\pm0.19$   }\\
     \hline \DIFaddendFL
-  \end{tabular}
-\end{table}
+  \DIFdelbeginFL %DIFDELCMD < \end{tabular}
+%DIFDELCMD < %%%
+\DIFdelendFL \DIFaddbeginFL \end{tabular*}
+\DIFaddendFL \end{table}
 
 \subsection{Ablation Studies}
 \label{sec:ablation}
@@ -425,7 +432,7 @@ Table~\ref{tab:ablation} reports the five-seed ablation measurements when iKUN i
   \DIFaddendFL \setlength{\tabcolsep}{2pt}
   \DIFdelbeginFL %DIFDELCMD < \begin{tabular}{lcc}
 %DIFDELCMD <     %%%
-\DIFdelendFL \DIFaddbeginFL \begin{tabular}{lccc}
+\DIFdelendFL \DIFaddbeginFL \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lccc}
     \hline \DIFaddendFL
     Variant                    & Moving HOTA               & \DIFaddbeginFL \DIFaddFL{Others HOTA               }& \DIFaddendFL Pooled HOTA               \\
     \hline
@@ -435,8 +442,10 @@ Table~\ref{tab:ablation} reports the five-seed ablation measurements when iKUN i
     \DIFaddendFL \quad - ego (raw velocity only) & \DIFdelbeginFL \DIFdelFL{28.49 $\pm$ 0.35          }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{32.37     }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{44.17 $\pm$ 0.07          }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{45.77          }& \DIFaddFL{44.61          }\DIFaddendFL \\
     \quad - multiscale (single gap) & \DIFdelbeginFL \DIFdelFL{30.45 $\pm$ 0.20          }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{35.14     }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{44.49 $\pm$ 0.02          }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{45.96          }& \DIFaddFL{45.00          }\DIFaddendFL \\
     \hline
-  \end{tabular}
-\end{table}
+  \DIFdelbeginFL %DIFDELCMD < \end{tabular}
+%DIFDELCMD < %%%
+\DIFdelendFL \DIFaddbeginFL \end{tabular*}
+\DIFaddendFL \end{table}
 
 \DIFdelbegin %DIFDELCMD < \begin{figure}
 %DIFDELCMD <   %%%

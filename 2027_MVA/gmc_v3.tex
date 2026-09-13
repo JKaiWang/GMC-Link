@@ -12,8 +12,8 @@
 
 % float spacing: article defaults (12pt/20pt + stretch) leave visible holes
 % around stacked column floats; tighten and cap the stretch
-\setlength{\floatsep}{7pt plus 2pt minus 2pt}
-\setlength{\textfloatsep}{9pt plus 2pt minus 2pt}
+\setlength{\floatsep}{10pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{11pt plus 2pt minus 2pt}
 % captions sit ABOVE our tables, so the default 10pt-above/0pt-below skip
 % pair is inverted: dead space at the float top, caption glued to the rule
 \setlength{\abovecaptionskip}{4pt}
@@ -147,7 +147,7 @@ where $s_{\mathrm{host}}$ is the prediction score from the host model. The weigh
   \caption{Fusion weightings $\alpha_c$ selected by leave-one-sequence-out cross-validation.}
   \label{tab:alphas}
   \footnotesize
-  \begin{tabular}{lcc}
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcc}
     \hline
     Host        & $\alpha_{\mathrm{mot}}$ (moving/static) & $\alpha_{\mathrm{app}}$ (appearance) \\
     \hline
@@ -156,7 +156,7 @@ where $s_{\mathrm{host}}$ is the prediction score from the host model. The weigh
     FlexHook V1 & 7   & 7   \\
     FlexHook V2 & 5   & 5   \\
     \hline
-  \end{tabular}
+  \end{tabular*}
 \end{table}
 
 Since the GMC module only adds extra influence on the final prediction score, it can be integrated into existing RMOT frameworks, either two-stage or end-to-end query-based, without changing or retraining their detector, tracker, visual encoder, or language encoder.
@@ -186,7 +186,7 @@ Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the perform
   \caption{Pooled HOTA, DetA, and AssA on the Refer-KITTI test sets. Each host row gives the baseline (HOTA as published; DetA and AssA from our reproduction); the +\,GMC row gives the fused model (mean over three seeds). The better value of each pair is in bold. $^*$ denotes our reproduction using the official implementation, under the host's own frame convention (Sec.~\ref{sec:setup}).}
   \label{tab:main}
   \footnotesize
-  \begin{tabular}{lccc}
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lccc}
     \hline
     Method                      & HOTA               & DetA  & AssA  \\
     \hline
@@ -206,7 +206,7 @@ Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the perform
     FlexHook V2~\cite{flexhook} & 42.526             & 30.63 & 59.19 \\
     \quad +\,GMC                & \textbf{42.625} & \textbf{30.75} & \textbf{59.23} \\
     \hline
-  \end{tabular}
+  \end{tabular*}
 \end{table}
 
 Table~\ref{tab:deficit} reports HOTA variations on the moving-class expressions only. As can be seen, the GMC module provides performance improvement across all four settings. The performance gains differ by an order of magnitude: iKUN gains $+9.44\pm0.92$, TransRMOT $+1.43\pm0.13$, FlexHook V2 $+0.69\pm0.04$, and FlexHook V1 $+0.43\pm0.19$. The gain decreases monotonically as the host's baseline moving-class HOTA increases, across three different architectures: the weaker the host's own motion understanding, the more the compensated motion cues contribute.
@@ -217,7 +217,7 @@ Table~\ref{tab:deficit} reports HOTA variations on the moving-class expressions 
   \label{tab:deficit}
   \small
   \setlength{\tabcolsep}{2pt}
-  \begin{tabular}{lcc}
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcc}
     \hline
     Host        & Baseline & Performance gain \\
     \hline
@@ -226,7 +226,7 @@ Table~\ref{tab:deficit} reports HOTA variations on the moving-class expressions 
     FlexHook V2 & 38.56    & $+0.69\pm0.04$   \\
     FlexHook V1 & 47.90    & $+0.43\pm0.19$   \\
     \hline
-  \end{tabular}
+  \end{tabular*}
 \end{table}
 
 \subsection{Ablation Studies}
@@ -239,7 +239,7 @@ Table~\ref{tab:ablation} reports the five-seed ablation measurements when iKUN i
   \label{tab:ablation}
   \footnotesize
   \setlength{\tabcolsep}{2pt}
-  \begin{tabular}{lccc}
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lccc}
     \hline
     Variant                    & Moving HOTA               & Others HOTA               & Pooled HOTA               \\
     \hline
@@ -249,7 +249,7 @@ Table~\ref{tab:ablation} reports the five-seed ablation measurements when iKUN i
     \quad - ego (raw velocity only) & 32.37     & 45.77          & 44.61          \\
     \quad - multiscale (single gap) & 35.14     & 45.96          & 45.00          \\
     \hline
-  \end{tabular}
+  \end{tabular*}
 \end{table}
 
 \begin{figure}[t]
