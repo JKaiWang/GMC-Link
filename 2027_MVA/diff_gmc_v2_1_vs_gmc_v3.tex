@@ -291,7 +291,7 @@ where $s_{\mathrm{host}}$ is the prediction score from the host model. The weigh
 
 \DIFaddbegin \begin{table}[t]
   \centering
-  \caption{Fusion weightings $\alpha_c$ selected by leave-one-sequence-out cross-validation.}
+  \caption{\DIFaddFL{[changed] }Fusion weightings $\alpha_c$ selected by leave-one-sequence-out cross-validation.}
   \label{tab:alphas}
   \footnotesize
   \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcc}
@@ -338,7 +338,7 @@ Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the perform
 %DIF < Overall, these results show that camera-motion-compensated motion information is beneficial only when it is properly aligned with the host model. The gains are most visible on motion-referring expressions, while pooled HOTA changes are smaller because motion expressions form a minority of Refer-KITTI. Thus, the GMC Module should be viewed primarily as a motion-grounding correction that preserves competitive pooled performance in the evaluated settings.
 \DIFaddbegin \begin{table}[t]
   \centering
-  \caption{Pooled HOTA, DetA, and AssA on the Refer-KITTI test sets. Each host row gives the baseline (HOTA as published; DetA and AssA from our reproduction); the +\,GMC row gives the fused model (mean over three seeds). The better value of each pair is in bold. $^*$ denotes our reproduction using the official implementation, under the host's own frame convention (Sec.~\ref{sec:setup}).}
+  \caption{\DIFaddFL{[changed] }Pooled HOTA, DetA, and AssA on the Refer-KITTI test sets. Each host row gives the baseline (HOTA as published; DetA and AssA from our reproduction); the +\,GMC row gives the fused model (mean over three seeds). The better value of each pair is in bold. $^*$ denotes our reproduction using the official implementation, under the host's own frame convention (Sec.~\ref{sec:setup}).}
   \label{tab:main}
   \footnotesize
   \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lccc}
@@ -390,7 +390,7 @@ Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the perform
 %DIF < In our evaluated settings, this trend suggests that the GMC Module is most beneficial for host models with weaker motion understanding. When the host model already distinguishes camera motion from object motion reasonably well, the proposed module provides only a small improvement. Conversely, when the host struggles with motion grounding, the GMC Module can effectively compensate for this limitation and achieve a larger performance gain.
 \DIFaddbegin \begin{table}[t]
   \centering
-  \caption{Moving-class HOTA (moving-class expressions: $21/150$ for iKUN, TransRMOT, and FlexHook V1, $111/862$ for FlexHook V2), $n{=}3$ seeds. Rows are ordered by baseline moving-class HOTA.}
+  \caption{\DIFaddFL{[changed] }Moving-class HOTA (moving-class expressions: $21/150$ for iKUN, TransRMOT, and FlexHook V1, $111/862$ for FlexHook V2), $n{=}3$ seeds. Rows are ordered by baseline moving-class HOTA.}
   \label{tab:deficit}
   \small
   \setlength{\tabcolsep}{2pt}
@@ -436,7 +436,7 @@ Table~\ref{tab:ablation} reports the five-seed ablation measurements when iKUN i
 %DIF < Both drops are significant under Welch's $t$-test ($n{=}5$; ego: $t{=}11.8$ moving-class, $11.7$ pooled; multi-scale: $t{=}6.2$ and $6.7$; all $p{<}0.01$), and ego-motion compensation accounts for the larger share.
 \DIFaddbegin \begin{table}[t]
   \centering
-  \caption{Per-class HOTA ablation on iKUN ($n{=}5$ seeds); single $\alpha$: $\alpha_{\mathrm{mot}}{=}\alpha_{\mathrm{app}}{=}0.35$ (LOSO). Others $=$ all expressions outside the moving class.}
+  \caption{\DIFaddFL{[changed] }Per-class HOTA ablation on iKUN ($n{=}5$ seeds); single $\alpha$: $\alpha_{\mathrm{mot}}{=}\alpha_{\mathrm{app}}{=}0.35$ (LOSO). Others $=$ all expressions outside the moving class.}
   \label{tab:ablation}
   \footnotesize
   \setlength{\tabcolsep}{2pt}

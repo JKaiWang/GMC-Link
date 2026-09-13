@@ -269,3 +269,4 @@ MOVING 本來就不預期動;−0.18 在 n=3 種子變異範圍內。
 | A46q | Fig.2 正文開頭 run-up 句合併("Figure 2 shows a sample tracking result." 併入下一句) | diff 重生 |
 | A46r | latexdiff 配方再修:加 --config PICTUREENV=(?:picture|DIFnomarkup|table)[\\w\\d*@]* 把 table 環境設為不可標記區塊(結構性改表時 latexdiff 會把新舊列黏同格、把被刪散文塞進新表 cell——Table 1 爆版、Table 4 出現 32.30±0.6336.99);表格顯示最終版、散文照常標記;perl 三規則保留 | diff 5 頁 0 error,四表乾淨 |
 | A46s | Table 2 周圍再調:belowcaptionskip 4→7pt(caption 末行貼表頂線)、arraystretch 1.1(分節列被 hline 夾死、列高擠);Fig.2 開頭句改回原兩句寫法(使用者:原寫法較清楚,A46q 的合併撤銷) | 編譯 5 頁 0 overfull;diff 重生 |
+| A46t | diff 配方第 4 條 perl 規則:latexdiff 會把有改動的表整個包成 \DIFaddbegin \begin{table}(未改的表是裸的)→ 對這類表在 caption 開頭注入 \DIFaddFL{[changed]} 藍字標記;表本體仍顯示最終版 | 4 表標記,diff 5 頁 0 error |
