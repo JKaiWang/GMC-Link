@@ -256,3 +256,5 @@ MOVING 本來就不預期動;−0.18 在 n=3 種子變異範圍內。
 | A46d | Table 4(ablation)去 ± :五行 seeded cell 只列平均(使用者決定);n=5 與顯著性由 caption + 正文 Welch t 承載,正文首句保留 36.99±0.68 / 45.28±0.09 當唯一 std 錨點 | 編譯 5 頁 0 overfull;diff 重生 |
 | A46e | Table 2 reproduced 記號 ‡ → *(使用者覺得 ‡ 突兀;* 為 reproduced 最常見記號,全文無上標 * 衝突);cell + caption 兩處 | 編譯 5 頁 0 overfull;diff 重生 |
 | A46f | 四個無 placement 的 float(tab:alphas/deficit/ablation、fig:qual)補 [t]:p4 右欄原本整欄退化成 float column(Table 4 + Fig.2 中間大段彈性空白、正文跳頁);[t] 禁掉 float-page 路徑後正文回流 | 編譯 5 頁 0 overfull;p4 右欄 Table 4 → Fig.2 → 結論正文連續;diff 重生 |
+| A46g | float/caption 間距參數:floatsep 7pt、textfloatsep 9pt、above/belowcaptionskip 4/4pt(caption 在表上方時預設 10/0pt 方向顛倒——float 頂 10pt 死空間、caption 貼表線) | 表2↔表3↔正文間距正常化 |
+| A46h | Table 2 改配對列(每 host 一列 baseline + 一列 +GMC;欄位 HOTA/DetA/AssA):原 5 欄 + →對 + colsep 1.5pt 擠到不可讀;caption 改寫(baseline 列 = 發表 HOTA + 我們的 DetA/AssA);* 記號保留(TransRMOT 無可比發表值) | 編譯 5 頁 0 overfull;diff 重生 |

@@ -1,7 +1,7 @@
 % Template for ICASSP-2024 paper; to be used with:
 %DIF LATEXDIFF DIFFERENCE FILE
 %DIF DEL gmc_v2_1.tex   Sat Sep 12 22:09:57 2026
-%DIF ADD gmc_v3.tex     Sun Sep 13 10:47:50 2026
+%DIF ADD gmc_v3.tex     Sun Sep 13 10:53:23 2026
 %          spconf.sty  - ICASSP/ICIP LaTeX style file, and
 %          IEEEbib.bst - IEEE bibliography style file.
 % --------------------------------------------------------------------------
@@ -13,6 +13,17 @@
 \usepackage{comment}
 \usepackage{xcolor}
 
+%DIF 13a13-21
+% float spacing: article defaults (12pt/20pt + stretch) leave visible holes %DIF > 
+% around stacked column floats; tighten and cap the stretch %DIF > 
+\setlength{\floatsep}{7pt plus 2pt minus 2pt} %DIF > 
+\setlength{\textfloatsep}{9pt plus 2pt minus 2pt} %DIF > 
+% captions sit ABOVE our tables, so the default 10pt-above/0pt-below skip %DIF > 
+% pair is inverted: dead space at the float top, caption glued to the rule %DIF > 
+\setlength{\abovecaptionskip}{4pt} %DIF > 
+\setlength{\belowcaptionskip}{4pt} %DIF > 
+ %DIF > 
+%DIF -------
 % Example definitions.
 % --------------------
 \def\x{{\mathbf x}}
@@ -26,7 +37,8 @@
 % ---------------
 \name{Author(s) Name(s)}
 \address{Author Affiliation(s)}
-%
+%DIF 26-44d35
+%DIF < %
 %DIF < % For example:
 %DIF < % ------------
 %DIF < %\address{School\\
@@ -45,7 +57,8 @@
 %DIF < %	{School C-D\\
 %DIF < %	Department C-D\\
 %DIF < %	Address C-D}
-%DIF < %
+%DIF -------
+%
 %DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
 %DIF UNDERLINE PREAMBLE %DIF PREAMBLE
 \RequirePackage[normalem]{ulem} %DIF PREAMBLE
@@ -332,24 +345,26 @@ Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the perform
 %DIFDELCMD <   %%%
 \DIFdelendFL \DIFaddbeginFL \begin{table}[t]
   \DIFaddendFL \centering
-  \caption{\DIFdelbeginFL \DIFdelFL{Performance in terms of the pooled }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Pooled }\DIFaddendFL HOTA on the Refer-KITTI test \DIFdelbeginFL \DIFdelFL{dataset}\DIFdelendFL \DIFaddbeginFL \DIFaddFL{sets (mean $\pm$ std over three seeds)}\DIFaddendFL . \DIFaddbeginFL \DIFaddFL{The DetA and AssA cells give the reproduced host value and the value with the GMC module. $^*$ denotes our reproduction using the official implementation, under the host's own frame convention (Sec.~\ref{sec:setup}).}\DIFaddendFL }
+  \caption{\DIFdelbeginFL \DIFdelFL{Performance in terms of the pooled }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Pooled }\DIFaddendFL HOTA\DIFaddbeginFL \DIFaddFL{, DetA, and AssA }\DIFaddendFL on the Refer-KITTI test \DIFdelbeginFL \DIFdelFL{dataset}\DIFdelendFL \DIFaddbeginFL \DIFaddFL{sets}\DIFaddendFL . \DIFaddbeginFL \DIFaddFL{Each host row gives the baseline (HOTA as published; DetA and AssA from our reproduction); the +\,GMC row gives the fused model (HOTA as mean $\pm$ std over three seeds). $^*$ denotes our reproduction using the official implementation, under the host's own frame convention (Sec.~\ref{sec:setup}).}\DIFaddendFL }
   \label{tab:main}
   \DIFdelbeginFL %DIFDELCMD < \small
 %DIFDELCMD <   \setlength{\tabcolsep}{2pt}
-%DIFDELCMD <   \begin{tabular}{lccc}
-%DIFDELCMD <     %%%
+%DIFDELCMD <   %%%
 \DIFdelendFL \DIFaddbeginFL \footnotesize
-  \setlength{\tabcolsep}{1.5pt}
-  \begin{tabular}{lcccc}
-    \hline \DIFaddendFL
-    Host                        & w/o GMC & w. GMC              & \DIFdelbeginFL \DIFdelFL{Gain                      }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{DetA }& \DIFaddFL{AssA }\DIFaddendFL \\
+  \DIFaddendFL \begin{tabular}{lccc}
     \hline
-    iKUN~\cite{ikun}            & \DIFdelbeginFL \DIFdelFL{44.564    }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{44.56   }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{44.847 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{45.304 }\DIFaddendFL $\pm$ \DIFdelbeginFL \DIFdelFL{0.107 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{0.115 }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{+0.283 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{32.04${\to}$32.90 }& \DIFaddFL{62.48${\to}$62.94 }\DIFaddendFL \\
-    \DIFaddbeginFL \DIFaddFL{TransRMOT~\mbox{%DIFAUXCMD
+    Host                        & \DIFdelbeginFL \DIFdelFL{w/o GMC }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{HOTA               }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{w. GMC           }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{DetA  }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{Gain                      }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{AssA  }\DIFaddendFL \\
+    \hline
+    iKUN~\cite{ikun}            & \DIFdelbeginFL \DIFdelFL{44.564    }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{44.56              }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{44.847 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{32.04 }& \DIFaddFL{62.48 }\\
+    \DIFaddFL{\quad +\,GMC                }& \DIFaddFL{45.304 }\DIFaddendFL $\pm$ \DIFdelbeginFL \DIFdelFL{0.107 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{0.115 }\DIFaddendFL & \DIFaddbeginFL \DIFaddFL{32.90 }& \DIFaddFL{62.94 }\\
+    \DIFaddFL{TransRMOT~\mbox{%DIFAUXCMD
 \cite{transrmot}  }\hskip0pt%DIFAUXCMD
-}& \DIFaddFL{45.757$^*$ }& \DIFaddFL{46.149 $\pm$ 0.025 }& \DIFaddFL{36.64${\to}$36.95 }& \DIFaddFL{57.40${\to}$57.89 }\\
-    \DIFaddendFL FlexHook V1~\cite{flexhook} & 53.824  & 53.980 $\pm$ 0.059 & \DIFdelbeginFL \DIFdelFL{+0.156 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{43.35${\to}$43.51 }& \DIFaddFL{66.92${\to}$67.07 }\DIFaddendFL \\
-    FlexHook V2~\cite{flexhook} & 42.526  & 42.625 $\pm$ 0.032 & \DIFdelbeginFL \DIFdelFL{+0.099 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{30.63${\to}$30.75 }& \DIFaddFL{59.19${\to}$59.23 }\DIFaddendFL \\
+}& \DIFaddFL{45.757$^*$         }& \DIFaddFL{36.64 }& \DIFaddFL{57.40 }\\
+    \DIFaddFL{\quad }\DIFaddendFL +\DIFdelbeginFL \DIFdelFL{0.283 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{\,GMC                }& \DIFaddFL{46.149 $\pm$ 0.025 }& \DIFaddFL{36.95 }& \DIFaddFL{57.89 }\DIFaddendFL \\
+    FlexHook V1~\cite{flexhook} & 53.824             & \DIFaddbeginFL \DIFaddFL{43.35 }& \DIFaddFL{66.92 }\\
+    \DIFaddFL{\quad +\,GMC                }& \DIFaddendFL 53.980 $\pm$ 0.059 & \DIFdelbeginFL \DIFdelFL{+0.156 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{43.51 }& \DIFaddFL{67.07 }\DIFaddendFL \\
+    FlexHook V2~\cite{flexhook} & 42.526             & \DIFaddbeginFL \DIFaddFL{30.63 }& \DIFaddFL{59.19 }\\
+    \DIFaddFL{\quad +\,GMC                }& \DIFaddendFL 42.625 $\pm$ 0.032 & \DIFdelbeginFL \DIFdelFL{+0.099 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{30.75 }& \DIFaddFL{59.23 }\DIFaddendFL \\
     \hline
   \end{tabular}
 \end{table}

@@ -10,6 +10,15 @@
 \usepackage{comment}
 \usepackage{xcolor}
 
+% float spacing: article defaults (12pt/20pt + stretch) leave visible holes
+% around stacked column floats; tighten and cap the stretch
+\setlength{\floatsep}{7pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{9pt plus 2pt minus 2pt}
+% captions sit ABOVE our tables, so the default 10pt-above/0pt-below skip
+% pair is inverted: dead space at the float top, caption glued to the rule
+\setlength{\abovecaptionskip}{4pt}
+\setlength{\belowcaptionskip}{4pt}
+
 % Example definitions.
 % --------------------
 \def\x{{\mathbf x}}
@@ -174,18 +183,21 @@ Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the perform
 
 \begin{table}[t]
   \centering
-  \caption{Pooled HOTA on the Refer-KITTI test sets (mean $\pm$ std over three seeds). The DetA and AssA cells give the reproduced host value and the value with the GMC module. $^*$ denotes our reproduction using the official implementation, under the host's own frame convention (Sec.~\ref{sec:setup}).}
+  \caption{Pooled HOTA, DetA, and AssA on the Refer-KITTI test sets. Each host row gives the baseline (HOTA as published; DetA and AssA from our reproduction); the +\,GMC row gives the fused model (HOTA as mean $\pm$ std over three seeds). $^*$ denotes our reproduction using the official implementation, under the host's own frame convention (Sec.~\ref{sec:setup}).}
   \label{tab:main}
   \footnotesize
-  \setlength{\tabcolsep}{1.5pt}
-  \begin{tabular}{lcccc}
+  \begin{tabular}{lccc}
     \hline
-    Host                        & w/o GMC & w. GMC              & DetA & AssA \\
+    Host                        & HOTA               & DetA  & AssA  \\
     \hline
-    iKUN~\cite{ikun}            & 44.56   & 45.304 $\pm$ 0.115 & 32.04${\to}$32.90 & 62.48${\to}$62.94 \\
-    TransRMOT~\cite{transrmot}  & 45.757$^*$ & 46.149 $\pm$ 0.025 & 36.64${\to}$36.95 & 57.40${\to}$57.89 \\
-    FlexHook V1~\cite{flexhook} & 53.824  & 53.980 $\pm$ 0.059 & 43.35${\to}$43.51 & 66.92${\to}$67.07 \\
-    FlexHook V2~\cite{flexhook} & 42.526  & 42.625 $\pm$ 0.032 & 30.63${\to}$30.75 & 59.19${\to}$59.23 \\
+    iKUN~\cite{ikun}            & 44.56              & 32.04 & 62.48 \\
+    \quad +\,GMC                & 45.304 $\pm$ 0.115 & 32.90 & 62.94 \\
+    TransRMOT~\cite{transrmot}  & 45.757$^*$         & 36.64 & 57.40 \\
+    \quad +\,GMC                & 46.149 $\pm$ 0.025 & 36.95 & 57.89 \\
+    FlexHook V1~\cite{flexhook} & 53.824             & 43.35 & 66.92 \\
+    \quad +\,GMC                & 53.980 $\pm$ 0.059 & 43.51 & 67.07 \\
+    FlexHook V2~\cite{flexhook} & 42.526             & 30.63 & 59.19 \\
+    \quad +\,GMC                & 42.625 $\pm$ 0.032 & 30.75 & 59.23 \\
     \hline
   \end{tabular}
 \end{table}
