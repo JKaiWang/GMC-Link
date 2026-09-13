@@ -231,7 +231,7 @@ Table~\ref{tab:deficit} reports HOTA variations on the moving-class expressions 
 
 \subsection{Ablation Studies}
 \label{sec:ablation}
-Table~\ref{tab:ablation} reports the five-seed ablation measurements when iKUN is used as the host model. The full module improves moving-class HOTA from $27.70$ to $36.99\pm0.68$ and pooled HOTA from $44.54$ to $45.28\pm0.09$. If the ego-motion compensation is removed, the moving-class HOTA drops from $36.99$ to $32.37$, while removing the multi-scale gaps when calculating residual velocity reduces it from $36.99$ to $35.14$. Both drops are significant under Welch's $t$-test ($n{=}5$; ego: $t{=}13.1$ moving-class, $13.2$ pooled; multi-scale: $t{=}5.3$ and $6.8$; all $p{<}0.01$). The expressions outside the moving class change little across the variants (Others in Table~\ref{tab:ablation}). These show the influence of both components.
+Table~\ref{tab:ablation} reports the five-seed ablation measurements when iKUN is used as the host model. The full module improves moving-class HOTA from $27.70$ to $36.99$ and pooled HOTA from $44.54$ to $45.28$. If the ego-motion compensation is removed, the moving-class HOTA drops from $36.99$ to $32.37$, while removing the multi-scale gaps when calculating residual velocity reduces it from $36.99$ to $35.14$. Both drops are significant under Welch's $t$-test ($n{=}5$; ego: $t{=}13.1$ moving-class, $13.2$ pooled; multi-scale: $t{=}5.3$ and $6.8$; all $p{<}0.01$). The expressions outside the moving class change little across the variants (Others in Table~\ref{tab:ablation}). These show the influence of both components.
 
 \begin{table}[t]
   \centering

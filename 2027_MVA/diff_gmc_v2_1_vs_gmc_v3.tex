@@ -1,7 +1,7 @@
 % Template for ICASSP-2024 paper; to be used with:
 %DIF LATEXDIFF DIFFERENCE FILE
 %DIF DEL gmc_v2_1.tex   Sat Sep 12 22:09:57 2026
-%DIF ADD gmc_v3.tex     Sun Sep 13 11:04:31 2026
+%DIF ADD gmc_v3.tex     Sun Sep 13 11:37:46 2026
 %          spconf.sty  - ICASSP/ICIP LaTeX style file, and
 %          IEEEbib.bst - IEEE bibliography style file.
 % --------------------------------------------------------------------------
@@ -414,7 +414,7 @@ Table~\ref{tab:deficit} reports HOTA variations \DIFdelbegin \DIFdel{for movemen
 
 \subsection{Ablation Studies}
 \label{sec:ablation}
-Table~\ref{tab:ablation} reports the five-seed ablation measurements when iKUN is used as the host model. The full module improves moving-class HOTA from \DIFdelbegin \DIFdel{$25.53$ to $32.30$ }\DIFdelend \DIFaddbegin \DIFadd{$27.70$ to $36.99\pm0.68$ }\DIFaddend and pooled HOTA from \DIFdelbegin \DIFdel{$44.22$ to $44.80$. The full module also improves the pooled HOTA from $44.22$ to $44.80$. }\DIFdelend \DIFaddbegin \DIFadd{$44.54$ to $45.28\pm0.09$. }\DIFaddend If the ego-motion compensation is removed, the moving\DIFaddbegin \DIFadd{-class}\DIFaddend  HOTA drops from \DIFdelbegin \DIFdel{$32.30$ to $28.49$}\DIFdelend \DIFaddbegin \DIFadd{$36.99$ to $32.37$}\DIFaddend , while removing the multi-scale gaps when calculating residual velocity reduces \DIFdelbegin \DIFdel{performance from $32.30$ to $30.45$. }\DIFdelend \DIFaddbegin \DIFadd{it from $36.99$ to $35.14$. Both drops are significant under Welch's $t$-test ($n{=}5$; ego: $t{=}13.1$ moving-class, $13.2$ pooled; multi-scale: $t{=}5.3$ and $6.8$; all $p{<}0.01$). The expressions outside the moving class change little across the variants (Others in Table~\ref{tab:ablation}). }\DIFaddend These show the influence of both components.
+Table~\ref{tab:ablation} reports the five-seed ablation measurements when iKUN is used as the host model. The full module improves moving-class HOTA from \DIFdelbegin \DIFdel{$25.53$ to $32.30$ }\DIFdelend \DIFaddbegin \DIFadd{$27.70$ to $36.99$ }\DIFaddend and pooled HOTA from \DIFdelbegin \DIFdel{$44.22$ to $44.80$. The full module also improves the pooled HOTA from $44.22$ to $44.80$. }\DIFdelend \DIFaddbegin \DIFadd{$44.54$ to $45.28$. }\DIFaddend If the ego-motion compensation is removed, the moving\DIFaddbegin \DIFadd{-class}\DIFaddend  HOTA drops from \DIFdelbegin \DIFdel{$32.30$ to $28.49$}\DIFdelend \DIFaddbegin \DIFadd{$36.99$ to $32.37$}\DIFaddend , while removing the multi-scale gaps when calculating residual velocity reduces \DIFdelbegin \DIFdel{performance from $32.30$ to $30.45$. }\DIFdelend \DIFaddbegin \DIFadd{it from $36.99$ to $35.14$. Both drops are significant under Welch's $t$-test ($n{=}5$; ego: $t{=}13.1$ moving-class, $13.2$ pooled; multi-scale: $t{=}5.3$ and $6.8$; all $p{<}0.01$). The expressions outside the moving class change little across the variants (Others in Table~\ref{tab:ablation}). }\DIFaddend These show the influence of both components.
 
 %DIF < Both drops are significant under Welch's $t$-test ($n{=}5$; ego: $t{=}11.8$ moving-class, $11.7$ pooled; multi-scale: $t{=}6.2$ and $6.7$; all $p{<}0.01$), and ego-motion compensation accounts for the larger share.
 \DIFdelbegin %DIFDELCMD < 
