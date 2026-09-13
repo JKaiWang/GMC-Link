@@ -17,7 +17,8 @@
 % captions sit ABOVE our tables, so the default 10pt-above/0pt-below skip
 % pair is inverted: dead space at the float top, caption glued to the rule
 \setlength{\abovecaptionskip}{4pt}
-\setlength{\belowcaptionskip}{4pt}
+\setlength{\belowcaptionskip}{7pt}
+\renewcommand{\arraystretch}{1.1}
 
 % Example definitions.
 % --------------------
@@ -259,7 +260,7 @@ Table~\ref{tab:ablation} reports the five-seed ablation measurements when iKUN i
   \label{fig:qual}
 \end{figure}
 
-In the sample result of Figure~\ref{fig:qual}, the parked car appears to move across frames due to camera motion, while the moving car remains at nearly the same distance from the camera. Without ego-motion compensation, these two cases are easily confused and mistracked. After motion compensation, the parked car has nearly zero residual velocity, while the moving car presents nonzero residual velocity. This allows the GMC module to more correctly predict the matching score.
+Figure~\ref{fig:qual} shows a sample tracking result. The parked car appears to move across frames due to camera motion, while the moving car remains at nearly the same distance from the camera. Without ego-motion compensation, these two cases are easily confused and mistracked. After motion compensation, the parked car has nearly zero residual velocity, while the moving car presents nonzero residual velocity. This allows the GMC module to more correctly predict the matching score.
 
 \section{Conclusion and Limitations}
 \label{sec:conclusion}

@@ -268,3 +268,4 @@ MOVING 本來就不預期動;−0.18 在 n=3 種子變異範圍內。
 | A46p | §4.3 Welch 句改明確(比較對象寫清楚:full module 五 seed vs 各 variant 五 seed;t 值逐一配 metric;來源 welch_full_vs_arm);Table 4 −ego/−multiscale 去掉 \quad 縮排(log am1.0 證實兩臂在雙權重 ship 點跑,原縮排誤示為 single-α 子變體) | 編譯 5 頁 0 overfull |
 | A46q | Fig.2 正文開頭 run-up 句合併("Figure 2 shows a sample tracking result." 併入下一句) | diff 重生 |
 | A46r | latexdiff 配方再修:加 --config PICTUREENV=(?:picture|DIFnomarkup|table)[\\w\\d*@]* 把 table 環境設為不可標記區塊(結構性改表時 latexdiff 會把新舊列黏同格、把被刪散文塞進新表 cell——Table 1 爆版、Table 4 出現 32.30±0.6336.99);表格顯示最終版、散文照常標記;perl 三規則保留 | diff 5 頁 0 error,四表乾淨 |
+| A46s | Table 2 周圍再調:belowcaptionskip 4→7pt(caption 末行貼表頂線)、arraystretch 1.1(分節列被 hline 夾死、列高擠);Fig.2 開頭句改回原兩句寫法(使用者:原寫法較清楚,A46q 的合併撤銷) | 編譯 5 頁 0 overfull;diff 重生 |
