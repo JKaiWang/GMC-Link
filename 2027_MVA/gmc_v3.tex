@@ -183,7 +183,7 @@ Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the perform
 
 \begin{table}[t]
   \centering
-  \caption{Pooled HOTA, DetA, and AssA on the Refer-KITTI test sets. Each host row gives the baseline (HOTA as published; DetA and AssA from our reproduction); the +\,GMC row gives the fused model (HOTA as mean $\pm$ std over three seeds). The better value of each pair is in bold. $^*$ denotes our reproduction using the official implementation, under the host's own frame convention (Sec.~\ref{sec:setup}).}
+  \caption{Pooled HOTA, DetA, and AssA on the Refer-KITTI test sets. Each host row gives the baseline (HOTA as published; DetA and AssA from our reproduction); the +\,GMC row gives the fused model (mean over three seeds). The better value of each pair is in bold. $^*$ denotes our reproduction using the official implementation, under the host's own frame convention (Sec.~\ref{sec:setup}).}
   \label{tab:main}
   \footnotesize
   \begin{tabular}{lccc}
@@ -193,18 +193,18 @@ Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the perform
     \multicolumn{4}{c}{\textit{Refer-KITTI}} \\
     \hline
     iKUN~\cite{ikun}            & 44.56              & 32.04 & 62.48 \\
-    \quad +\,GMC                & \textbf{45.304 $\pm$ 0.115} & \textbf{32.90} & \textbf{62.94} \\
+    \quad +\,GMC                & \textbf{45.304} & \textbf{32.90} & \textbf{62.94} \\
     \hline
     TransRMOT~\cite{transrmot}  & 45.757$^*$         & 36.64 & 57.40 \\
-    \quad +\,GMC                & \textbf{46.149 $\pm$ 0.025} & \textbf{36.95} & \textbf{57.89} \\
+    \quad +\,GMC                & \textbf{46.149} & \textbf{36.95} & \textbf{57.89} \\
     \hline
     FlexHook V1~\cite{flexhook} & 53.824             & 43.35 & 66.92 \\
-    \quad +\,GMC                & \textbf{53.980 $\pm$ 0.059} & \textbf{43.51} & \textbf{67.07} \\
+    \quad +\,GMC                & \textbf{53.980} & \textbf{43.51} & \textbf{67.07} \\
     \hline
     \multicolumn{4}{c}{\textit{Refer-KITTI-V2}} \\
     \hline
     FlexHook V2~\cite{flexhook} & 42.526             & 30.63 & 59.19 \\
-    \quad +\,GMC                & \textbf{42.625 $\pm$ 0.032} & \textbf{30.75} & \textbf{59.23} \\
+    \quad +\,GMC                & \textbf{42.625} & \textbf{30.75} & \textbf{59.23} \\
     \hline
   \end{tabular}
 \end{table}
