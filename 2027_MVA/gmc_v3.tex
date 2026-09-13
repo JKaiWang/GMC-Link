@@ -179,25 +179,32 @@ Refer-KITTI is highly imbalanced: only $21$ of the $150$ V1 and $111$ of the $86
 
 \subsection{Main results}
 \label{sec:main}
-Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the performance variations when iKUN, TransRMOT, or FlexHook is used as the host model, with or without the GMC module. Specifically, the values for the rows of iKUN, TransRMOT, and FlexHook V1 are obtained from the Refer-KITTI V1 dataset, while the values for the row of FlexHook V2 are obtained from the Refer-KITTI V2 dataset. Table~\ref{tab:main} shows that the proposed GMC module provides performance gains across all settings. The three settings with directly comparable published baselines exceed them ($+0.744$, $+0.156$, and $+0.099$ for iKUN, FlexHook V1, and FlexHook V2, respectively), and TransRMOT gains $+0.392$ over our reproduced baseline (see Sec.~\ref{sec:setup}).
+Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the performance variations when iKUN, TransRMOT, or FlexHook is used as the host model, with or without the GMC module. Table~\ref{tab:main} shows that the proposed GMC module provides performance gains across all settings. The three settings with directly comparable published baselines exceed them ($+0.744$, $+0.156$, and $+0.099$ for iKUN, FlexHook V1, and FlexHook V2, respectively), and TransRMOT gains $+0.392$ over our reproduced baseline (see Sec.~\ref{sec:setup}).
 
 \begin{table}[t]
   \centering
-  \caption{Pooled HOTA, DetA, and AssA on the Refer-KITTI test sets. Each host row gives the baseline (HOTA as published; DetA and AssA from our reproduction); the +\,GMC row gives the fused model (HOTA as mean $\pm$ std over three seeds). $^*$ denotes our reproduction using the official implementation, under the host's own frame convention (Sec.~\ref{sec:setup}).}
+  \caption{Pooled HOTA, DetA, and AssA on the Refer-KITTI test sets. Each host row gives the baseline (HOTA as published; DetA and AssA from our reproduction); the +\,GMC row gives the fused model (HOTA as mean $\pm$ std over three seeds). The better value of each pair is in bold. $^*$ denotes our reproduction using the official implementation, under the host's own frame convention (Sec.~\ref{sec:setup}).}
   \label{tab:main}
   \footnotesize
   \begin{tabular}{lccc}
     \hline
-    Host                        & HOTA               & DetA  & AssA  \\
+    Method                      & HOTA               & DetA  & AssA  \\
+    \hline
+    \multicolumn{4}{c}{\textit{Refer-KITTI}} \\
     \hline
     iKUN~\cite{ikun}            & 44.56              & 32.04 & 62.48 \\
-    \quad +\,GMC                & 45.304 $\pm$ 0.115 & 32.90 & 62.94 \\
+    \quad +\,GMC                & \textbf{45.304 $\pm$ 0.115} & \textbf{32.90} & \textbf{62.94} \\
+    \hline
     TransRMOT~\cite{transrmot}  & 45.757$^*$         & 36.64 & 57.40 \\
-    \quad +\,GMC                & 46.149 $\pm$ 0.025 & 36.95 & 57.89 \\
+    \quad +\,GMC                & \textbf{46.149 $\pm$ 0.025} & \textbf{36.95} & \textbf{57.89} \\
+    \hline
     FlexHook V1~\cite{flexhook} & 53.824             & 43.35 & 66.92 \\
-    \quad +\,GMC                & 53.980 $\pm$ 0.059 & 43.51 & 67.07 \\
+    \quad +\,GMC                & \textbf{53.980 $\pm$ 0.059} & \textbf{43.51} & \textbf{67.07} \\
+    \hline
+    \multicolumn{4}{c}{\textit{Refer-KITTI-V2}} \\
+    \hline
     FlexHook V2~\cite{flexhook} & 42.526             & 30.63 & 59.19 \\
-    \quad +\,GMC                & 42.625 $\pm$ 0.032 & 30.75 & 59.23 \\
+    \quad +\,GMC                & \textbf{42.625 $\pm$ 0.032} & \textbf{30.75} & \textbf{59.23} \\
     \hline
   \end{tabular}
 \end{table}
