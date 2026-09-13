@@ -1,7 +1,7 @@
 % Template for ICASSP-2024 paper; to be used with:
 %DIF LATEXDIFF DIFFERENCE FILE
 %DIF DEL gmc_v2_1.tex   Sat Sep 12 22:09:57 2026
-%DIF ADD gmc_v3.tex     Sun Sep 13 12:26:59 2026
+%DIF ADD gmc_v3.tex     Sun Sep 13 12:35:58 2026
 %          spconf.sty  - ICASSP/ICIP LaTeX style file, and
 %          IEEEbib.bst - IEEE bibliography style file.
 % --------------------------------------------------------------------------
@@ -332,7 +332,8 @@ Refer-KITTI is highly imbalanced\DIFdelbegin \DIFdel{, with only about one-sixth
 
 \subsection{Main results}
 \label{sec:main}
-Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the performance variations when iKUN\DIFaddbegin \DIFadd{, TransRMOT, }\DIFaddend or FlexHook is used as the host model, with or without the GMC module. \DIFdelbegin \DIFdel{Specifically, the values for the rows of iKUN and FlexHook V1 are obtained from the Refer-KITTI V1 dataset, while the values for the row of FlexHook V2 are obtained from the Refer-KITTI V2 dataset. }\DIFdelend Table~\ref{tab:main} shows that the proposed GMC module provides performance gains across all settings. \DIFaddbegin \DIFadd{The three settings with directly comparable published baselines exceed them ($+0.744$, $+0.156$, and $+0.099$ for iKUN, FlexHook V1, and FlexHook V2, respectively), and TransRMOT gains $+0.392$ over our reproduced baseline (see Sec.~\ref{sec:setup}).
+Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the performance variations when iKUN\DIFaddbegin \DIFadd{, TransRMOT, }\DIFaddend or FlexHook is used as the host model, with or without the GMC module. \DIFdelbegin \DIFdel{Specifically, the values for the rows of iKUN and FlexHook V1 are obtained from the Refer-KITTI V1 dataset, while the values for the row of FlexHook V2 are obtained from the Refer-KITTI V2 dataset. }\DIFdelend Table~\ref{tab:main} shows that the proposed GMC module provides performance gains across all settings\DIFdelbegin \DIFdel{.
+}\DIFdelend \DIFaddbegin \DIFadd{, including over the hosts' published scores where directly comparable; TransRMOT is compared against our reproduction (Sec.~\ref{sec:setup}).
 }\DIFaddend 
 
 %DIF < Overall, these results show that camera-motion-compensated motion information is beneficial only when it is properly aligned with the host model. The gains are most visible on motion-referring expressions, while pooled HOTA changes are smaller because motion expressions form a minority of Refer-KITTI. Thus, the GMC Module should be viewed primarily as a motion-grounding correction that preserves competitive pooled performance in the evaluated settings.
