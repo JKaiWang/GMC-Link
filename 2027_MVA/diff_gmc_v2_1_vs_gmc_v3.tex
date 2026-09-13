@@ -1,7 +1,7 @@
 % Template for ICASSP-2024 paper; to be used with:
 %DIF LATEXDIFF DIFFERENCE FILE
 %DIF DEL gmc_v2_1.tex   Sat Sep 12 22:09:57 2026
-%DIF ADD gmc_v3.tex     Sun Sep 13 11:40:40 2026
+%DIF ADD gmc_v3.tex     Sun Sep 13 11:44:31 2026
 %          spconf.sty  - ICASSP/ICIP LaTeX style file, and
 %          IEEEbib.bst - IEEE bibliography style file.
 % --------------------------------------------------------------------------
@@ -414,7 +414,7 @@ Table~\ref{tab:deficit} reports HOTA variations \DIFdelbegin \DIFdel{for movemen
 
 \subsection{Ablation Studies}
 \label{sec:ablation}
-Table~\ref{tab:ablation} reports the five-seed ablation measurements when iKUN is used as the host model. The full module improves moving-class HOTA from \DIFdelbegin \DIFdel{$25.53$ to $32.30$ }\DIFdelend \DIFaddbegin \DIFadd{$27.70$ to $36.99$ }\DIFaddend and pooled HOTA from \DIFdelbegin \DIFdel{$44.22$ to $44.80$. The full module also improves the pooled HOTA from $44.22$ to $44.80$. }\DIFdelend \DIFaddbegin \DIFadd{$44.54$ to $45.28$. }\DIFaddend If the ego-motion compensation is removed, the moving\DIFaddbegin \DIFadd{-class}\DIFaddend  HOTA drops from \DIFdelbegin \DIFdel{$32.30$ to $28.49$}\DIFdelend \DIFaddbegin \DIFadd{$36.99$ to $32.37$}\DIFaddend , while removing the multi-scale gaps when calculating residual velocity reduces \DIFdelbegin \DIFdel{performance from $32.30$ to $30.45$. }\DIFdelend \DIFaddbegin \DIFadd{it from $36.99$ to $35.14$. Both drops are significant under Welch's $t$-test ($n{=}5$; ego: $t{=}13.1$ moving-class, $13.2$ pooled; multi-scale: $t{=}5.3$ and $6.8$; all $p{<}0.01$). The expressions outside the moving class change little across the variants (Others in Table~\ref{tab:ablation}). }\DIFaddend These show the influence of both components.
+Table~\ref{tab:ablation} reports the five-seed ablation measurements when iKUN is used as the host model. The full module improves moving-class HOTA from \DIFdelbegin \DIFdel{$25.53$ to $32.30$ }\DIFdelend \DIFaddbegin \DIFadd{$27.70$ to $36.99$ }\DIFaddend and pooled HOTA from \DIFdelbegin \DIFdel{$44.22$ to $44.80$. The full module also improves the pooled HOTA from $44.22$ to $44.80$. }\DIFdelend \DIFaddbegin \DIFadd{$44.54$ to $45.28$. }\DIFaddend If the ego-motion compensation is removed, the moving\DIFaddbegin \DIFadd{-class}\DIFaddend  HOTA drops from \DIFdelbegin \DIFdel{$32.30$ to $28.49$}\DIFdelend \DIFaddbegin \DIFadd{$36.99$ to $32.37$}\DIFaddend , while removing the multi-scale gaps when calculating residual velocity reduces \DIFdelbegin \DIFdel{performance from $32.30$ to $30.45$. }\DIFdelend \DIFaddbegin \DIFadd{it from $36.99$ to $35.14$. Both drops are significant: Welch's $t$-test between the five seeds of the full module and the five seeds of each variant gives $t{=}13.1$ on moving-class and $t{=}13.2$ on pooled HOTA when the ego-motion compensation is removed, and $t{=}5.3$ and $t{=}6.8$ when the multi-scale gaps are removed (all $p{<}0.01$). The expressions outside the moving class change little across the variants (Others in Table~\ref{tab:ablation}). }\DIFaddend These show the influence of both components.
 
 %DIF < Both drops are significant under Welch's $t$-test ($n{=}5$; ego: $t{=}11.8$ moving-class, $11.7$ pooled; multi-scale: $t{=}6.2$ and $6.7$; all $p{<}0.01$), and ego-motion compensation accounts for the larger share.
 \DIFdelbegin %DIFDELCMD < 
@@ -437,9 +437,9 @@ Table~\ref{tab:ablation} reports the five-seed ablation measurements when iKUN i
     \hline
     Native host (w/o GMC)      & \DIFdelbeginFL \DIFdelFL{25.53                     }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{27.70          }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{44.22                     }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{45.87          }& \DIFaddFL{44.54          }\DIFaddendFL \\
     Full module (w. GMC)      & \textbf{\DIFdelbeginFL \DIFdelFL{32.30 $\pm$ 0.63}\DIFdelendFL \DIFaddbeginFL \DIFaddFL{36.99}\DIFaddendFL } & \textbf{\DIFdelbeginFL \DIFdelFL{44.80 $\pm$ 0.10}\DIFdelendFL \DIFaddbeginFL \DIFaddFL{46.05}\DIFaddendFL } \DIFaddbeginFL & \textbf{\DIFaddFL{45.28}} \DIFaddendFL \\
-    \DIFaddbeginFL \DIFaddFL{single $\alpha$ (no routing) }& \DIFaddFL{32.42        }& \DIFaddFL{45.99          }& \DIFaddFL{44.95          }\\
-    \DIFaddendFL \quad - ego (raw velocity only) & \DIFdelbeginFL \DIFdelFL{28.49 $\pm$ 0.35          }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{32.37     }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{44.17 $\pm$ 0.07          }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{45.77          }& \DIFaddFL{44.61          }\DIFaddendFL \\
-    \quad - multiscale (single gap) & \DIFdelbeginFL \DIFdelFL{30.45 $\pm$ 0.20          }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{35.14     }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{44.49 $\pm$ 0.02          }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{45.96          }& \DIFaddFL{45.00          }\DIFaddendFL \\
+    \DIFdelbeginFL \DIFdelFL{\quad - }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{single $\alpha$ (no routing) }& \DIFaddFL{32.42        }& \DIFaddFL{45.99          }& \DIFaddFL{44.95          }\\
+    \DIFaddFL{$-$ }\DIFaddendFL ego (raw velocity only) & \DIFdelbeginFL \DIFdelFL{28.49 $\pm$ 0.35          }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{32.37         }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{44.17 $\pm$ 0.07          }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{45.77          }& \DIFaddFL{44.61          }\DIFaddendFL \\
+    \DIFdelbeginFL \DIFdelFL{\quad - }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{$-$ }\DIFaddendFL multiscale (single gap) & \DIFdelbeginFL \DIFdelFL{30.45 $\pm$ 0.20          }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{35.14         }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{44.49 $\pm$ 0.02          }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{45.96          }& \DIFaddFL{45.00          }\DIFaddendFL \\
     \hline
   \DIFdelbeginFL %DIFDELCMD < \end{tabular}
 %DIFDELCMD < %%%
@@ -455,7 +455,7 @@ Table~\ref{tab:ablation} reports the five-seed ablation measurements when iKUN i
   \label{fig:qual}
 \end{figure}
 
-Figure~\ref{fig:qual} shows a sample tracking result. The parked car appears to move across frames due to camera motion, while the moving car remains at nearly the same distance from the camera. Without ego-motion compensation, these two cases are easily confused and mistracked. After motion compensation, the parked car has nearly zero residual velocity, while the moving car presents nonzero residual velocity. This allows the GMC module to more correctly predict the matching score.
+\DIFaddbegin \DIFadd{In the sample result of }\DIFaddend Figure~\ref{fig:qual}\DIFdelbegin \DIFdel{shows a sample tracking result. The }\DIFdelend \DIFaddbegin \DIFadd{, the }\DIFaddend parked car appears to move across frames due to camera motion, while the moving car remains at nearly the same distance from the camera. Without ego-motion compensation, these two cases are easily confused and mistracked. After motion compensation, the parked car has nearly zero residual velocity, while the moving car presents nonzero residual velocity. This allows the GMC module to more correctly predict the matching score.
 
 \section{Conclusion and Limitations}
 \label{sec:conclusion}

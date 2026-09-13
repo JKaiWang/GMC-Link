@@ -231,7 +231,7 @@ Table~\ref{tab:deficit} reports HOTA variations on the moving-class expressions 
 
 \subsection{Ablation Studies}
 \label{sec:ablation}
-Table~\ref{tab:ablation} reports the five-seed ablation measurements when iKUN is used as the host model. The full module improves moving-class HOTA from $27.70$ to $36.99$ and pooled HOTA from $44.54$ to $45.28$. If the ego-motion compensation is removed, the moving-class HOTA drops from $36.99$ to $32.37$, while removing the multi-scale gaps when calculating residual velocity reduces it from $36.99$ to $35.14$. Both drops are significant under Welch's $t$-test ($n{=}5$; ego: $t{=}13.1$ moving-class, $13.2$ pooled; multi-scale: $t{=}5.3$ and $6.8$; all $p{<}0.01$). The expressions outside the moving class change little across the variants (Others in Table~\ref{tab:ablation}). These show the influence of both components.
+Table~\ref{tab:ablation} reports the five-seed ablation measurements when iKUN is used as the host model. The full module improves moving-class HOTA from $27.70$ to $36.99$ and pooled HOTA from $44.54$ to $45.28$. If the ego-motion compensation is removed, the moving-class HOTA drops from $36.99$ to $32.37$, while removing the multi-scale gaps when calculating residual velocity reduces it from $36.99$ to $35.14$. Both drops are significant: Welch's $t$-test between the five seeds of the full module and the five seeds of each variant gives $t{=}13.1$ on moving-class and $t{=}13.2$ on pooled HOTA when the ego-motion compensation is removed, and $t{=}5.3$ and $t{=}6.8$ when the multi-scale gaps are removed (all $p{<}0.01$). The expressions outside the moving class change little across the variants (Others in Table~\ref{tab:ablation}). These show the influence of both components.
 
 \begin{table}[t]
   \centering
@@ -246,8 +246,8 @@ Table~\ref{tab:ablation} reports the five-seed ablation measurements when iKUN i
     Native host (w/o GMC)      & 27.70          & 45.87          & 44.54          \\
     Full module (w. GMC)      & \textbf{36.99} & \textbf{46.05} & \textbf{45.28} \\
     single $\alpha$ (no routing) & 32.42        & 45.99          & 44.95          \\
-    \quad - ego (raw velocity only) & 32.37     & 45.77          & 44.61          \\
-    \quad - multiscale (single gap) & 35.14     & 45.96          & 45.00          \\
+    $-$ ego (raw velocity only) & 32.37         & 45.77          & 44.61          \\
+    $-$ multiscale (single gap) & 35.14         & 45.96          & 45.00          \\
     \hline
   \end{tabular*}
 \end{table}
@@ -259,7 +259,7 @@ Table~\ref{tab:ablation} reports the five-seed ablation measurements when iKUN i
   \label{fig:qual}
 \end{figure}
 
-Figure~\ref{fig:qual} shows a sample tracking result. The parked car appears to move across frames due to camera motion, while the moving car remains at nearly the same distance from the camera. Without ego-motion compensation, these two cases are easily confused and mistracked. After motion compensation, the parked car has nearly zero residual velocity, while the moving car presents nonzero residual velocity. This allows the GMC module to more correctly predict the matching score.
+In the sample result of Figure~\ref{fig:qual}, the parked car appears to move across frames due to camera motion, while the moving car remains at nearly the same distance from the camera. Without ego-motion compensation, these two cases are easily confused and mistracked. After motion compensation, the parked car has nearly zero residual velocity, while the moving car presents nonzero residual velocity. This allows the GMC module to more correctly predict the matching score.
 
 \section{Conclusion and Limitations}
 \label{sec:conclusion}

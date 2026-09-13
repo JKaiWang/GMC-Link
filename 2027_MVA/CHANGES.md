@@ -265,3 +265,5 @@ MOVING 本來就不預期動;−0.18 在 n=3 種子變異範圍內。
 | A46m | §4.3 正文去 ±(36.99±0.68 / 45.28±0.09 → 均值):A46d 砍表格 ± 時留的散文錨點也移除;顯著性由 Welch t(n=5, p<0.01)與 Table 3 承載 | 編譯 5 頁 0 overfull;diff 重生 |
 | A46n | Table 4 caption 補回 "seeds"((n=5) → (n=5 seeds)):d54a96a ICASSP 頁預算縮 caption 時砍的,與 Table 3 的 "n=3 seeds" 不一致且歧義 | 編譯 5 頁 0 overfull;diff 重生 |
 | A46o | §3.4 首次出現處引入縮寫 "leave-one-sequence-out (LOSO)":Table 4 caption 的 (LOSO) 原本是全文唯一縮寫、未定義 | 編譯 5 頁 0 overfull;diff 重生 |
+| A46p | §4.3 Welch 句改明確(比較對象寫清楚:full module 五 seed vs 各 variant 五 seed;t 值逐一配 metric;來源 welch_full_vs_arm);Table 4 −ego/−multiscale 去掉 \quad 縮排(log am1.0 證實兩臂在雙權重 ship 點跑,原縮排誤示為 single-α 子變體) | 編譯 5 頁 0 overfull |
+| A46q | Fig.2 正文開頭 run-up 句合併("Figure 2 shows a sample tracking result." 併入下一句) | diff 重生 |
