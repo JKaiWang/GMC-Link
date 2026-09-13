@@ -254,3 +254,4 @@ MOVING 本來就不預期動;−0.18 在 n=3 種子變異範圍內。
 | A46b | §3.4 四句 per-host 權重散文改為 α 總表(`tab:alphas`,4 host × α_mot/α_app;使用者決定)——FlexHook 路由退化(α_mot=α_app)首次表格化可見;表號順移(main/deficit/ablation → 2/3/4) | 編譯 5 頁 0 overfull;diff 重生 |
 | A46c | reproduced 揭露改社群慣例(查證 C²RMOT「‡ denotes the baseline ... reproduced using the official implementation」、HFF「♣ ... after frame correction」):Table 2 TransRMOT 值標 ‡ + caption 一句;§4.1 刪 iKUN 揭露句(回教授判斷)、TransRMOT 三句半壓一句、FlexHook 半句保留 | 正文從 3.5 句縮到 2 句;編譯 5 頁 0 overfull;diff 重生 |
 | A46d | Table 4(ablation)去 ± :五行 seeded cell 只列平均(使用者決定);n=5 與顯著性由 caption + 正文 Welch t 承載,正文首句保留 36.99±0.68 / 45.28±0.09 當唯一 std 錨點 | 編譯 5 頁 0 overfull;diff 重生 |
+| A46e | Table 2 reproduced 記號 ‡ → *(使用者覺得 ‡ 突兀;* 為 reproduced 最常見記號,全文無上標 * 衝突);cell + caption 兩處 | 編譯 5 頁 0 overfull;diff 重生 |

@@ -1,7 +1,7 @@
 % Template for ICASSP-2024 paper; to be used with:
 %DIF LATEXDIFF DIFFERENCE FILE
 %DIF DEL gmc_v2_1.tex   Sat Sep 12 22:09:57 2026
-%DIF ADD gmc_v3.tex     Sun Sep 13 10:41:16 2026
+%DIF ADD gmc_v3.tex     Sun Sep 13 10:45:57 2026
 %          spconf.sty  - ICASSP/ICIP LaTeX style file, and
 %          IEEEbib.bst - IEEE bibliography style file.
 % --------------------------------------------------------------------------
@@ -332,7 +332,7 @@ Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the perform
 %DIFDELCMD <   %%%
 \DIFdelendFL \DIFaddbeginFL \begin{table}[t]
   \DIFaddendFL \centering
-  \caption{\DIFdelbeginFL \DIFdelFL{Performance in terms of the pooled }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Pooled }\DIFaddendFL HOTA on the Refer-KITTI test \DIFdelbeginFL \DIFdelFL{dataset}\DIFdelendFL \DIFaddbeginFL \DIFaddFL{sets (mean $\pm$ std over three seeds)}\DIFaddendFL . \DIFaddbeginFL \DIFaddFL{The DetA and AssA cells give the reproduced host value and the value with the GMC module. $^\ddagger$ denotes our reproduction using the official implementation, under the host's own frame convention (Sec.~\ref{sec:setup}).}\DIFaddendFL }
+  \caption{\DIFdelbeginFL \DIFdelFL{Performance in terms of the pooled }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{Pooled }\DIFaddendFL HOTA on the Refer-KITTI test \DIFdelbeginFL \DIFdelFL{dataset}\DIFdelendFL \DIFaddbeginFL \DIFaddFL{sets (mean $\pm$ std over three seeds)}\DIFaddendFL . \DIFaddbeginFL \DIFaddFL{The DetA and AssA cells give the reproduced host value and the value with the GMC module. $^*$ denotes our reproduction using the official implementation, under the host's own frame convention (Sec.~\ref{sec:setup}).}\DIFaddendFL }
   \label{tab:main}
   \DIFdelbeginFL %DIFDELCMD < \small
 %DIFDELCMD <   \setlength{\tabcolsep}{2pt}
@@ -347,7 +347,7 @@ Table~\ref{tab:main} summarizes the pooled HOTA results. We evaluate the perform
     iKUN~\cite{ikun}            & \DIFdelbeginFL \DIFdelFL{44.564    }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{44.56   }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{44.847 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{45.304 }\DIFaddendFL $\pm$ \DIFdelbeginFL \DIFdelFL{0.107 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{0.115 }\DIFaddendFL & \DIFdelbeginFL \DIFdelFL{+0.283 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{32.04${\to}$32.90 }& \DIFaddFL{62.48${\to}$62.94 }\DIFaddendFL \\
     \DIFaddbeginFL \DIFaddFL{TransRMOT~\mbox{%DIFAUXCMD
 \cite{transrmot}  }\hskip0pt%DIFAUXCMD
-}& \DIFaddFL{45.757$^\ddagger$ }& \DIFaddFL{46.149 $\pm$ 0.025 }& \DIFaddFL{36.64${\to}$36.95 }& \DIFaddFL{57.40${\to}$57.89 }\\
+}& \DIFaddFL{45.757$^*$ }& \DIFaddFL{46.149 $\pm$ 0.025 }& \DIFaddFL{36.64${\to}$36.95 }& \DIFaddFL{57.40${\to}$57.89 }\\
     \DIFaddendFL FlexHook V1~\cite{flexhook} & 53.824  & 53.980 $\pm$ 0.059 & \DIFdelbeginFL \DIFdelFL{+0.156 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{43.35${\to}$43.51 }& \DIFaddFL{66.92${\to}$67.07 }\DIFaddendFL \\
     FlexHook V2~\cite{flexhook} & 42.526  & 42.625 $\pm$ 0.032 & \DIFdelbeginFL \DIFdelFL{+0.099 }\DIFdelendFL \DIFaddbeginFL \DIFaddFL{30.63${\to}$30.75 }& \DIFaddFL{59.19${\to}$59.23 }\DIFaddendFL \\
     \hline
